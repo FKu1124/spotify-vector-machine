@@ -5,11 +5,22 @@ import './App.css'
 function App() {
   const [count, setCount] = useState(0)
 
+  const handleClick = () => {
+    fetch("http://localhost:8000/users/1/")
+      .then(res => res.json())
+      .then(json => console.log(json))
+  }
+
+
+
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>Hello Vite + React!</p>
+        <div onClick={handleClick}>
+          Call Backend
+        </div>
         <p>
           <button type="button" onClick={() => setCount((count) => count + 1)}>
             count is: {count}
