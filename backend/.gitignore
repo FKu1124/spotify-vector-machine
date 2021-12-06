@@ -3,6 +3,7 @@
 .venv 
 env/ 
 venv/ 
+.cache
 
 # Django #
 *.log
