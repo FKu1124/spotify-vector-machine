@@ -7,8 +7,8 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 FILE_DIR = os.path.dirname(__file__)
-SPOTIPY_CLIENT_ID = ""
-SPOTIPY_CLIENT_SECRET = ""
+SPOTIPY_CLIENT_ID = "a004571f10214187b0a96a9a7dedacb1"
+SPOTIPY_CLIENT_SECRET = "02fe6a70e4ed4486b625d6563a4ffcd1"
 spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET))
 
 def search_for_artists_albums_ids(artists: dict) -> List[str]:
@@ -28,8 +28,8 @@ def search_for_artists_albums_ids(artists: dict) -> List[str]:
 def search_for_albums_songs(album_ids: List[str], track_information: dict) -> dict:
     not_found_album_ids = []
     for album_id in album_ids:
-        tracks = spotify.album_tracks(album_id)
         try:
+            tracks = spotify.album_tracks(album_id)
             tracks = tracks["items"]
             for track in tracks:
                 track_information[track["id"]] = {"id": track["id"],
@@ -86,8 +86,8 @@ def search_for_tracks_audio_features(track_ids: List[str]) -> dict:
 
     print("Getting track features.\n")
     for track_id in tqdm(track_ids, desc="tracks"):
-        audio_features = spotify.audio_features(track_id)[0]
         try:
+            audio_features = spotify.audio_features(track_id)[0]
             tracks_audio_featues[audio_features["id"]] = {"id": audio_features["id"],
                                                         "danceability": audio_features["danceability"],
                                                         "energy": audio_features["energy"],
@@ -101,8 +101,7 @@ def search_for_tracks_audio_features(track_ids: List[str]) -> dict:
                                                         "valence": audio_features["valence"],
                                                         "tempo": audio_features["tempo"],
                                                         "duration_ms": audio_features["duration_ms"],
-                                                        "time_signature": audio_features["valence"],
-                                                        "valence": audio_features["time_signature"],
+                                                        "time_signature": audio_features["time_signature"],
                                                         }
         except:
             print(f"Could not find track: {track_id}")
@@ -150,22 +149,25 @@ def extract_all_gernes_from_artist(artists: dict):
 
 
 if __name__ == "__main__":
-    print("Getting initail genres from Spotify.\n")
-    get_initial_genres()
+    # print("Getting initail genres from Spotify.\n")
+    # get_initial_genres()
 
-    print("Searching artists by a list of genres.\n")
-    with open(os.path.join(FILE_DIR, "genres.json"), "r") as f:
-        genres = json.load(f)
-    search_artists_by_genres(genres["genres"])
+    # print("Searching artists by a list of genres.\n")
+    # with open(os.path.join(FILE_DIR, "genres.json"), "r") as f:
+    #     genres = json.load(f)
+    # search_artists_by_genres(genres["genres"])
 
-    print("Searching for albums of artists and saving it to the artist.\n")
-    with open(os.path.join(FILE_DIR, "artists.json"), "r") as f:
+    # print("Searching for albums of artists and saving it to the artist.\n")
+    # with open(os.path.join(FILE_DIR, "artists.json"), "r") as f:
+    #     artists = json.load(f)
+    # search_for_artists_albums_ids(artists)
+
+    # print("Extracting all genres an sub-genres from artists.\n")
+    # extract_all_gernes_from_artist(artists)
+
+    # print("Search for all track features for all artists albums.\n")
+    # search_for_track_features_by_artists(artists)
+
+    with open(os.path.join(FILE_DIR, "tracks.json"), "r") as f:
         artists = json.load(f)
-    search_for_artists_albums_ids(artists)
-
-    print("Extracting all genres an sub-genres from artists.\n")
-    extract_all_gernes_from_artist(artists)
-
-    print("Search for all track features for all artists albums.\n")
-    search_for_track_features_by_artists(artists)
-
+    print(artists)
