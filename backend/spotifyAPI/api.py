@@ -123,6 +123,7 @@ def search_artists_by_genre(genre: str, artists: dict) -> List[dict]:
                                  "name": artist["name"],
                                  "popularity": artist["popularity"],
                                  "followers": artist["followers"]["total"],
+                                 "baseGenre": genre,
                                  "genres": artist["genres"],
                                 }
 
@@ -149,24 +150,24 @@ def extract_all_gernes_from_artist(artists: dict):
 
 
 if __name__ == "__main__":
-    # print("Getting initail genres from Spotify.\n")
-    # get_initial_genres()
+    print("Getting initail genres from Spotify.\n")
+    get_initial_genres()
 
-    # print("Searching artists by a list of genres.\n")
-    # with open(os.path.join(FILE_DIR, "genres.json"), "r") as f:
-    #     genres = json.load(f)
-    # search_artists_by_genres(genres["genres"])
+    print("Searching artists by a list of genres.\n")
+    with open(os.path.join(FILE_DIR, "genres.json"), "r") as f:
+        genres = json.load(f)
+    search_artists_by_genres(genres["genres"])
 
-    # print("Searching for albums of artists and saving it to the artist.\n")
-    # with open(os.path.join(FILE_DIR, "artists.json"), "r") as f:
-    #     artists = json.load(f)
-    # search_for_artists_albums_ids(artists)
+    print("Searching for albums of artists and saving it to the artist.\n")
+    with open(os.path.join(FILE_DIR, "artists.json"), "r") as f:
+        artists = json.load(f)
+    search_for_artists_albums_ids(artists)
 
-    # print("Extracting all genres an sub-genres from artists.\n")
-    # extract_all_gernes_from_artist(artists)
+    print("Extracting all genres an sub-genres from artists.\n")
+    extract_all_gernes_from_artist(artists)
 
-    # print("Search for all track features for all artists albums.\n")
-    # search_for_track_features_by_artists(artists)
+    print("Search for all track features for all artists albums.\n")
+    search_for_track_features_by_artists(artists)
 
     with open(os.path.join(FILE_DIR, "tracks.json"), "r") as f:
         artists = json.load(f)
