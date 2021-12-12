@@ -1,14 +1,14 @@
-import json
-from typing import List
 import os
+from typing import List
 
 from tqdm import tqdm
+from json_parser import load_json, dump_json, pretty_print_json
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 FILE_DIR = os.path.dirname(__file__)
-SPOTIPY_CLIENT_ID = "a004571f10214187b0a96a9a7dedacb1"
-SPOTIPY_CLIENT_SECRET = "02fe6a70e4ed4486b625d6563a4ffcd1"
+SPOTIPY_CLIENT_ID = ""
+SPOTIPY_CLIENT_SECRET = ""
 spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET))
 
 def search_for_artists_albums_ids(artists: dict) -> List[str]:
@@ -20,8 +20,7 @@ def search_for_artists_albums_ids(artists: dict) -> List[str]:
         artists[artist]["album_ids"] = artist_albmum_ids
         album_ids += artist_albmum_ids
 
-    with open(os.path.join(FILE_DIR, "artists.json"), "w") as f:
-            json.dump(artists, f)
+    dump_json(artists, os.path.join(FILE_DIR, "artists.json"))
 
     return album_ids
 
@@ -67,8 +66,7 @@ def search_for_track_features_by_artists(artist: dict):
             continue
         track_information[track] = merge_dicts(track_information[track], tracks_audio_featues[track])
 
-    with open(os.path.join(FILE_DIR, "tracks.json"), "w") as f:
-        json.dump(track_information, f)
+    dump_json(track_information, os.path.join(FILE_DIR, "tracks.json"))
 
 def merge_dicts(dict1, dict2) -> dict:
     new_dict = {}
@@ -110,11 +108,10 @@ def search_for_tracks_audio_features(track_ids: List[str]) -> dict:
     return tracks_audio_featues, not_found_track_ids
 
 
-def get_initial_genres(save_genres = True):
+def get_initial_genres():
     genres = spotify.recommendation_genre_seeds()
-    if save_genres:
-        with open(os.path.join(FILE_DIR, "genres.json"), "w") as f:
-            json.dump(genres, f)
+    dump_json(genres, os.path.join(FILE_DIR, "genres.json"))
+        
 
 def search_artists_by_genre(genre: str, artists: dict) -> List[dict]:
     artist_response = spotify.search(q="genre: " + genre, type="artist", limit=5)
@@ -134,8 +131,7 @@ def search_artists_by_genres(genres: List[str]):
     for genre in tqdm(genres, desc="genres"):
         artists = search_artists_by_genre(genre, artists)
     
-    with open(os.path.join(FILE_DIR, "artists.json"), "w") as f:
-        json.dump(artists, f)
+    dump_json(artists, os.path.join(FILE_DIR, "artists.json"))
 
 def extract_all_gernes_from_artist(artists: dict):
     genres = []
@@ -145,8 +141,7 @@ def extract_all_gernes_from_artist(artists: dict):
     print(f"Extracted {len(genres)} genres.")
     genres = {"genres": genres}
 
-    with open(os.path.join(FILE_DIR, "all_genres.json"), "w") as f:
-        json.dump(genres, f)
+    dump_json(genres, os.path.join(FILE_DIR, "all_genres.json"))
 
 
 if __name__ == "__main__":
@@ -154,13 +149,11 @@ if __name__ == "__main__":
     get_initial_genres()
 
     print("Searching artists by a list of genres.\n")
-    with open(os.path.join(FILE_DIR, "genres.json"), "r") as f:
-        genres = json.load(f)
+    genres = load_json(os.path.join(FILE_DIR, "genres.json"))
     search_artists_by_genres(genres["genres"])
 
     print("Searching for albums of artists and saving it to the artist.\n")
-    with open(os.path.join(FILE_DIR, "artists.json"), "r") as f:
-        artists = json.load(f)
+    load_json(os.path.join(FILE_DIR, "artists.json"))
     search_for_artists_albums_ids(artists)
 
     print("Extracting all genres an sub-genres from artists.\n")
@@ -169,6 +162,3 @@ if __name__ == "__main__":
     print("Search for all track features for all artists albums.\n")
     search_for_track_features_by_artists(artists)
 
-    with open(os.path.join(FILE_DIR, "tracks.json"), "r") as f:
-        artists = json.load(f)
-    print(artists)
