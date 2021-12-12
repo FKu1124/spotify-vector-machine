@@ -1,6 +1,5 @@
 import cysimdjson
 import json
-import os
 
 def load_json(path: str) -> dict:
     parser = cysimdjson.JSONParser()
@@ -23,7 +22,7 @@ def _parse_cysimdjson_JSONObject(JSONObject) -> dict:
     return parsed_json
 
 def dump_json(data: dict, path: str):
-    with open(os.path.join(path), "w") as f:
+    with open(path, "w") as f:
         json.dump(data, f)
 
 def pretty_print_json(data: dict):
