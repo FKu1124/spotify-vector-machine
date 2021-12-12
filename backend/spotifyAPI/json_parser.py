@@ -1,5 +1,6 @@
 import cysimdjson
 import json
+import os
 
 def load_json(path: str) -> dict:
     parser = cysimdjson.JSONParser()
@@ -13,12 +14,10 @@ def _parse_cysimdjson_JSONObject(JSONObject) -> dict:
     parsed_json = {}
     for item in JSONObject.items():
         if type(item[1]) == cysimdjson.JSONObject:
-            # print(234)
             parsed_json[item[0]] = _parse_cysimdjson_JSONObject(item[1])
         elif type(item[1]) == cysimdjson.JSONArray:
             parsed_json[item[0]] = item[1].export()
         else:
-            # print(1234)
             parsed_json[item[0]] = item[1]
     
     return parsed_json
