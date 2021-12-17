@@ -1,3 +1,8 @@
+# everynoise.com scraping [first draft]
+# some of the spotify genres are not present at everynoise.com
+# missing genres -> bad_URLs.json
+# bad_URLs should not contain any syntax-related errors
+
 from bs4 import BeautifulSoup
 import os
 import requests
