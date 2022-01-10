@@ -2,6 +2,8 @@ import { useState } from 'react'
 import logo from './logo.svg'
 import './App.css'
 
+import { Link } from "react-router-dom";
+
 function App() {
   const [count, setCount] = useState(0)
 
@@ -15,6 +17,8 @@ function App() {
 
   return (
     <div className="App">
+        <Link to="/home">Invoices</Link> |{" "}
+        <Link to="/login">Expenses</Link>
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>Hello Vite + React!</p>
