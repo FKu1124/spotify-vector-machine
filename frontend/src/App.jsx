@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import logo from './logo.svg'
 import './App.css'
-import CoordinateSystem from './compoents/CoordinateSystem'
+import CoordinateSystem from './components/CoordinateSystem'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
