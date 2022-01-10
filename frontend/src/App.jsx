@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import logo from './logo.svg'
 import './App.css'
+import CoordinateSystem from './compoents/CoordinateSystem'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -11,13 +12,12 @@ function App() {
       .then(res => res.json())
       .then(json => console.log(json))
   }
-
-  if(!isLoggedIn)
-    return (
-      <div></div>
-    )
-  else
-      return
+  
+  return (
+    <div className='flex justify-center align-middle' style={{ backgroundColor: 'green', height: '700px'}}>
+      <CoordinateSystem />
+    </div>
+  )
 }
 
 export default App
