@@ -12,9 +12,11 @@ function App() {
       .then(res => res.json())
       .then(json => console.log(json))
   }
+  let ctx = null
   
   return (
     <div className='flex justify-center align-middle' style={{ backgroundColor: 'green', height: '700px'}}>
+      <canvas id="cnv" width="400" height="400" style={{position: 'absolute', backgroundColor: 'red'}}></canvas>
       <CoordinateSystem />
     </div>
   )
