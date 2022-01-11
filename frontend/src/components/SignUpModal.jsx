@@ -9,20 +9,54 @@ export default function SignUpModal() {
   const [open, setOpen] = useState(true)
   const [showLoginForm, setShowLoginForm] = useState(false)
 
-  const [username, setUsername] = useState("")
+  const [username, setUsername] = useState("Paul")
   const [password, setPassword] = useState("")
-  const [passwordError, setPasswordError] = useState(true)
+  const [passwordError, setPasswordError] = useState(false)
 
   const cancelButtonRef = useRef(null)
 
+  // useEffect(() => {
+  //   console.log(process.env.BACKEND_URL)
+  // }, [])
+
   const isPasswordValid = (e) => {
     // Handle min. requirements
-    console.log(e.target.value)
-    console.log(password)
-    // if(password === e.target.value)
-    //   setPasswordError(false)
-    // else
-    //   setPasswordError(true)
+    // Check if both entries are identical
+    if(password === e.target.value)
+      setPasswordError(false)
+    else
+      setPasswordError(true)
+    // Check some requirements
+  }
+
+  const signUp = () => {
+    fetch("http://localhost:8000/api-auth/register/", {
+      method:"POST",
+      headers: {
+        'Accept': '*/*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username,
+        password
+      })
+    }).then(res => res.json())
+    .then(data => console.log(data))
+  } 
+  
+  const logIn = () => {
+    fetch("http://localhost:8000/api-auth/login/", {
+      method:"POST",
+      headers: {
+        'Accept': '*/*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username,
+        password
+      })
+    }).then(res => res.json())
+    .then(data => console.log(data))
   }
 
 
@@ -66,6 +100,7 @@ export default function SignUpModal() {
                       </Dialog.Title>
                       <input className="shadow appearance-none text-xs border-none px-1 py-1 mt-7 rounded w-full text-gray-500 leading-tight focus:outline-none focus:shadow-outline" id="passwordCheck" type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)}/>
                       <input className="shadow appearance-none text-xs border-none px-1 py-1 mt-2 rounded w-full text-gray-500 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>
+                      <button onClick={() => logIn()}>Log In</button>
                     </div>
                   ) : (
                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
@@ -76,13 +111,13 @@ export default function SignUpModal() {
                       </Dialog.Title>
                       <div className="mt-2">
                         <input className="shadow appearance-none text-xs border-none px-1 py-1 mt-2 rounded w-full text-gray-500 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>
-                        <input className={"shadow appearance-none text-xs px-1 py-1 mt-2 rounded w-full text-gray-500 leading-tight focus:outline-none focus:shadow-outline" + (passwordError ? "border border-error" : "border-none")} id="passwordCheck" type="password" placeholder="Confirm Password" onChange={isPasswordValid}/>
+                        <input className={`shadow appearance-none text-xs px-1 py-1 mt-2 rounded w-full text-gray-500 leading-tight focus:outline-none focus:shadow-outline" + ${passwordError ? "border border-red-500" : "border-none"}`} id="passwordCheck" type="password" placeholder="Confirm Password" onChange={isPasswordValid}/>
                       </div>
                       <div className="greyscale">
                           <p className="text-lg mt-7 font-medium">Step 2</p>
                           <p className="text-xs">Link Your Spotify Account</p>
                         <div className="mt-4">
-                          <button onClick={() => setOpen(false)} className="rounded-xl px-2 py-0.5 text-white text-base align-middle bg-spotify" style={{color:"#FFFFFF"}}>Sign Up &amp; Connect to Spotify<img style={{height:"20px", width:"20px"}} className="inline pb-1 pl-1" src={spotifyIconImgUrl} alt="Spotify Icon"></img></button>
+                          <button onClick={() => signUp()} className="rounded-xl px-2 py-0.5 text-white text-base align-middle bg-spotify" style={{color:"#FFFFFF"}}>Sign Up &amp; Connect to Spotify<img style={{height:"20px", width:"20px"}} className="inline pb-1 pl-1" src={spotifyIconImgUrl} alt="Spotify Icon"></img></button>
                         </div>
                       </div>
                     </div>
