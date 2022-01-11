@@ -6,6 +6,10 @@ services:
     build: ./backend
     #platform: linux/amd64
     command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    environment:
+      SPOTIFY_CLIENT_ID: ""
+      SPOTIFY_CLIENT_SECRET: ""
+      SPOTIFY_REDIRECT_URI: ""
     volumes:
       - ./backend:/app
     ports:
