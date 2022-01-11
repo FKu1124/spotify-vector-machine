@@ -1,13 +1,17 @@
+import os
+
+from django.contrib.auth.models import User
 from django.http import response
 from django.shortcuts import redirect, render
-import os
 from requests.models import Response
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.response import Response
 from requests import Request, post
-from .util import is_spotify_authenticated, update_or_create_user_token
+from rest_framework.permissions import AllowAny
 
+from .util import is_spotify_authenticated, update_or_create_user_token
+from backend.serializers import UserSerializer
 
 # Create your views here.
 class AuthURL(APIView):
@@ -26,6 +30,8 @@ class AuthURL(APIView):
 def spotify_callback(request, format=None):
     code = request.GET.get('code')
     error = request.GET.get('error')
+    # user = request.user
+    user = User.objects.get(id = 1)
 
     response = post('https://accounts.spotify.com/api/token', data= {
         'grant_type': 'authorization_code',
@@ -41,10 +47,7 @@ def spotify_callback(request, format=None):
     expires_in = response.get('expires_in')
     error = response.get('error')
 
-    if not request.session.exists(request.session.session_key):
-        request.session.create()
-
-    update_or_create_user_token(request.session.session_key, access_token, token_type, expires_in, refresh_token)
+    update_or_create_user_token(user, access_token, token_type, expires_in, refresh_token)
 
     return redirect('http://localhost:3000/')
 
@@ -52,3 +55,8 @@ class Is_Authenticated(APIView):
     def get(self, request, format=None):
         is_authenticated = is_spotify_authenticated(self.request.session.session_key)
         return Response({'status': is_authenticated}, status=status.HTTP_200_OK)
+
+class UserCreate(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny, )

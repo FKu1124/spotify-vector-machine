@@ -3,17 +3,20 @@ from .models import SpotifyToken
 from django.utils import timezone
 from datetime import timedelta
 from requests import post
+from django.contrib.auth.models import User
 
-def get_user_tokens(session_id):
-    user_tokens = SpotifyToken.objects.filter(user=session_id)
+def get_user_tokens(user):
+    ## ToDo add currently logged in user
+    user_obj = User.objects.get(id = 1)
+    user_tokens = SpotifyToken.objects.filter(user_id=1)
     if user_tokens.exists():
         return user_tokens[0]
     else:
         return None
 
 
-def update_or_create_user_token(session_id, access_token, token_type, expires_in, refresh_token):
-    tokens = get_user_tokens(session_id)
+def update_or_create_user_token(user, access_token, token_type, expires_in, refresh_token):
+    tokens = get_user_tokens(user)
     expires_in = timezone.now() + timedelta(seconds=expires_in)
 
     if tokens:
@@ -23,7 +26,9 @@ def update_or_create_user_token(session_id, access_token, token_type, expires_in
         tokens.token_type = token_type
         tokens.save(update_fields=['access_token', 'refresh_token', 'expires_in', 'token_type'])
     else:
-        tokens = SpotifyToken(user=session_id, access_token=access_token, refresh_token=refresh_token, token_type=token_type, expires_in=expires_in)
+        #ToDO: fetch user from session
+        user_obj = User.objects.get(id = 1)
+        tokens = SpotifyToken(user='empty', access_token=access_token, refresh_token=refresh_token, token_type=token_type, expires_in=expires_in, user_id=user_obj)
 
         tokens.save()
 
@@ -33,7 +38,7 @@ def is_spotify_authenticated(session_id):
         expiry = tokens.expires_in
         if expiry <= timezone.now():
             refresh_spotify_token(session_id)
-            return True
+        return True
     return False
 
 
