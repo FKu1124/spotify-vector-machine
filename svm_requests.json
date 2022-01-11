@@ -15,8 +15,8 @@
       "value": "Thunder Client (https://www.thunderclient.io)"
     }],
     "colId": "18041df0-4c1b-4bd1-b2f0-93ed99a59673",
-    "name": "localhost:8000/api-auth/register",
-    "url": "localhost:8000/api-auth/register",
+    "name": "localhost:8000/api-auth/register/",
+    "url": "localhost:8000/api-auth/register/",
     "method": "POST",
     "modified": "2022-01-11T14:01:48.715Z",
     "created": "2022-01-11T14:01:02.409Z",
