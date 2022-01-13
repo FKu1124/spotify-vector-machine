@@ -45,7 +45,7 @@ function App() {
           <SignUpModal></SignUpModal>
         </div>
       </div> */}
-      <div className='flex justify-center align-middle' style={{ backgroundColor: 'grey', height: '700px'}}>
+      <div className='flex justify-center align-middle select-none'>
         <CoordinateSystem />
       </div>
     </div>

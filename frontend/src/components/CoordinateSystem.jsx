@@ -80,7 +80,7 @@ export default function CoordinateSystem() {
 
   return (
     <>
-      <canvas id="cnv" width="400" height="400" style={{ position: 'absolute', backgroundColor: 'red' }}></canvas>
+      <canvas id="cnv" width="400" height="400" className='absolute bg-gradient-to-r bg-white'></canvas>
       <div
         onMouseDown={e => start(e)}
         onMouseMove={throttle(draw, 80)}
@@ -91,9 +91,15 @@ export default function CoordinateSystem() {
         style={{ width: square_site_length, height: square_site_length, backgroundColor: "transparent", position: 'fixed' }}
         >
 
-        <div style={{ position: 'absolute', top: '199px', left: '0px', height: '2px', width: square_site_length, backgroundColor: 'grey' }} />
+        <div 
+          className='absolute bg-black'
+          style={{ top: '199px', height: '1px', width: square_site_length }}
+        />
         {/* <div style={{ position: 'absolute', top: '195px', left: '395px', height: '10px', width:'10px', backgroundColor: 'grey'}} /> */}
-        <div style={{ position: 'absolute', top: '0px', left: '200px', height: square_site_length, width: '2px', backgroundColor: 'grey' }} />
+        <div
+          className='absolute bg-black'
+          style={{ left: '199px', height: square_site_length, width: '1px' }}
+        />
 
         {/* Mood Datapoints */}
         {coordinates.map((item, i) => (
