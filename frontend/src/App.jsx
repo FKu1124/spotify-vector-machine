@@ -3,6 +3,7 @@ import logo from './logo.svg'
 import './App.css'
 import CoordinateSystem from './components/CoordinateSystem'
 import SignUpModal from './components/SignUpModal'
+import Navbar from './components/Navbar'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -39,15 +40,14 @@ function App() {
   let ctx = null
   
   return (
-    <div>
-      {/* <div className='App h-screen w-screen bg-spotify'>
+    <div className='App h-screen w-screen bg-white'>
+      <Navbar />
+      <CoordinateSystem width='650'/>
+      {/*
         <div className='flex flex-col bg-white'>
-          <SignUpModal></SignUpModal>
+          <SignUpModal />
         </div>
-      </div> */}
-      <div className='flex justify-center align-middle select-none'>
-        <CoordinateSystem />
-      </div>
+      */}
     </div>
   )
 }

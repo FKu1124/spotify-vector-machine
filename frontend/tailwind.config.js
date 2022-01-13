@@ -4,31 +4,35 @@ module.exports = {
   purge: [],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    colors: {
-      transparent: 'transparent',
-      spotify: '#1db954',
-      spotifyAlt: '#1ed760',
-      spotifyBlack: '#191414',
-      black: colors.black,
-      white: colors.white,
-      gray: colors.gray,
-      red: colors.red
+    extend: {
+      colors: {
+        transparent: 'transparent',
+        spotify: '#1db954',
+        spotifyAlt: '#1ed760',
+        spotifyBlack: '#191414',
+        black: colors.black,
+        white: colors.white,
+        gray: colors.gray,
+        red: colors.red,
+        pink: '#f72585',
+        byzantine: '#b5179e',
+        purple: '#7209b7',
+        purple2: '#560bad',
+        trypanBlue: '#480ca8',
+        trypanBlue2: '#3a0ca3',
+        persianBlue: '#3f37c9',
+        ultramarineBlue: '#4361ee',
+        dodgerBlue: '#4895ef',
+        skyBlue: '#4cc9f0'
+      },
+      fontSize: {
+        'tiny': '.65rem',
+      },
+      scale: {
+        '175': '1.75',
+        '200': '2',
+      }
     },
-    fontSize: {
-      'tiny': '.5rem',
-      'xs': '.75rem',
-      'sm': '.875rem',
-      'base': '1rem',
-      'lg': '1.125rem',
-      'xl': '1.25rem',
-      '2xl': '1.5rem',
-      '3xl': '1.875rem',
-      '4xl': '2.25rem',
-      '5xl': '3rem',
-      '6xl': '4rem',
-      '7xl': '5rem',
-    },
-    extend: {},
   },
   variants: {
     extend: {},
