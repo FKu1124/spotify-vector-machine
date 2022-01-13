@@ -42,7 +42,8 @@ export default function CoordinateSystem() {
 
   function getScaledCoordinate(val) {
     let val_scaled = (val + 1) / 2
-    return val_scaled * square_site_length
+    let result = Math.floor(val_scaled * square_site_length)
+    return result
   }
 
   function start(e) {
