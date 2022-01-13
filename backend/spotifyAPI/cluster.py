@@ -96,9 +96,6 @@ def WCSS(cluster_center, cluster_number, track_features, track_labels) -> float:
     track_number = 0
     for track in track_features:
         if cluster_number == track_labels[track_number]:
-            # print(type(cluster_center))
-            # print(type(track))
-            # print(cluster_center - track)
             wcss += np.sum((cluster_center - track)**2)
             tracks_in_cluster += 1
         track_number += 1
