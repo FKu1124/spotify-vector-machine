@@ -3,6 +3,8 @@
 .venv 
 env/ 
 venv/ 
+.cache
+.DS_Store
 
 # Django #
 *.log
