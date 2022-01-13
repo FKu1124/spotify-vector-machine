@@ -40,17 +40,12 @@ function App() {
   
   return (
     <div>
-      <div className='App h-screen w-screen bg-spotify'>
+      {/* <div className='App h-screen w-screen bg-spotify'>
         <div className='flex flex-col bg-white'>
           <SignUpModal></SignUpModal>
         </div>
-      </div>
-      {/* <div className='flex justify-center align-middle' style={{ backgroundColor: 'green', height: '700px'}}> */}
-        {/* <canvas id="cnv" width="400" height="400" style={{position: 'absolute', backgroundColor: 'red'}}></canvas>
-        <CoordinateSystem /> */}
-      <div className='flex justify-center align-middle' style={{ backgroundColor: 'green', height: '700px'}}>
-        <button onClick={authenticateSpotify}>CLICK MICH HART</button>
-        <button onClick={test}>Test</button>
+      </div> */}
+      <div className='flex justify-center align-middle' style={{ backgroundColor: 'grey', height: '700px'}}>
         <CoordinateSystem />
       </div>
     </div>
