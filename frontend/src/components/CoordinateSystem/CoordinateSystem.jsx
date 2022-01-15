@@ -1,13 +1,13 @@
 import { React, useState, useEffect } from 'react'
-import moodMapping from '../static/mood.json'
+import moodMapping from '../../static/mood.json'
 import Coordinate from './Coordinate'
 import { repeat, throttle } from 'lodash'
 
-const colorsImagePath = new URL('../static/colors.png', import.meta.url).href
+const colorsImagePath = new URL('../../static/colors.png', import.meta.url).href
 
-export default function CoordinateSystem({ width }) {
-
-  const [squareSize, setSquareSize] = useState(parseInt(width))
+export default function CoordinateSystem({ squareWidth }) {
+  console.log(squareWidth);
+  const [squareSize, setSquareSize] = useState(parseInt(squareWidth))
   const [drawing, setDrawing] = useState(false)
   const [coordinates, setCoordinates] = useState(getMoodCoordinateArray())
   const [cnv, setCnv] = useState(null)
@@ -50,8 +50,8 @@ export default function CoordinateSystem({ width }) {
   }
 
   function start(e) {
-    let x = (e.clientX - cnv.getBoundingClientRect().left)
-    let y = e.clientY
+    let x = e.clientX - cnv.getBoundingClientRect().left
+    let y = e.clientY - cnv.getBoundingClientRect().top
 
     setStartX(x)
     setStartY(y)
@@ -68,7 +68,7 @@ export default function CoordinateSystem({ width }) {
     let pat = cnvCtx.createPattern(img, 'repeat');
     cnvCtx.strokeStyle = pat;
 
-    cnvCtx.lineWidth = 6
+    cnvCtx.lineWidth = 3
     cnvCtx.lineCap = 'round'
     // cnvCtx.setLineDash([20, 5])
 
@@ -93,12 +93,12 @@ export default function CoordinateSystem({ width }) {
   }
 
   return (
-    <div className='relative'>
+    <div className='relative mx-auto' style={{ width: squareSize, height: squareSize }}>
       {/* Color Palette for vector colors */}
       <img id="colors" src={colorsImagePath} width={squareSize} height={squareSize} className='object-contain hidden' />
 
       {/* Canvas layer we draw on */}
-      <canvas id="cnv" width={squareSize} height={squareSize} className='absolute border'></canvas>
+      <canvas id="cnv" width={squareSize} height={squareSize} className='absolute rounded-lg border border-black'></canvas>
       <div
         onMouseDown={e => start(e)}
         onMouseMove={throttle(draw, 60)}

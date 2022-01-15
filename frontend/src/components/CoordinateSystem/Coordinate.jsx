@@ -9,7 +9,7 @@ export default function Coordinate(props) {
       <span
         key={props.i}
         id={props.label}
-        className={`text-tiny transform hover:scale-175`}
+        className={`text-tiny transform hover:scale-175 p-4`}
       >
           {props.label}
       </span>
