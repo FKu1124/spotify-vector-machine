@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Track({track}) {
   return (
-    <div className='w-11/12 h-20 bg-gray-300 mx-auto my-4 flex rounded-lg border border-black'>
+    <div className='w-11/12 h-20 bg-gray-200 mx-auto mb-4 flex rounded-lg border border-black'>
       <img src={track.img} alt={track.track} className='border-r border-black rounded-l-lg'/>
       <div className="song-info text-left flex flex-col my-auto w-full px-3">
         <span className='title text-xl'>{track.title}</span>
