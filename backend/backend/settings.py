@@ -63,7 +63,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'spotify.apps.SpotifyConfig',
 
-    'accounts'
+    'accounts',
     'django_extensions'
 ]
 
