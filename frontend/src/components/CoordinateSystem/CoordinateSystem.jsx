@@ -6,7 +6,6 @@ import { repeat, throttle } from 'lodash'
 const colorsImagePath = new URL('../../static/colors.png', import.meta.url).href
 
 export default function CoordinateSystem({ squareWidth }) {
-  console.log(squareWidth);
   const [squareSize, setSquareSize] = useState(parseInt(squareWidth))
   const [drawing, setDrawing] = useState(false)
   const [coordinates, setCoordinates] = useState(getMoodCoordinateArray())
@@ -94,6 +93,7 @@ export default function CoordinateSystem({ squareWidth }) {
 
   return (
     <div className='relative mx-auto' style={{ width: squareSize, height: squareSize }}>
+
       {/* Color Palette for vector colors */}
       <img id="colors" src={colorsImagePath} width={squareSize} height={squareSize} className='object-contain hidden' />
 
