@@ -1,0 +1,93 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "SVM",
+  "dateExported": "2022-01-11T14:36:37.197Z",
+  "version": "1.1",
+  "folders": [],
+  "requests": [{
+    "containerId": "",
+    "sortNum": 10000,
+    "headers": [{
+      "name": "Accept",
+      "value": "*/*"
+    }, {
+      "name": "User-Agent",
+      "value": "Thunder Client (https://www.thunderclient.io)"
+    }],
+    "colId": "18041df0-4c1b-4bd1-b2f0-93ed99a59673",
+    "name": "localhost:8000/api-auth/register/",
+    "url": "localhost:8000/api-auth/register/",
+    "method": "POST",
+    "modified": "2022-01-11T14:01:48.715Z",
+    "created": "2022-01-11T14:01:02.409Z",
+    "_id": "5882998d-c641-438c-9af6-a6d704d6d62f",
+    "params": [],
+    "body": {
+      "type": "formdata",
+      "raw": "",
+      "form": [{
+        "name": "username",
+        "value": "test"
+      }, {
+        "name": "password",
+        "value": "test"
+      }]
+    },
+    "tests": []
+  }, {
+    "containerId": "",
+    "sortNum": 20000,
+    "headers": [{
+      "name": "Accept",
+      "value": "*/*"
+    }, {
+      "name": "User-Agent",
+      "value": "Thunder Client (https://www.thunderclient.io)"
+    }],
+    "colId": "18041df0-4c1b-4bd1-b2f0-93ed99a59673",
+    "name": "localhost:8000/api-auth/login/",
+    "url": "localhost:8000/api-auth/login/",
+    "method": "POST",
+    "modified": "2022-01-11T14:31:40.583Z",
+    "created": "2022-01-11T14:30:20.004Z",
+    "_id": "4d288740-ca46-4b08-9391-11959439007e",
+    "params": [],
+    "body": {
+      "type": "formdata",
+      "raw": "",
+      "form": [{
+        "name": "username",
+        "value": "test2"
+      }, {
+        "name": "password",
+        "value": "test2"
+      }]
+    },
+    "tests": []
+  }, {
+    "containerId": "",
+    "sortNum": 30000,
+    "headers": [{
+      "name": "Accept",
+      "value": "*/*"
+    }, {
+      "name": "User-Agent",
+      "value": "Thunder Client (https://www.thunderclient.io)"
+    }, {
+      "name": "Authorization",
+      "value": "Token 2657b933625602f1fbda19e465bc318764bb1c15"
+    }],
+    "colId": "18041df0-4c1b-4bd1-b2f0-93ed99a59673",
+    "name": "localhost:8000/users/1/",
+    "url": "localhost:8000/users/1/",
+    "method": "GET",
+    "modified": "2022-01-11T14:36:19.322Z",
+    "created": "2022-01-11T14:32:18.777Z",
+    "_id": "64cabcc6-9456-4339-9a08-63ca61698292",
+    "params": [],
+    "auth": {
+      "type": "none"
+    },
+    "tests": []
+  }]
+}
