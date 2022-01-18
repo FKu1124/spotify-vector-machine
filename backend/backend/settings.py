@@ -62,7 +62,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'spotify.apps.SpotifyConfig',
+
     'accounts'
+    'django_extensions'
 ]
 
 MIDDLEWARE = [

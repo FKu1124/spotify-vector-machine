@@ -5,7 +5,9 @@ services:
     container_name: django_backend
     build: ./backend
     #platform: linux/amd64
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "pip install -r requirements.txt && python manage.py
+      makemigrations && python manage.py migrate && python manage.py runserver
+      0.0.0.0:8000"
     environment:
       SPOTIFY_CLIENT_ID: ""
       SPOTIFY_CLIENT_SECRET: ""
@@ -17,9 +19,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
-        
+
   frontend:
-    container_name: react_frontend    
+    container_name: react_frontend
     build: ./frontend
     volumes:
       - /app/node_modules
@@ -29,7 +31,7 @@ services:
     environment:
       CHOKIDAR_USEPOLLING: "true"
     command: sh -c "npm install && npm run dev"
-  
+
   db:
     container_name: postgres_container
     image: postgres
@@ -44,10 +46,10 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data/
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d djangodb -U djangoUser"]
+      test: [ "CMD-SHELL", "pg_isready -d djangodb -U djangoUser" ]
       interval: 10s
       timeout: 3s
       retries: 7
 
 volumes:
-  pgdata:  
+  pgdata: null

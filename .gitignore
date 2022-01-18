@@ -1,1 +1,3 @@
 docker-compose-x.yml
+.DS_Store
+.devcontainer
