@@ -1,6 +1,7 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.views.generic import TemplateView
 from rest_framework import serializers, views, viewsets, routers
 from rest_framework.authtoken import views
 from spotify.views import UserCreate
@@ -29,7 +30,9 @@ urlpatterns = [
     path('', include(router.urls)),
     path('spotify/', include('spotify.urls')),
     # AUTHENTICATION
-    #path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api-auth/login/', views.obtain_auth_token, name='api-token-auth'),
-    path('api-auth/register/', UserCreate.as_view())
+    path('api-auth/', include('rest_framework.urls')),
+    path('accounts/', include('accounts.urls'))
 ]
+
+# Catches all routes -> Prep for React
+urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]
