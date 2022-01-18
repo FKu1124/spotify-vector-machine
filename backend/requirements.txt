@@ -6,3 +6,4 @@ Markdown
 spotipy
 tqdm
 cysimdjson
+django-extensions
