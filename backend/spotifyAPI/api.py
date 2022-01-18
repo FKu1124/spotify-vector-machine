@@ -7,8 +7,8 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 FILE_DIR = os.path.dirname(__file__)
-SPOTIPY_CLIENT_ID = ""
-SPOTIPY_CLIENT_SECRET = ""
+SPOTIPY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
+SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
 spotify = spotipy.Spotify(
     client_credentials_manager=SpotifyClientCredentials(
         client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET
@@ -132,6 +132,7 @@ def get_initial_genres():
 def search_artists_by_genre(genre: str, artists: dict) -> List[dict]:
     artist_response = spotify.search(
         q="genre: " + genre, type="artist", limit=5)
+
     for artist in artist_response["artists"]["items"]:
         artists[artist["id"]] = {
             "id": artist["id"],
