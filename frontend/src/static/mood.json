@@ -1,6 +1,6 @@
 [
-  {"label": "angry", "coordinate": {"x":  -0.39, "y": 0.79}},
-  {"label": "afraid", "coordinate": {"x": -0.29, "y": 0.79}},
+  {"label": "angry", "coordinate": {"x":  -0.42, "y": 0.79}},
+  {"label": "afraid", "coordinate": {"x": -0.26, "y": 0.79}},
   {"label": "distressed", "coordinate": {"x": -0.69, "y": 0.56}},
   {"label": "jealous", "coordinate": {"x": -0.08, "y": 0.56}},
   {"label": "insulted", "coordinate": {"x": -0.73, "y": 0.2}},
