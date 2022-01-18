@@ -37,8 +37,8 @@ global bad_URLs
 genre_URLs = []
 bad_URLs = []
 
-#FILE_DIR = os.path.dirname(__file__)
-FILE_DIR = os.path.dirname("C:\\Users\\Tillus\\Desktop\\Studium\\Master\\Data Integration\\Turbo Recommender\\di-super-recommender3000\\backend\\spotifyAPI\\~placeholder~")
+FILE_DIR = os.path.dirname(__file__)
+#FILE_DIR = os.path.dirname("C:\\Users\\Tillus\\Desktop\\Studium\\Master\\Data Integration\\Turbo Recommender\\di-super-recommender3000\\backend\\spotifyAPI\\~placeholder~")
 
 with open(os.path.join(FILE_DIR, 'genres.json'), "r") as f:
     genres = json.load(f)
