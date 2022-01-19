@@ -43,31 +43,29 @@ class LoginWithSpotify(APIView):
                 user_data = spotify.me()
                 username = user_data['id']
                 email = user_data['email']
+                first_name = user_data['display_name']
 
                 # TODO: Solve password issue 
                 password = "BASEPASSWORD1234s"
-                boolea = False
                 if not User.objects.filter(username=username).exists():
                     # Create User
-                    user = User.objects.create_user(username=username, password=password, email=email)
+                    user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name)
                     user.save()
-                    boolea = True
                 # Sign User in
                 user = auth.authenticate(username=username, password=password)
                 auth.login(request, user)
                 
-                return HttpResponseRedirect(redirect_to="http://localhost:3000/")
+                return HttpResponseRedirect(redirect_to=f"http://localhost:3000/home?user={first_name}")
 
             # Case 1: User initiates authentication and retrieves auth_url
             if not auth_manager.validate_token(cache_handler.get_cached_token()):
                 auth_url = auth_manager.get_authorize_url()
                 return Response({ 'auth_url': auth_url })
 
-            # spotify = spotipy.Spotify(auth_manager=auth_manager)
         except Exception as e:
             print("----------------------------------")
             print(e)
-            return HttpResponseRedirect(redirect_to="http://localhost:3000/error")
+            return HttpResponseRedirect(redirect_to="http://localhost:3000/login?error=true")
         # Case 3: User is already authenticated with Spotify 
         # return Response({ 'status': 'Success', 'me': spotify.me() })
 
@@ -81,6 +79,22 @@ class CheckAuthentication(APIView):
         except:
             return Response({ 'error': 'Error checking authentication' })
 
+
+@method_decorator(csrf_protect, name='dispatch')
+class GetUserProfile(APIView):
+
+    def get(self, request, format=None):
+        try:
+            user = self.request.user
+            user = User.objects.get(username=user.username)
+
+            return Response({ 'status': True, 'data': { 'username': user.first_name } }, status=status.HTTP_200_OK)
+        except:
+            return Response({ 'status': False, 'msg': 'Error while loading user data' }, status=status.HTTP_403_FORBIDDEN)
+
+
+
+
 @method_decorator(csrf_protect, name='dispatch')
 class LogOutView(APIView):
     def post(self, request, format=None):
@@ -92,10 +106,10 @@ class LogOutView(APIView):
 
 class DeleteAccountView(APIView):
     def delete(self, request, format=None):
-        user = self.request.user
 
         try:
-            user = User.objects.filter(id=user.id).delete()
+            user = self.request.user
+            user = User.objects.filter(username=user.username).delete()
             return Response({ 'success': 'User deleted successfully' })
         except:
             return Response({ 'error': 'Error deleting user' })
