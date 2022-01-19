@@ -2,6 +2,8 @@ import { React, useState, useEffect } from 'react'
 import moodMapping from '../../static/mood.json'
 import Coordinate from './Coordinate'
 import { repeat, throttle } from 'lodash'
+import { useCoordinateSystemStore } from '../../store/coordinateSystemStore'
+
 
 const colorsImagePath = new URL('../../static/colors.png', import.meta.url).href
 
@@ -11,10 +13,12 @@ export default function CoordinateSystem({ squareWidth }) {
   const [coordinates, setCoordinates] = useState(getMoodCoordinateArray())
   const [cnv, setCnv] = useState(null)
   const [cnvCtx, setCnvCtx] = useState(null)
-  const [startX, setStartX] = useState(null)
-  const [startY, setStartY] = useState(null)
-  const [endX, setEndX] = useState(null)
-  const [endY, setEndY] = useState(null)
+  // const [startX, setStartX] = useState(null)
+  // const [startY, setStartY] = useState(null)
+  // const [endX, setEndX] = useState(null)
+  // const [endY, setEndY] = useState(null)
+
+  const { startX, startY, endX, endY, setStartX ,setStartY, setEndX, setEndY } = useCoordinateSystemStore()
 
   useEffect(() => {
     let canvas = document.getElementById("cnv")
@@ -88,7 +92,19 @@ export default function CoordinateSystem({ squareWidth }) {
     setEndY(y)
     setDrawing(false)
 
-    console.log([startX, startY, endX, endY])
+    // console.log([startX, startY, endX, endY])
+    fetch("http://localhost:8000/accounts/save_vector", {
+      method: "POST",
+      headers: {
+        'Accept': '*/*',
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        startX, startY, endX, endY
+      })
+    }).then(res => res.json())
+      .then(data => console.log(data))
   }
 
   return (

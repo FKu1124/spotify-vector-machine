@@ -1,17 +1,20 @@
-from rest_framework.views import APIView
-from rest_framework import permissions, status
-from rest_framework.response import Response
+import os
+from accounts.serializers import MoodVectorSerializer
+
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-
 from django.http import HttpResponseRedirect
+from rest_framework.views import APIView
+from rest_framework import permissions, status
+from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
 
-import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import DjangoSessionCacheHandler
+
 # Create your views here.
 
 scope = "user-read-email"
@@ -99,3 +102,18 @@ class DeleteAccountView(APIView):
             return Response({ 'success': 'User deleted successfully' })
         except:
             return Response({ 'error': 'Error deleting user' })
+
+class SaveMoodVector(APIView):
+    def post(self, request, format=None):
+        # vector_obj =  MoodVector.objects.create(user=request.user)
+        # ToDo: Create Image
+        img_path = 'test/path/to/image.png'
+
+        data = JSONParser().parse(request)
+        return Response(data)
+        serializer = MoodVectorSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({ 'status': True, 'msg': 'Mood Vector successfully saved' }, status=status.HTTP_201_CREATED)
+            
+        return Response({ 'status': False, 'msg': 'Error saving mood vector' })
