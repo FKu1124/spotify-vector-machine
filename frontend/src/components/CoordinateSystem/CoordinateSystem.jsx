@@ -3,6 +3,7 @@ import moodMapping from '../../static/mood.json'
 import Coordinate from './Coordinate'
 import { repeat, throttle } from 'lodash'
 import { useCoordinateSystemStore } from '../../store/coordinateSystemStore'
+import { useCookies } from 'react-cookie';
 
 
 const colorsImagePath = new URL('../../static/colors.png', import.meta.url).href
@@ -17,6 +18,7 @@ export default function CoordinateSystem({ squareWidth }) {
   // const [startY, setStartY] = useState(null)
   // const [endX, setEndX] = useState(null)
   // const [endY, setEndY] = useState(null)
+  const [cookies, setCookie, removeCookie] = useCookies(['csrftoken']);
 
   const { startX, startY, endX, endY, setStartX ,setStartY, setEndX, setEndY } = useCoordinateSystemStore()
 
@@ -96,8 +98,9 @@ export default function CoordinateSystem({ squareWidth }) {
     fetch("http://localhost:8000/accounts/save_vector", {
       method: "POST",
       headers: {
-        'Accept': '*/*',
-        'Content-Type': 'application/json'
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRFToken': cookies['csrftoken']
       },
       credentials: 'include',
       body: JSON.stringify({

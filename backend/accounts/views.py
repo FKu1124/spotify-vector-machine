@@ -103,6 +103,7 @@ class DeleteAccountView(APIView):
         except:
             return Response({ 'error': 'Error deleting user' })
 
+@method_decorator(csrf_protect, name='dispatch')
 class SaveMoodVector(APIView):
     def post(self, request, format=None):
         # vector_obj =  MoodVector.objects.create(user=request.user)
