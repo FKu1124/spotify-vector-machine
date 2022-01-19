@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from accounts.models import MoodVector
 
-class MoodVectorSerializer(serializers.Serializer):
+class MoodVectorSerializer(serializers.ModelSerializer):
     class Meta:
         model = MoodVector
         fields = ['name', 'user', 'image_path', 'x_start',

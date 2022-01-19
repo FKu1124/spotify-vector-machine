@@ -3,7 +3,6 @@ import moodMapping from '../../static/mood.json'
 import Coordinate from './Coordinate'
 import { repeat, throttle } from 'lodash'
 import { useCoordinateSystemStore } from '../../store/coordinateSystemStore'
-import { useCookies } from 'react-cookie';
 
 
 const colorsImagePath = new URL('../../static/colors.png', import.meta.url).href
@@ -13,21 +12,15 @@ export default function CoordinateSystem({ squareWidth }) {
   const [drawing, setDrawing] = useState(false)
   const [coordinates, setCoordinates] = useState(getMoodCoordinateArray())
   const [cnv, setCnv] = useState(null)
-  const [cnvCtx, setCnvCtx] = useState(null)
-  // const [startX, setStartX] = useState(null)
-  // const [startY, setStartY] = useState(null)
-  // const [endX, setEndX] = useState(null)
-  // const [endY, setEndY] = useState(null)
-  const [cookies, setCookie, removeCookie] = useCookies(['csrftoken']);
 
-  const { startX, startY, endX, endY, setStartX ,setStartY, setEndX, setEndY } = useCoordinateSystemStore()
+  const { startX, startY, endX, endY, setStartX, setStartY, setEndX, setEndY, cnvCtx, setCnvCtx } = useCoordinateSystemStore()
 
   useEffect(() => {
     let canvas = document.getElementById("cnv")
     let canvasContext = canvas.getContext("2d")
     let img = document.getElementById("colors")
     let pat = canvasContext.createPattern(img, 'repeat');
-
+    
     setCnv(canvas)
     setCnvCtx(canvasContext)
   }, [])
@@ -67,7 +60,7 @@ export default function CoordinateSystem({ squareWidth }) {
     if (drawing == false || typeof (cnvCtx) !== 'object') return
 
     cnvCtx.clearRect(0, 0, squareSize, squareSize);
-    
+
     // cnvCtx.fillRect(startX - 2, startY - 2, 4, 4);
     let img = document.getElementById("colors")
     let pat = cnvCtx.createPattern(img, 'repeat');
@@ -93,21 +86,6 @@ export default function CoordinateSystem({ squareWidth }) {
     setEndX(x)
     setEndY(y)
     setDrawing(false)
-
-    // console.log([startX, startY, endX, endY])
-    fetch("http://localhost:8000/accounts/save_vector", {
-      method: "POST",
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-CSRFToken': cookies['csrftoken']
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        startX, startY, endX, endY
-      })
-    }).then(res => res.json())
-      .then(data => console.log(data))
   }
 
   return (

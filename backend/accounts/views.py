@@ -106,15 +106,23 @@ class DeleteAccountView(APIView):
 @method_decorator(csrf_protect, name='dispatch')
 class SaveMoodVector(APIView):
     def post(self, request, format=None):
-        # vector_obj =  MoodVector.objects.create(user=request.user)
         # ToDo: Create Image
         img_path = 'test/path/to/image.png'
 
         data = JSONParser().parse(request)
-        return Response(data)
-        serializer = MoodVectorSerializer(data=request.data)
+        data['x_start'] = data.pop('startX')
+        data['y_start'] = data.pop('startY')
+        data['x_end'] = data.pop('endX')
+        data['y_end'] = data.pop('endY')
+        data['image_path'] = img_path #ToDo get from ccs
+        data['user'] = request.user.id
+        serializer = MoodVectorSerializer(data=data)
+
         if serializer.is_valid():
             serializer.save()
+            
+            # ToDo Trigger Recommendation / Playlist Creation
+
             return Response({ 'status': True, 'msg': 'Mood Vector successfully saved' }, status=status.HTTP_201_CREATED)
             
         return Response({ 'status': False, 'msg': 'Error saving mood vector' })
