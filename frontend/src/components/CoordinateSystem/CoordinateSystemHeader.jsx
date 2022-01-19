@@ -14,7 +14,7 @@ export default function CoordinateSystemHeader() {
       {/* Header main text and run button */}
       <div className="header flex flex-row items-center justify-center gap-3">
         <h1 className='text-xl'>
-          Let us take you from <span style={{ 'text-shadow': '1px 1px #4895ef' }}>tired</span> to <span style={{ 'text-shadow': '1px 1px #B5179E' }}>energized</span>
+          Let us take you from <span style={{ 'textShadow': '1px 1px #4895ef' }}>tired</span> to <span style={{ 'textShadow': '1px 1px #B5179E' }}>energized</span>
         </h1> 
         <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
@@ -33,7 +33,7 @@ export default function CoordinateSystemHeader() {
         </div>
         {/* Genre Selection */}
         <div className="genre-selection w-1/4 flex-col text-left">
-          <span className='text-tiny '>Genre:</span>
+          <span className='text-tiny'>Genre:</span>
           <select name="genre" id="genre" className='w-full bg-gray-400 rounded-md text-white text-sm h-8'>
             <option value="rock">Rock</option>
             <option value="rock">Pop</option>
