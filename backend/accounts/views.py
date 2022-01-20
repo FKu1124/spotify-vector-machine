@@ -1,17 +1,20 @@
-from rest_framework.views import APIView
-from rest_framework import permissions, status
-from rest_framework.response import Response
+import os
+from accounts.serializers import MoodVectorSerializer
+
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-
 from django.http import HttpResponseRedirect
+from rest_framework.views import APIView
+from rest_framework import permissions, status
+from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
 
-import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import DjangoSessionCacheHandler
+
 # Create your views here.
 
 scope = "user-read-email"
@@ -99,3 +102,27 @@ class DeleteAccountView(APIView):
             return Response({ 'success': 'User deleted successfully' })
         except:
             return Response({ 'error': 'Error deleting user' })
+
+@method_decorator(csrf_protect, name='dispatch')
+class SaveMoodVector(APIView):
+    def post(self, request, format=None):
+        # ToDo: Create Image
+        img_path = 'test/path/to/image.png'
+
+        data = JSONParser().parse(request)
+        data['x_start'] = data.pop('startX')
+        data['y_start'] = data.pop('startY')
+        data['x_end'] = data.pop('endX')
+        data['y_end'] = data.pop('endY')
+        data['image_path'] = img_path #ToDo get from ccs
+        data['user'] = request.user.id
+        serializer = MoodVectorSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            
+            # ToDo Trigger Recommendation / Playlist Creation
+
+            return Response({ 'status': True, 'msg': 'Mood Vector successfully saved' }, status=status.HTTP_201_CREATED)
+            
+        return Response({ 'status': False, 'msg': 'Error saving mood vector' })
