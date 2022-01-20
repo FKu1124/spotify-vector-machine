@@ -158,12 +158,13 @@ def get_or_create_artist(artist_spotify_id: str, base_genre: Genre):
         artist_obj, created = Artist.objects.get_or_create(
             spotify_id=artist_spotify_id)
 
-        artist_response = spotify.artist(artist_obj.spotify_id)
-        artist_obj.popularity = artist_response["popularity"]
-        artist_obj.followers = artist_response["followers"]["total"]
-
         if created:
+            artist_response = spotify.artist(artist_obj.spotify_id)
+            artist_obj.popularity = artist_response["popularity"]
+            artist_obj.followers = artist_response["followers"]["total"]
+
             artist_obj.save()
+            
             for genre in artist_response["genres"]:
 
                 genre_obj, created = Genre.objects.get_or_create(name=genre)
