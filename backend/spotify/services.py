@@ -95,7 +95,7 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
                     if genre.name == base_genre.name:
                         genre_track_obj = GenreTrack.objects.get(genre=base_genre.id,
                                                                  track=track_obj.id)
-                        genre_track_obj.base_genre=True
+                        genre_track_obj.base_genre = True
                         genre_track_obj.save()
 
             # add album to track
@@ -109,10 +109,11 @@ def get_or_create_artist(artist_spotify_id: str, base_genre: Genre):
     artist_obj, created = Artist.objects.get_or_create(
         spotify_id=artist_spotify_id)
 
+    artist_obj.popularity = artist_response["popularity"]
+    artist_obj.followers = artist_response["followers"]["total"]
+
     if created:
         artist_response = spotify.artist(artist_obj.spotify_id)
-        artist_obj.popularity = artist_response["popularity"]
-        artist_obj.followers = artist_response["followers"]["total"]
 
         artist_obj.save()
         for genre in artist_response["genres"]:
@@ -127,7 +128,7 @@ def get_or_create_artist(artist_spotify_id: str, base_genre: Genre):
             if genre == base_genre.name:
                 genre_artist_obj = GenreArtist.objects.get(
                     genre=genre_obj.id, artist=artist_obj.id)
-                genre_artist_obj.base_genre=True
+                genre_artist_obj.base_genre = True
                 genre_artist_obj.save()
 
         artist_obj.save()
@@ -138,19 +139,23 @@ def get_or_create_artist(artist_spotify_id: str, base_genre: Genre):
 def get_or_create_ablum(album_spotify_id: str, base_genre: Genre):
     album = spotify.album(album_spotify_id)
 
-    album_obj, created = Album.objects.update_or_create(name=album["name"],
-                                                        spotify_id=album["id"],
-                                                        album_type=album["album_type"],
-                                                        total_tracks=album["total_tracks"],
-                                                        popularity=album["popularity"],
-                                                        release_date=album["release_date"])
+    album_obj, created = Album.objects.update_or_create(
+        spotify_id=album["id"])
+
+    album_obj.popularity = album["popularity"]
 
     if created:
+        album_obj.name = album["name"]
+        album_obj.spotify_id = album["id"]
+        album_obj.album_type = album["album_type"]
+        album_obj.total_tracks = album["total_tracks"]
+        album_obj.popularity = album["popularity"]
+        album_obj.release_date = album["release_date"]
         album_obj.save()
 
-    for artist in album["artists"]:
-        artist_obj = get_or_create_artist(artist["id"], base_genre)
-        album_obj.artists.add(artist_obj)
+        for artist in album["artists"]:
+            artist_obj = get_or_create_artist(artist["id"], base_genre)
+            album_obj.artists.add(artist_obj)
 
     album_obj.save()
 
