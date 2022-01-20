@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
@@ -59,7 +60,7 @@ class LoginWithSpotify(APIView):
                 user = auth.authenticate(username=username, password=password)
                 auth.login(request, user)
                 
-                return HttpResponseRedirect(redirect_to="http://localhost:3000/")
+                return redirect("/")
 
             # Case 1: User initiates authentication and retrieves auth_url
             if not auth_manager.validate_token(cache_handler.get_cached_token()):
@@ -70,9 +71,9 @@ class LoginWithSpotify(APIView):
         except Exception as e:
             print("----------------------------------")
             print(e)
-            return HttpResponseRedirect(redirect_to="http://localhost:3000/error")
+            return redirect("/error")
         # Case 3: User is already authenticated with Spotify 
-        # return Response({ 'status': 'Success', 'me': spotify.me() })
+        # return Response({ 'status': 'Success' })
 
 @method_decorator(csrf_protect, name='dispatch')
 class CheckAuthentication(APIView):
