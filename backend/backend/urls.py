@@ -27,12 +27,13 @@ router.register(r'users', UserViewSet)
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    path('', include(router.urls)),
+    # path('', include(router.urls)),
     path('spotify/', include('spotify.urls')),
     # AUTHENTICATION
     path('api-auth/', include('rest_framework.urls')),
-    path('accounts/', include('accounts.urls'))
+    path('accounts/', include('accounts.urls')),
+    path('', TemplateView.as_view(template_name='index.html'))
 ]
 
 # Catches all routes -> Prep for React
-urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]
+# urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]
