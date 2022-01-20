@@ -46,7 +46,7 @@ class GenreArtist(models.Model):
 
 class Album(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=250)
 
     artists = models.ManyToManyField(Artist, related_name="albums")
 
@@ -67,7 +67,7 @@ class Album(models.Model):
 
 class Track(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=250)
 
     genres = models.ManyToManyField(Genre,
                                     related_name="tracks",
