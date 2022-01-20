@@ -46,7 +46,6 @@ def scrape_top_playlists_by_genre() -> None:
             tracks = playlist_response["tracks"]["items"]
             tracks = [track["track"] for track in tracks]
             save_tracks(tracks, genre)
-            break
 
 
 def scrape_top_artists_by_genre() -> None:
@@ -67,7 +66,6 @@ def scrape_top_artists_by_genre() -> None:
                 for track in album_tracks_repsonse:
                     tracks.append(spotify.track(track["id"]))
             save_tracks(tracks, genre)
-            break
 
 
 def save_tracks(tracks: List, base_genre: Genre) -> None:
