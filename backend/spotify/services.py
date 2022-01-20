@@ -107,6 +107,7 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
                 # add artists to track
                 for artist in track["artists"]:
                     artist_obj = get_or_create_artist(artist["id"],
+                                                      artist["name"],
                                                       base_genre)
                     track_obj.artists.add(artist_obj)
 
@@ -123,8 +124,8 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
 
                 # add album to track
                 try:
-                    album_obj = get_or_create_album(
-                        track["album"]["id"], base_genre)
+                    album_obj = get_or_create_album(track["album"]["id"],
+                                                    base_genre)
                     track_obj.album = album_obj
                 except:
                     pass
@@ -135,12 +136,13 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
             pass
 
 
-def get_or_create_artist(artist_spotify_id: str, base_genre: Genre):
+def get_or_create_artist(artist_spotify_id: str, name: str, base_genre: Genre):
     artist_obj, created = Artist.objects.get_or_create(
         spotify_id=artist_spotify_id)
 
     if created:
         artist_response = spotify.artist(artist_obj.spotify_id)
+        artist_obj.name = name
         artist_obj.popularity = artist_response["popularity"]
         artist_obj.followers = artist_response["followers"]["total"]
 
@@ -191,7 +193,9 @@ def get_or_create_album(album_spotify_id: str, base_genre: Genre):
             album_obj.save()
 
             for artist in album_response["artists"]:
-                artist_obj = get_or_create_artist(artist["id"], base_genre)
+                artist_obj = get_or_create_artist(artist["id"],
+                                                  artist["name"],
+                                                  base_genre)
                 album_obj.artists.add(artist_obj)
 
         album_obj.save()
