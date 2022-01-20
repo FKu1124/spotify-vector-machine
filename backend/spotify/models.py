@@ -16,6 +16,7 @@ class SpotifyToken(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    seed_genre = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -74,7 +75,7 @@ class Track(models.Model):
                                     through="GenreTrack")
     artists = models.ManyToManyField(Artist, related_name="tracks")
     album = models.ForeignKey(Album,
-                              on_delete=models.DO_NOTHING,
+                              on_delete=models.CASCADE,
                               related_name="tracks",
                               null=True)
 
