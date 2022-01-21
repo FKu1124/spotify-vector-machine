@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react'
 import './App.css'
 import CoordinateSystem from './components/CoordinateSystem/CoordinateSystem'
-import SignUpModal from './components/SignUpModal'
 import Navbar from './components/Navbar'
 import Player from './components/Player/Player'
 import Playlist from './components/Playlist/Playlist'
@@ -15,7 +13,7 @@ function App() {
       <Navbar />
       <div className="content w-3/4 bg-gray-100 mx-auto my-4 p-4">
         <CoordinateSystemHeader />
-        <CoordinateSystem squareWidth='450' />
+        <CoordinateSystem squareWidth='800' />
       </div>
       <div className="content w-3/4 bg-gray-100 mx-auto flex flex-wrap">
         <div className="w-full flex-none">
