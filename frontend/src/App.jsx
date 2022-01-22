@@ -5,8 +5,32 @@ import Player from './components/Player/Player'
 import Playlist from './components/Playlist/Playlist'
 import PlaylistVector from './components/Playlist/PlaylistVector'
 import CoordinateSystemHeader from './components/CoordinateSystem/CoordinateSystemHeader'
+import { useUserStore } from './store/userStore'
+import { useCookies } from 'react-cookie';
+
 
 function App() {
+
+  const { username, setUsername } = useUserStore()
+  const [cookies, setCookie, removeCookie] = useCookies(['csrftoken']);
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const res = await fetch("http://localhost:8000/accounts/get_user_profile", {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': cookies['csrftoken']
+        },
+        credentials: 'include'
+      })
+      const data = await res.json()
+      setUsername(data.data.username)
+    }
+    getUserData()
+  }, [])
+
   return (
     // <div className='App h-screen w-screen bg-white'>
     <div className='App w-screen bg-white'>
