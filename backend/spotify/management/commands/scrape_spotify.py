@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
         self.stdout.write("Scraping Genres...")
         scrape_genres()
-        self.stdout.write("Finisches with Genres.")
+        self.stdout.write("Finishes downloading seed Genres.")
 
         self.stdout.write("Scraping the top Playlists by Genres...")
         scrape_top_playlists_by_genre()

@@ -3,15 +3,18 @@ from typing import List
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from tqdm import tqdm
-from spotify.models import Genre, Artist, Album, Track, GenreArtist, GenreTrack
+from spotify.models import Genre, Artist, Track, GenreArtist
+from requests.exceptions import ReadTimeout
 
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
 
-PLAYLIST_LIMIT = 1
-ARTIST_LIMIT = 1
+PLAYLIST_LIMIT = 5
+ARTIST_LIMIT = 10
 
 spotify = spotipy.Spotify(
+    requests_timeout=10,
+    status_retries=5,
     client_credentials_manager=SpotifyClientCredentials(
         client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET
     )
@@ -27,7 +30,7 @@ def scrape_genres() -> None:
     genres = spotify.recommendation_genre_seeds()["genres"]
     for genre in genres:
         try:
-            genre_obj = Genre(name=genre, seed_genre=True)
+            genre_obj = Genre.objects.get_or_create(name=genre, seed_genre=True)
             genre_obj.save()
         except:
             continue
@@ -36,104 +39,108 @@ def scrape_genres() -> None:
 def scrape_top_playlists_by_genre() -> None:
     genres = Genre.objects.filter(seed_genre=True)
 
-    for genre in genres:
+    for genre in tqdm(genres):
         search_response = spotify.search(q=genre.name,
                                          type="playlist",
-                                         limit=PLAYLIST_LIMIT)
+                                         limit=PLAYLIST_LIMIT,
+                                         market="DE")
 
         for playlist in search_response["playlists"]["items"]:
-            playlist_response = spotify.playlist(playlist["id"])
+            try:
+                playlist_response = spotify.playlist(playlist["id"])
+            except ReadTimeout:
+                print("Spotify playlist request timed out multiple times, continuing....")
+                continue
+
             tracks = playlist_response["tracks"]["items"]
-            tracks = [track["track"] for track in tracks]
+            tracks = [track["track"] for track in tracks if track is not None]
             save_tracks(tracks, genre)
 
 
 def scrape_top_artists_by_genre() -> None:
     genres = Genre.objects.filter(seed_genre=True)
 
-    for genre in genres:
+    for genre in tqdm(genres):
         search_response = spotify.search(q="genre:"+genre.name,
                                          type="artist",
-                                         limit=ARTIST_LIMIT)
+                                         limit=ARTIST_LIMIT,
+                                         market="DE")
 
         for artist in search_response["artists"]["items"]:
-            artist_albums_response = spotify.artist_albums(
-                artist["id"])
-            albums = artist_albums_response["items"]
-            for album in albums:
-                album_tracks_repsonse = spotify.album_tracks(
-                    album["id"])
-                album_tracks_repsonse = album_tracks_repsonse["items"]
-                tracks = []
-                for track in album_tracks_repsonse:
-                    tracks.append(spotify.track(track["id"]))
-                save_tracks(tracks, genre)
+            try:
+                tracks = spotify.artist_top_tracks(artist["id"], country="DE")['tracks']
+            except ReadTimeout:
+                print("Spotify Artist top tracks request timed out multiple times, continuing....")
+                continue
+
+            save_tracks(tracks, genre)
 
 
 def save_tracks(tracks: List, base_genre: Genre) -> None:
     for track in tracks:
-        try:
-            created = False
+        if track is None:
+            continue
+
+        updated = Track.objects.filter(spotify_id=track["id"]).update(
+            popularity=track["popularity"])
+
+        if updated == 1:
+            continue
+        else:
+            track_obj = Track(spotify_id=track["id"])
+            track_obj.name = track["name"]
+            track_obj.album = track["album"]["name"]
+            
             try:
-                track_obj = Track.objects.get(spotify_id=track["id"])
-            except:
-                track_obj = Track(spotify_id=track["id"])
-                created = True
+                audio_feature_response = spotify.audio_features(
+                    track["id"])
+                track_audio_features = audio_feature_response[0]
+            except ReadTimeout:
+                print("Spotify audio feature request timed out multiple times, continuing....")
+                continue
+            except TypeError:
+                print(f"Error fetching audio feature for track {track['id']}")
+                continue
+            
+            if track_audio_features is None:
+                continue
 
             track_obj.popularity = track["popularity"]
+            track_obj.danceability = track_audio_features["danceability"]
+            track_obj.loudness = track_audio_features["loudness"]
+            track_obj.speechiness = track_audio_features["speechiness"]
+            track_obj.acousticness = track_audio_features["acousticness"]
+            track_obj.instrumentalness = track_audio_features["instrumentalness"]
+            track_obj.liveness = track_audio_features["liveness"]
+            track_obj.valence = track_audio_features["valence"]
+            track_obj.energy = track_audio_features["energy"]
+            track_obj.arousal = track_audio_features["energy"]
+            track_obj.tempo = track_audio_features["tempo"]
+            track_obj.duration = track_audio_features["duration_ms"]
+            track_obj.key = track_audio_features["key"]
+            track_obj.mode = track_audio_features["mode"]
+            track_obj.time_signature = track_audio_features["time_signature"]
 
-            if created:
+            track_obj.save()
 
-                track_audio_features = spotify.audio_features(
-                    track_obj.spotify_id)[0]
-                track_obj.name = track["name"]
-                track_obj.danceability = track_audio_features["danceability"]
-                track_obj.loudness = track_audio_features["loudness"]
-                track_obj.speechiness = track_audio_features["speechiness"]
-                track_obj.acousticness = track_audio_features["acousticness"]
-                track_obj.instrumentalness = track_audio_features["instrumentalness"]
-                track_obj.liveness = track_audio_features["liveness"]
-                track_obj.valence = track_audio_features["valence"]
-                track_obj.energy = track_audio_features["energy"]
-                track_obj.arousal = track_audio_features["energy"]
-                track_obj.tempo = track_audio_features["tempo"]
-                track_obj.duration = track_audio_features["duration_ms"]
-                track_obj.key = track_audio_features["key"]
-                track_obj.mode = track_audio_features["mode"]
-                track_obj.time_signature = track_audio_features["time_signature"]
-
-                track_obj.save()
-
-                # add artists to track
-                for artist in track["artists"]:
-                    artist_obj = get_or_create_artist(artist["id"],
-                                                      artist["name"],
-                                                      base_genre)
+            # add artists to track
+            for artist in track["artists"]:
+                artist_obj = get_or_create_artist(artist["id"],
+                                                    artist["name"],
+                                                    base_genre)
+                if artist_obj is not None:
                     track_obj.artists.add(artist_obj)
 
                     # add genre to track
                     for genre in artist_obj.genres.all():
                         track_obj.genres.add(genre)
 
-                track_obj.save()
-
-                genre_track_obj, created = GenreTrack.objects.get_or_create(genre=base_genre,
-                                                                            track=track_obj)
-                genre_track_obj.base_genre = True
-                genre_track_obj.save()
-
-                # add album to track
-                try:
-                    album_obj = get_or_create_album(track["album"]["id"],
-                                                    base_genre)
-                    track_obj.album = album_obj
-                except:
-                    pass
+                # genre_track_obj, created = GenreTrack.objects.get_or_create(genre=base_genre,
+                #                                                             track=track_obj)
+                # genre_track_obj.base_genre = True
+                # genre_track_obj.save()
 
             track_obj.save()
-        except:
-            print(f"Something went wrong with song id: {track['id']}")
-            pass
 
 
 def get_or_create_artist(artist_spotify_id: str, name: str, base_genre: Genre):
@@ -141,7 +148,12 @@ def get_or_create_artist(artist_spotify_id: str, name: str, base_genre: Genre):
         spotify_id=artist_spotify_id)
 
     if created:
-        artist_response = spotify.artist(artist_obj.spotify_id)
+        try:
+            artist_response = spotify.artist(artist_obj.spotify_id)
+        except ReadTimeout:
+            print("Spotify artist request timed out multiple times")
+            return None
+
         artist_obj.name = name
         artist_obj.popularity = artist_response["popularity"]
         artist_obj.followers = artist_response["followers"]["total"]
@@ -170,43 +182,37 @@ def get_or_create_artist(artist_spotify_id: str, name: str, base_genre: Genre):
     return artist_obj
 
 
-def get_or_create_album(album_spotify_id: str, base_genre: Genre):
-    try:
-        album_response = spotify.album(album_spotify_id)
+# def get_or_create_album(album_spotify_id: str, base_genre: Genre):
+#     try:
+#         album_response = spotify.album(album_spotify_id)
 
-        created = False
-        try:
-            album_obj = Album.objects.get(spotify_id=album_response["id"])
-        except:
-            album_obj = Album(spotify_id=album_response["id"])
-            created = True
+#         created = False
+#         try:
+#             album_obj = Album.objects.get(spotify_id=album_response["id"])
+#         except:
+#             album_obj = Album(spotify_id=album_response["id"])
+#             created = True
 
-        album_obj.popularity = album_response["popularity"]
+#         album_obj.popularity = album_response["popularity"]
 
-        if created:
-            album_obj.name = album_response["name"]
-            album_obj.spotify_id = album_response["id"]
-            album_obj.album_type = album_response["album_type"]
-            album_obj.total_tracks = album_response["total_tracks"]
-            album_obj.popularity = album_response["popularity"]
-            album_obj.release_date = album_response["release_date"]
-            album_obj.save()
+#         if created:
+#             album_obj.name = album_response["name"]
+#             album_obj.spotify_id = album_response["id"]
+#             album_obj.album_type = album_response["album_type"]
+#             album_obj.total_tracks = album_response["total_tracks"]
+#             album_obj.popularity = album_response["popularity"]
+#             album_obj.release_date = album_response["release_date"]
+#             album_obj.save()
 
-            for artist in album_response["artists"]:
-                artist_obj = get_or_create_artist(artist["id"],
-                                                  artist["name"],
-                                                  base_genre)
-                album_obj.artists.add(artist_obj)
+#             for artist in album_response["artists"]:
+#                 artist_obj = get_or_create_artist(artist["id"],
+#                                                   artist["name"],
+#                                                   base_genre)
+#                 album_obj.artists.add(artist_obj)
 
-        album_obj.save()
+#         album_obj.save()
 
-        return album_obj
+#         return album_obj
 
-    except:
-        return None
-
-
-scrape_genres()
-
-scrape_top_playlists_by_genre()
-scrape_top_artists_by_genre()
+#     except:
+#         return None

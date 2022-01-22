@@ -1,3 +1,4 @@
+from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -44,28 +45,6 @@ class GenreArtist(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
-class Album(models.Model):
-    spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=250)
-
-    artists = models.ManyToManyField(Artist, related_name="albums")
-
-    popularity = models.IntegerField()
-    album_type = models.CharField(max_length=25, null=True)
-    total_tracks = models.IntegerField(null=True)
-    release_date = models.CharField(max_length=100, null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def genres(self):
-        genres = []
-        for artist in self.artists.all():
-            genres += artist.genres.all()
-        return genres
-
-
 class Track(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=250)
@@ -74,10 +53,7 @@ class Track(models.Model):
                                     related_name="tracks",
                                     through="GenreTrack")
     artists = models.ManyToManyField(Artist, related_name="tracks")
-    album = models.ForeignKey(Album,
-                              on_delete=models.CASCADE,
-                              related_name="tracks",
-                              null=True)
+    album = models.CharField(max_length=300)
 
     danceability = models.FloatField()
     loudness = models.FloatField()
@@ -107,3 +83,8 @@ class GenreTrack(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class Tag(models.Model):
+    name = models.CharField(max_length=100)
+    count = models.PositiveIntegerField()
+    track = models.ForeignKey(Track, on_delete=models.CASCADE)
