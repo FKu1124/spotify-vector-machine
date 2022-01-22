@@ -1,4 +1,5 @@
 import os
+import time
 from accounts.serializers import MoodVectorSerializer
 
 from django.contrib import auth
@@ -16,8 +17,7 @@ from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import DjangoSessionCacheHandler
 
 # Create your views here.
-
-scope = "user-read-email"
+scope = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify'
 client_id = os.environ.get('SPOTIFY_CLIENT_ID')
 client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
 redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
@@ -39,7 +39,6 @@ class LoginWithSpotify(APIView):
             auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope, cache_handler=cache_handler)
             # Case 2: Spotify responds to auth attempt via given callback uri
             if self.request.GET.get("code"):
-                print("Case 2: Got Code")
                 auth_manager.get_access_token(self.request.GET.get("code"))
 
                 spotify = spotipy.Spotify(auth_manager=auth_manager)
@@ -62,7 +61,6 @@ class LoginWithSpotify(APIView):
             # Case 1: User initiates authentication and retrieves auth_url
             try:
                 if not auth_manager.validate_token(cache_handler.get_cached_token()):
-                    print("Case 1: Getting URL")
                     auth_url = auth_manager.get_authorize_url()
                     return Response({ 'status': True, 'auth_url': auth_url }, status=status.HTTP_200_OK)
             except:
@@ -95,6 +93,21 @@ class GetUserProfile(APIView):
             return Response({ 'status': True, 'data': { 'username': user.first_name } }, status=status.HTTP_200_OK)
         except:
             return Response({ 'status': False, 'msg': 'Error while loading user data' }, status=status.HTTP_403_FORBIDDEN)
+
+
+@method_decorator(csrf_protect, name='dispatch')
+class GetSpotifyAccess(APIView):
+
+    def get(self, request, format=None):
+        try:
+            cache_handler = DjangoSessionCacheHandler(request=request)
+            auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope, cache_handler=cache_handler)
+            
+            token = auth_manager.get_access_token()
+
+            return Response({ 'status': True, 'data': { 'token': token['access_token'], 'expires_in': (token['expires_at'] - int(time.time())) * 1000 } }, status=status.HTTP_200_OK)
+        except:
+            return Response({ 'status': False, 'msg': 'Error fetching the Spotify access token' }, status=status.HTTP_403_FORBIDDEN)
 
 
 
