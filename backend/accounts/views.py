@@ -17,7 +17,7 @@ from spotipy.cache_handler import DjangoSessionCacheHandler
 
 # Create your views here.
 
-scope = "user-read-email"
+scope = "user-read-email user-read-private user-top-read user-read-recently-played user-read-playback-position user-library-read playlist-read-private playlist-read-collaborative"
 client_id = os.environ.get('SPOTIFY_CLIENT_ID')
 client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
 redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
@@ -126,3 +126,9 @@ class SaveMoodVector(APIView):
             return Response({ 'status': True, 'msg': 'Mood Vector successfully saved' }, status=status.HTTP_201_CREATED)
             
         return Response({ 'status': False, 'msg': 'Error saving mood vector' })
+
+@method_decorator(csrf_protect, name='dispatch')
+class GetSpotifyAccess(APIView):
+
+    def get(self, request, format=None):
+        return Response({ 'status': True, 'token': request.session['token_info']['access_token'] }, status=status.HTTP_200_OK)

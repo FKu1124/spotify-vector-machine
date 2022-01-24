@@ -22,37 +22,35 @@ class Genre(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class Artist(models.Model):
-    spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=250)
-    popularity = models.IntegerField(null=True)
-    followers = models.IntegerField(null=True)
+# class Artist(models.Model):
+#     spotify_id = models.CharField(max_length=50, unique=True)
+#     name = models.CharField(max_length=250)
+#     popularity = models.IntegerField(null=True)
+#     followers = models.IntegerField(null=True)
 
-    genres = models.ManyToManyField(Genre,
-                                    related_name="artists",
-                                    through="GenreArtist")
+#     genres = models.ManyToManyField(Genre,
+#                                     related_name="artists",
+#                                     through="GenreArtist")
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
 
 
-class GenreArtist(models.Model):
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+# class GenreArtist(models.Model):
+#     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+#     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
 
-    base_genre = models.BooleanField(default=False)
+#     base_genre = models.BooleanField(default=False)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
 
 class Track(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=250)
 
-    genres = models.ManyToManyField(Genre,
-                                    related_name="tracks",
-                                    through="GenreTrack")
-    artists = models.ManyToManyField(Artist, related_name="tracks")
+    genres = models.CharField(max_length=500)
+    artists = models.CharField(max_length=500)
     album = models.CharField(max_length=300)
 
     danceability = models.FloatField()
@@ -75,14 +73,14 @@ class Track(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class GenreTrack(models.Model):
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    track = models.ForeignKey(Track, on_delete=models.CASCADE)
+# class GenreTrack(models.Model):
+#     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+#     track = models.ForeignKey(Track, on_delete=models.CASCADE)
 
-    base_genre = models.BooleanField(default=False)
+#     base_genre = models.BooleanField(default=False)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
 
 class Tag(models.Model):
     name = models.CharField(max_length=100)

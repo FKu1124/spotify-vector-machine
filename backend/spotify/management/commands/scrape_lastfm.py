@@ -4,6 +4,8 @@ from unicodedata import name
 from django.http import response
 import requests
 from django.core.management.base import BaseCommand
+from tqdm import tqdm
+
 
 from spotify.models import Track, Tag
 
@@ -26,11 +28,12 @@ class Command(BaseCommand):
 
             def get_track_top_tag(self, track: Track):
                 title = track.name
-                artist = track.artists.first().name
+                artist = track.artists.split(',')[0]
 
                 response = requests.get(
                     self.url, {'method': 'track.gettoptags', 'track': title, 'artist': artist, 'api_key': self.api_key, 'format': 'json'})
                 if response.status_code != 200:
+                    print(f"{response.status_code}: {response.content}")
                     return None
 
                 json = response.json()
@@ -41,17 +44,18 @@ class Command(BaseCommand):
                     return None
 
                 for tag in json['toptags']['tag']:
-                    if tag['count'] > 2:
-                        tag_obj = Tags(name=tag['name'], count=tag['count'], track=track)
+                    if tag['count'] > 2 and len(tag['name']) <= 100:
+                        tag_obj = Tag(name=tag['name'], count=tag['count'], track=track)
                         tag_obj.save()
+                print(f"Saved {len(json['toptags']['tag'])} for {track.name}")
 
 
         # track = Track.objects.get(id=2757)
 
         lastfm = LastFM(LASTFM_API_URL, LASTFM_API_KEY)
-        tracks = Track.objects.all()
+        tracks = Track.objects.filter(id__gt = 86132)
 
-        for track in tracks:
+        for track in tqdm(tracks):
             lastfm.get_track_top_tag(track)
             #ToDo figure out API Limit
-            time.sleep(1)
+            time.sleep(0.15)

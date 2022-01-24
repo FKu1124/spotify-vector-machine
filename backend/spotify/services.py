@@ -3,17 +3,18 @@ from typing import List
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from tqdm import tqdm
-from spotify.models import Genre, Artist, Track, GenreArtist
+from spotify.models import Genre, Track
 from requests.exceptions import ReadTimeout
+from django.db.utils import DataError
 
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
 
-PLAYLIST_LIMIT = 5
-ARTIST_LIMIT = 10
+PLAYLIST_LIMIT = 10
+ARTIST_LIMIT = 40
 
 spotify = spotipy.Spotify(
-    requests_timeout=10,
+    requests_timeout=7,
     status_retries=5,
     client_credentials_manager=SpotifyClientCredentials(
         client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET
@@ -121,65 +122,73 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
             track_obj.mode = track_audio_features["mode"]
             track_obj.time_signature = track_audio_features["time_signature"]
 
-            track_obj.save()
-
             # add artists to track
+            first = True
+            artist_strings = []
+            genre_strings = []
+
             for artist in track["artists"]:
-                artist_obj = get_or_create_artist(artist["id"],
-                                                    artist["name"],
-                                                    base_genre)
-                if artist_obj is not None:
-                    track_obj.artists.add(artist_obj)
+                artist_strings.append(artist["name"])
 
-                    # add genre to track
-                    for genre in artist_obj.genres.all():
-                        track_obj.genres.add(genre)
+                try:
+                    artist_obj = spotify.artist(artist["id"])
+                except ReadTimeout:
+                    print(
+                        "Spotify artist genre request timed out multiple times, continuing....")
+                    continue
 
-                # genre_track_obj, created = GenreTrack.objects.get_or_create(genre=base_genre,
-                #                                                             track=track_obj)
-                # genre_track_obj.base_genre = True
-                # genre_track_obj.save()
+                if first:
+                    for genre in artist_obj["genres"]:
+                        genre_strings.append(genre.strip())
+                    first = False
+            
+            track_obj.genres = ','.join(genre_strings)
+            track_obj.artists = ','.join(artist_strings)
+            
+            try:
+                track_obj.save()
+            except DataError:
+                # Value too long for CharField
+                continue
 
-            track_obj.save()
 
+# def get_or_create_artist(artist_spotify_id: str, name: str, base_genre: Genre):
+#     artist_obj, created = Artist.objects.get_or_create(
+#         spotify_id=artist_spotify_id)
 
-def get_or_create_artist(artist_spotify_id: str, name: str, base_genre: Genre):
-    artist_obj, created = Artist.objects.get_or_create(
-        spotify_id=artist_spotify_id)
+#     if created:
+#         try:
+#             artist_response = spotify.artist(artist_obj.spotify_id)
+#         except ReadTimeout:
+#             print("Spotify artist request timed out multiple times")
+#             return None
 
-    if created:
-        try:
-            artist_response = spotify.artist(artist_obj.spotify_id)
-        except ReadTimeout:
-            print("Spotify artist request timed out multiple times")
-            return None
+#         artist_obj.name = name
+#         artist_obj.popularity = artist_response["popularity"]
+#         artist_obj.followers = artist_response["followers"]["total"]
 
-        artist_obj.name = name
-        artist_obj.popularity = artist_response["popularity"]
-        artist_obj.followers = artist_response["followers"]["total"]
+#         artist_obj.save()
 
-        artist_obj.save()
+#         for genre in artist_response["genres"]:
+#             genre_name = genre.strip()
+#             genre_name = genre_name.replace("-", " ")
+#             genre_obj, created = Genre.objects.get_or_create(name=genre)
+#             if created:
+#                 genre_obj.save()
 
-        for genre in artist_response["genres"]:
-            genre_name = genre.strip()
-            genre_name = genre_name.replace("-", " ")
-            genre_obj, created = Genre.objects.get_or_create(name=genre)
-            if created:
-                genre_obj.save()
+#             artist_obj.genres.add(genre_obj)
 
-            artist_obj.genres.add(genre_obj)
+#         artist_obj.save()
 
-        artist_obj.save()
+#         # set base genre
+#     genre_artist_obj, created = GenreArtist.objects.get_or_create(genre=base_genre,
+#                                                                   artist=artist_obj)
+#     genre_artist_obj.base_genre = True
+#     genre_artist_obj.save()
 
-        # set base genre
-    genre_artist_obj, created = GenreArtist.objects.get_or_create(genre=base_genre,
-                                                                  artist=artist_obj)
-    genre_artist_obj.base_genre = True
-    genre_artist_obj.save()
+#     artist_obj.save()
 
-    artist_obj.save()
-
-    return artist_obj
+#     return artist_obj
 
 
 # def get_or_create_album(album_spotify_id: str, base_genre: Genre):
