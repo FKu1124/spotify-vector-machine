@@ -1,18 +1,93 @@
-import React from 'react'
-import useSpotifyPlayer from '../../hooks/useSpotifyPlayer'
+import React, { useEffect } from 'react'
+import { usePlayerStore } from '../../store/playerStore'
+import { startPlayback, refreshDevices, switchDevices, msToTime } from '../../utils'
 
 
-export default function PlayerB({ token }) {
+export default function PlayerB() {
 
-	const { player, paused, currentTrack, startPlayback } = useSpotifyPlayer({ name: "SVM Player", token })
+	const { token, player, setPlayer, paused, position, duration, cover, updatePlayerState, setDeviceID, setDevices, setActive, deviceID, devices, setNextTracks, setPrevTracks } = usePlayerStore()
 
+	// TODO: Countdown
+
+	const test = () => {
+		const swithTo = devices.find(d => d.name.includes('MacBook')).id
+		switchDevices(swithTo)
+	}
+
+	useEffect(() => {
+		const script = document.createElement("script");
+		script.src = "https://sdk.scdn.co/spotify-player.js";
+		script.async = true;
+
+		document.body.appendChild(script);
+
+		window.onSpotifyWebPlaybackSDKReady = () => {
+
+			const player = new window.Spotify.Player({
+				name: "SVM Player",
+				getOAuthToken: cb => { cb(token); },
+				volume: 0.5
+			});
+
+			setPlayer(player);
+
+			player.addListener('ready', ({ device_id }) => {
+				setDeviceID(device_id)
+			});
+
+			player.addListener('not_ready', ({ device_id }) => {
+				console.log('Device ID has gone offline', device_id);
+			});
+
+			player.addListener('player_state_changed', (state => {
+				if (!state) {
+					return;
+				}
+
+				const { loading, paused, position, repeat_mode, shuffle, track_window } = state
+				const { current_track, next_tracks, previous_tracks } = track_window
+				const { name, duration_ms, album, artists } = current_track
+				const newPlayerState = {
+					loading,
+					paused,
+					position,
+					repeatMode: repeat_mode,
+					shuffle,
+					name,
+					duration: duration_ms,
+					cover: album.images[0].url,
+					artists
+				}
+				updatePlayerState(newPlayerState)
+				setNextTracks(next_tracks)
+				setPrevTracks(previous_tracks)
+
+				player.getCurrentState().then(state => {
+					(!state) ? setActive(false) : setActive(true)
+				});
+
+			}));
+
+			player.connect();
+		};
+	}, []);
+
+	const xxx = async () => {
+		const deviceList = await refreshDevices(token)
+		setDevices(deviceList)
+	}
+
+	
 	return (
 		<div className='flex md:flex-col w-11/12 mx-auto mb-3 bg-gray-200 border border-black rounded-lg'>
-			<button onClick={() => startPlayback(["spotify:playlist:37i9dQZF1DX0gbcr80GO9l"])}> PLAY!! </button>
+			<button onClick={() => xxx()}> DEVICES </button>
+			<button onClick={() => test()}> SWITCH </button>
+			<div>{ JSON.stringify(devices) } </div>
+			<button onClick={() => startPlayback(["spotify:playlist:37i9dQZF1DX0gbcr80GO9l"], token, deviceID)}> PLAY!! </button>
 			<div className='flex flex-col w-2/5 md:w-full mx-auto py-3 md:py-5'>
 				{/* Song Cover */}
-				{currentTrack.image && 
-					<img src={currentTrack.image} alt="" className='now-playing__cover w-9/12 md:w-3/4 mx-auto my-auto' />
+				{cover && 
+					<img src={cover} alt="" className='now-playing__cover w-9/12 md:w-3/4 mx-auto my-auto' />
 				}
 			</div>
 
@@ -24,8 +99,9 @@ export default function PlayerB({ token }) {
 
 					{/* Current time and song length */}
 					<div className='progress w-full mt-2 flex justify-between'>
-						<span className='text-sm'>1:12</span>
-						<span className='text-sm'>3:36</span>
+						<span className='text-sm'>{ msToTime(position) }</span>
+						{/* <span className='text-sm'>{ position }</span> */}
+						<span className='text-sm'>{ msToTime(duration) }</span>
 					</div>
 				</div>
 

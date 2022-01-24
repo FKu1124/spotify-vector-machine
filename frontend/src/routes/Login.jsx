@@ -10,8 +10,7 @@ const spotifyIconImgUrl = new URL('../static/SpotifyIcon.png', import.meta.url).
 
 export default function Login() {
 
-  const isAuthenticated = useUserStore(state => state.isAuthenticated)
-  const setIsAuthenticated = useUserStore(state => state.setIsAuthenticated)
+  const { isAuthenticated, setIsAuthenticated } = useUserStore()
   const [cookies, setCookie, removeCookie] = useCookies(['csrftoken']);
   const [searchParams, setSearchParams] = useSearchParams();
 

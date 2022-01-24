@@ -5,6 +5,4 @@ export const useUserStore = create(set => ({
     setIsAuthenticated: (val) => set(state => ({ isAuthenticated: val })),
     username: "",
     setUsername: (val) => set(state => ({ username: val })),
-    deviceID: "",
-    setDeviceID: (val) => set(state => ({ deviceID: val }))
 }))

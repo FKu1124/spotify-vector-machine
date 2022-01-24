@@ -11,14 +11,13 @@ import { useUserStore } from './store/userStore'
 import { useCookies } from 'react-cookie';
 import { URL_ACCOUNTS } from './Config'
 import SVMPlayer from './components/Player/SVMPlayer'
+import { usePlayerStore } from './store/playerStore'
 
 
 function App() {
-  const { username, setUsername, deviceID } = useUserStore()
+  const { username, setUsername } = useUserStore()
   const [cookies, setCookie, removeCookie] = useCookies(['csrftoken']);
-  const [token, setToken] = useState()
-  const [isPlaying, setIsPlaying] = useState()
-  const [expiresIn, setExpiresIn] = useState(0)
+  const { token, setToken, setTokenExpiry } = usePlayerStore()
 
   const getSpotifyAccess = async () => {
     const res = await fetch(`${URL_ACCOUNTS}getSpotifyAccess`, {
@@ -32,7 +31,7 @@ function App() {
     })
     const data = await res.json()
     setToken(data.data.token)
-    setExpiresIn(data.data.expires_in)
+    setTokenExpiry(data.data.expires_in)
   }
 
   useEffect(() => {
@@ -73,10 +72,10 @@ function App() {
         </div>
         <div className="flex-auto w-full md:w-1/2">
           {/* <Player /> */}
-          {token && <PlayerB token={token}/> }
+          {token && <PlayerB /> }
         </div>
         <div className="flex-auto w-full md:w-1/2 border-l-2">
-          <Playlist />
+          <Playlist token={token} />
         </div>
       </div>
     </div>
