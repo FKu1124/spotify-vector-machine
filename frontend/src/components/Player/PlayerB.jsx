@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { usePlayerStore } from '../../store/playerStore'
 import { startPlayback, refreshDevices, switchDevices, msToTime } from '../../utils'
-
+import Progress from './Progress'
 
 export default function PlayerB() {
 
 	const { token, player, setPlayer, paused, position, duration, cover, updatePlayerState, setDeviceID, setDevices, setActive, deviceID, devices, setNextTracks, setPrevTracks } = usePlayerStore()
-
 	// TODO: Countdown
 
 	const test = () => {
@@ -80,10 +79,11 @@ export default function PlayerB() {
 	
 	return (
 		<div className='flex md:flex-col w-11/12 mx-auto mb-3 bg-gray-200 border border-black rounded-lg'>
+			<button onClick={() => TESTSTST()}> Countdown </button>
 			<button onClick={() => xxx()}> DEVICES </button>
 			<button onClick={() => test()}> SWITCH </button>
 			<div>{ JSON.stringify(devices) } </div>
-			<button onClick={() => startPlayback(["spotify:playlist:37i9dQZF1DX0gbcr80GO9l"], token, deviceID)}> PLAY!! </button>
+			<button onClick={() => startPlayback(token, ["spotify:playlist:37i9dQZF1DX0gbcr80GO9l"], deviceID)}> PLAY!! </button>
 			<div className='flex flex-col w-2/5 md:w-full mx-auto py-3 md:py-5'>
 				{/* Song Cover */}
 				{cover && 
@@ -92,18 +92,19 @@ export default function PlayerB() {
 			</div>
 
 			<div className='flex flex-col w-3/5 md:w-full mx-auto py-3 md:py-3 justify-center'>
-				<div className='w-3/4 mx-auto relative'>
+				<Progress />
+				{/* <div className='w-3/4 mx-auto relative'> */}
 					{/* Progressbar */}
-					<div className="w-full bg-black absolute mt-1 top-px" style={{ height: 2 }} />
-					<div className='h-3 w-3 rounded-full bg-gray-200 border border-black absolute left-10' />
+					{/* <div className="w-full bg-black absolute mt-1 top-px" style={{ height: 2 }} /> */}
+					{/* <div className='h-3 w-3 rounded-full bg-gray-200 border border-black absolute left-10' /> */}
 
 					{/* Current time and song length */}
-					<div className='progress w-full mt-2 flex justify-between'>
-						<span className='text-sm'>{ msToTime(position) }</span>
+					{/* <div className='progress w-full mt-2 flex justify-between'> */}
+						{/* <span className='text-sm'>{ msToTime(position) }</span> */}
 						{/* <span className='text-sm'>{ position }</span> */}
-						<span className='text-sm'>{ msToTime(duration) }</span>
-					</div>
-				</div>
+						{/* <span className='text-sm'>{ msToTime(duration) }</span> */}
+					{/* </div> */}
+				{/* </div> */}
 
 				{/* Player  */}
 				<div className="player flex w-1/2 mx-auto justify-around">

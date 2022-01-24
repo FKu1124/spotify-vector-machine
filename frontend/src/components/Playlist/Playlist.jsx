@@ -13,7 +13,7 @@ export default function Playlist() {
   return (
     <div>
       <button onClick={() => player.nextTrack()}>Next</button>
-      <button onClick={() => startPlayback(["spotify:track:6uRUfq1y0VayUjh2M935g7", "spotify:track:0X8PiJHcTFmmUwsGpvtFik"], token, deviceID)}> PLAY </button>
+      <button onClick={() => startPlayback(token, ["spotify:track:6uRUfq1y0VayUjh2M935g7", "spotify:track:0X8PiJHcTFmmUwsGpvtFik"], deviceID)}> PLAY </button>
       <Track track={exampleTrack} />
       <Track track={exampleTrack} />
       <Track track={exampleTrack} />
