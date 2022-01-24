@@ -7,7 +7,6 @@ export const usePlayerStore = create(set => ({
     setDeviceID: (val) => set(state => ({ deviceID: val })),
     devices: [],
     setDevices: (val) => set(state => ({ devices: val })),
-    player: null,
     token: "",
     setToken: (val) => set(state => ({ token: val })),
     tokenExpiry: undefined,

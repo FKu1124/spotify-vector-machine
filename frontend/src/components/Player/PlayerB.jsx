@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { usePlayerStore } from '../../store/playerStore'
-import { startPlayback, refreshDevices, switchDevices, msToTime } from '../../utils'
+import { startPlayback, getAvailableDevices, transferPlayback, msToTime } from '../../utils'
+import { togglePlayBack } from '../../utils/spotify'
 import Progress from './Progress'
 
 export default function PlayerB() {
@@ -10,7 +11,7 @@ export default function PlayerB() {
 
 	const test = () => {
 		const swithTo = devices.find(d => d.name.includes('MacBook')).id
-		switchDevices(swithTo)
+		transferPlayback(swithTo)
 	}
 
 	useEffect(() => {
@@ -72,7 +73,7 @@ export default function PlayerB() {
 	}, []);
 
 	const xxx = async () => {
-		const deviceList = await refreshDevices(token)
+		const deviceList = await getAvailableDevices(token)
 		setDevices(deviceList)
 	}
 
@@ -112,7 +113,8 @@ export default function PlayerB() {
 					<svg onClick={() => { player.previousTrack() }} xmlns="http://www.w3.org/2000/svg" className="btn-spotify h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
 					</svg>
-					<svg onClick={() => { player.togglePlay() }} xmlns="http://www.w3.org/2000/svg" className="btn-spotify h-12 w-12 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					{/* <svg onClick={() => { player.togglePlay() }} xmlns="http://www.w3.org/2000/svg" className="btn-spotify h-12 w-12 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"> */}
+					<svg onClick={() => { togglePlayBack(token, paused) }} xmlns="http://www.w3.org/2000/svg" className="btn-spotify h-12 w-12 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						{paused ? (
 							<>
 								<path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />

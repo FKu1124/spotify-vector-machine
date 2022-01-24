@@ -1,7 +1,59 @@
+export const getPlaybackState = async (token) => {
+    try {
+        const res = await fetch(`https://api.spotify.com/v1/me/player`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }).catch(e => console.log(e))
+        return res.json()
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+export const transferPlayback = (token, deviceID) => {
+    fetch("https://api.spotify.com/v1/me/player", {
+        method: 'PUT',
+        body: JSON.stringify({ device_ids: [deviceID] }),
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+    }).catch(e => console.log(e))
+}
+
+export const getAvailableDevices = async (token) => {
+    try {
+        const res = await (fetch("https://api.spotify.com/v1/me/player/devices", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        }))
+        return await res.json()
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+// Still the "App playing" problem
+export const togglePlayBack = (token, play) => {
+    fetch(`https://api.spotify.com/v1/me/player/${play ? 'play' : 'pause'}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    }).catch(e => console.log(e, "error"))
+}
+
 export const startPlayback = (token, uris, deviceID) => {
 
     let body;
-    if(uris[0].includes("spotify:playlist:")) {
+    if (uris[0].includes("spotify:playlist:")) {
         body = JSON.stringify({ context_uri: uris[0] })
     } else {
         body = JSON.stringify({ uris })
@@ -17,28 +69,43 @@ export const startPlayback = (token, uris, deviceID) => {
     }).catch(e => console.log(e))
 }
 
-export const seek = (duration) => {
-
-}
-
-export const refreshDevices = async (token) => {
-    const res = await(fetch("https://api.spotify.com/v1/me/player/devices", {
-        method: 'GET',
+export const skipToPrevNext = (token, prev) => {
+    fetch(`https://api.spotify.com/v1/me/player/${prev ? 'previous' : 'next'}`, {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
-        },
-    }))
-    return await res.json()
+        }
+    }).catch(e => console.log(e))
 }
 
-export const switchDevices = (token, deviceID) => {
-    fetch("https://api.spotify.com/v1/me/player", {
+export const seekPlayback = (token, position_ms) => {
+    fetch(`https://api.spotify.com/v1/me/player/seek?position_ms=${position_ms}`, {
         method: 'PUT',
-        body: JSON.stringify({ device_ids: [deviceID] }),
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
-        },
+        }
+    }).catch(e => console.log(e))
+}
+
+export const togglePlaybackShuffle = (token, shuffle) => {
+    fetch(`https://api.spotify.com/v1/me/player/shuffle?state=${String(shuffle)}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    }).catch(e => console.log(e))
+}
+
+// uri ONLY accepts spotify:track: uris
+export const addItemToQueue = (token, uri) => {
+    fetch(`https://api.spotify.com/v1/me/player/queue?uri=${uri}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
     }).catch(e => console.log(e))
 }

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { usePlayerStore } from '../../store/playerStore';
 import { msToTime, useInterval } from '../../utils';
-import { Range } from 'react-range'
+import { Range, Direction, getTrackBackground } from 'react-range'
+import { seekPlayback } from '../../utils/spotify';
 
 export default function Progress() {
-	const { duration, position, paused } = usePlayerStore()
+	const { duration, position, paused, token } = usePlayerStore()
 	const [currentPosition, setCurrentPosition] = useState(0)
-	const [rangeValue, setRangeValue] = useState(0)
-	const [values, setValues] = React.useState([0])
 
 	useEffect(() => {
 		if (typeof position == 'number')
@@ -16,42 +15,83 @@ export default function Progress() {
 
 	useInterval(() => {
 		if (!paused) {
-			console.log(msToTime(currentPosition))
 			setCurrentPosition(currentPosition + 1000)
 		}
 	}, 1000)
 
+	const arrow = {
+		border: "solid black",
+		borderWidth: "0 3px 3px 0",
+		display: "inline-block",
+		padding: "3px",
+		transform: "rotate(-45deg)",
+		WebkitTransform: "rotate(-45deg)",
+	}
+
+	const MIN = 0
+	const MAX = duration <= 0 ? 1 : duration
+	const STEP = 1
+
 	return (
 		<div className='w-3/4 mx-auto relative'>
 			{/* Progressbar */}
-			{/* <div className="w-full bg-black absolute mt-1 top-px" style={{ height: 2 }} />
-			<div className='h-3 w-3 rounded-full bg-gray-200 border border-black absolute left-10' /> */}
+
 			<Range
-					step={1}
-					min={0}
-					max={duration}
-					values={[currentPosition]}
-					onChange={(values) => {
-						// TODO:
-						// Seek Spotify Playback
-						console.log(values)
-						// setValues(values)
-					}}
-					renderTrack={({ props, children }) => (
+				values={[currentPosition]}
+				step={STEP}
+				min={MIN}
+				max={MAX}
+				onChange={(values) => {
+					// TODO:
+					// Seek Spotify Playback
+					console.log(values[0])
+					seekPlayback(token, values[0])
+					// setValues(values)
+				}}
+				renderTrack={({ props, children }) => (
+					<div
+						onMouseDown={props.onMouseDown}
+						onTouchStart={props.onTouchStart}
+						style={{
+							...props.style,
+							height: '36px',
+							display: 'flex',
+							width: '100%'
+						}}
+					>
 						<div
-							{...props}
-							className="w-full h-3 pr-2 my-4 bg-gray-200 rounded-md"
+							ref={props.ref}
+							style={{
+								height: '5px',
+								width: '100%',
+								borderRadius: '4px',
+								background: getTrackBackground({
+									values: [currentPosition],
+									colors: ['#548BF4', '#ccc'],
+									min: MIN,
+									max: MAX,
+								}),
+								alignSelf: 'center'
+							}}
 						>
 							{children}
 						</div>
-					)}
-					renderThumb={({ props }) => (
-						<div
-							{...props}
-							className="w-5 h-5 transform translate-x-10 bg-indigo-500 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-						/>
-					)}
-				/>
+					</div>
+				)}
+				renderThumb={({ props, isDragged }) => (
+					<div
+						{...props}
+						style={{
+							...props.style,
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
+						<i style={arrow}></i>
+					</div>
+				)}
+			/>
 
 			{/* Current time and song length */}
 			<div className='progress w-full mt-2 flex justify-between'>

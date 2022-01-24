@@ -1,5 +1,5 @@
-import { startPlayback, seek, refreshDevices, switchDevices } from "./spotify";
+import { getPlaybackState, transferPlayback, getAvailableDevices, togglePlayBack, startPlayback, skipToPrevNext, seekPlayback, togglePlaybackShuffle, addItemToQueue } from "./spotify";
 import { msToTime } from "./converter";
 import { useInterval } from "./useInterval";
 
-export { startPlayback, seek, refreshDevices, switchDevices, msToTime, useInterval };
+export { getPlaybackState, transferPlayback, getAvailableDevices, togglePlayBack, startPlayback, skipToPrevNext, seekPlayback, togglePlaybackShuffle, addItemToQueue, msToTime, useInterval };
