@@ -14,10 +14,10 @@ import SVMPlayer from './components/Player/SVMPlayer'
 
 
 function App() {
-
-  const { username, setUsername } = useUserStore()
+  const { username, setUsername, deviceID } = useUserStore()
   const [cookies, setCookie, removeCookie] = useCookies(['csrftoken']);
   const [token, setToken] = useState()
+  const [isPlaying, setIsPlaying] = useState()
   const [expiresIn, setExpiresIn] = useState(0)
 
   const getSpotifyAccess = async () => {
@@ -54,6 +54,8 @@ function App() {
     getUserData()
     getSpotifyAccess()
   }, []) 
+
+  
 
 
   return (
