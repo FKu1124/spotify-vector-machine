@@ -6,3 +6,7 @@ Markdown
 spotipy
 tqdm
 django-extensions
+pandas
+numpy
+sklearn
+scipy

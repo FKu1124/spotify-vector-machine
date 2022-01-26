@@ -8,6 +8,7 @@ from django.conf import settings
 class MoodVector(models.Model):
     name = models.CharField(max_length=200)
     image_path = models.CharField(max_length=200)
+    playlist_url = models.CharField(max_length=200, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     x_start = models.IntegerField()

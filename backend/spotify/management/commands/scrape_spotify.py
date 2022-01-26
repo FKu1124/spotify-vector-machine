@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from spotify.services import scrape_genres, scrape_top_artists_by_genre, scrape_top_playlists_by_genre
+from spotify.services.spotify_scraping import scrape_genres, scrape_top_artists_by_genre, scrape_top_playlists_by_genre
 
 
 class Command(BaseCommand):

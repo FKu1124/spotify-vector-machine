@@ -1,5 +1,5 @@
 from django.urls import path
-from accounts.views import LoginWithSpotify, GetCSRFToken, CheckAuthentication, LogOutView, DeleteAccountView, SaveMoodVector, GetSpotifyAccess
+from accounts.views import LoginWithSpotify, GetCSRFToken, CheckAuthentication, LogOutView, DeleteAccountView, SaveMoodVector, GetSpotifyAccess, CreateSpotifyProfile
 
 urlpatterns = [
     # Auth Endpoints
@@ -12,5 +12,6 @@ urlpatterns = [
     # Mood Vector Endpoints
     path('save_vector', SaveMoodVector.as_view()),
 
-    path('token', GetSpotifyAccess.as_view())
+    path('token', GetSpotifyAccess.as_view()),
+    path('profile', CreateSpotifyProfile.as_view())
 ]

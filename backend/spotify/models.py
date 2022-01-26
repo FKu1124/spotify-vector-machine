@@ -17,7 +17,6 @@ class SpotifyToken(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    seed_genre = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -61,7 +60,6 @@ class Track(models.Model):
     liveness = models.FloatField()
     valence = models.FloatField()
     energy = models.FloatField()
-    arousal = models.FloatField()
     tempo = models.FloatField()
     duration = models.BigIntegerField()
     key = models.IntegerField()

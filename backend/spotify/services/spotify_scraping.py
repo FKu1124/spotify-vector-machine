@@ -115,7 +115,6 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
             track_obj.liveness = track_audio_features["liveness"]
             track_obj.valence = track_audio_features["valence"]
             track_obj.energy = track_audio_features["energy"]
-            track_obj.arousal = track_audio_features["energy"]
             track_obj.tempo = track_audio_features["tempo"]
             track_obj.duration = track_audio_features["duration_ms"]
             track_obj.key = track_audio_features["key"]
@@ -123,7 +122,6 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
             track_obj.time_signature = track_audio_features["time_signature"]
 
             # add artists to track
-            first = True
             artist_strings = []
             genre_strings = []
 
@@ -137,10 +135,8 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
                         "Spotify artist genre request timed out multiple times, continuing....")
                     continue
 
-                if first:
-                    for genre in artist_obj["genres"]:
-                        genre_strings.append(genre.strip())
-                    first = False
+                for genre in artist_obj["genres"]:
+                    genre_strings.append(genre.strip())
             
             track_obj.genres = ','.join(genre_strings)
             track_obj.artists = ','.join(artist_strings)
