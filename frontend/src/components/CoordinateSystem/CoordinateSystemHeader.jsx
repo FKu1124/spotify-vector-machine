@@ -5,7 +5,7 @@ import './ccs_header.css'
 
 export default function CoordinateSystemHeader() {
   const [cookies] = useCookies(['csrftoken']);
-  const { startX, startY, endX, endY, setStartX, setStartY, setEndX, setEndY, length, genre, name, cnvCtx, setLength, setGenre, setName } = useCoordinateSystemStore()
+  const { squareSize, startX, startY, endX, endY, setStartX, setStartY, setEndX, setEndY, length, genre, name, cnvCtx, setLength, setGenre, setName } = useCoordinateSystemStore()
 
   const onLengthChange = e => {
     setLength(e.target.value)
@@ -30,6 +30,11 @@ export default function CoordinateSystemHeader() {
       alert("pls draw vec bro")
     }
 
+    let scaledStartX = startX / squareSize
+    let scaledStartY = startY / squareSize
+    let scaledEndX = endX / squareSize
+    let scaledEndY = endY / squareSize
+
     fetch("http://localhost:8000/accounts/save_vector", {
       method: "POST",
       headers: {
@@ -39,7 +44,7 @@ export default function CoordinateSystemHeader() {
       },
       credentials: 'include',
       body: JSON.stringify({
-        startX, startY, endX, endY, length, genre, name
+        scaledStartX, scaledStartY, scaledEndX, scaledEndY, length, genre, name
       })
     }).then(res => res.json())
       .then(data => {

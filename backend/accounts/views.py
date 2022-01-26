@@ -113,10 +113,10 @@ class SaveMoodVector(APIView):
         img_path = 'test/path/to/image.png'
 
         data = JSONParser().parse(request)
-        data['x_start'] = data.pop('startX')
-        data['y_start'] = data.pop('startY')
-        data['x_end'] = data.pop('endX')
-        data['y_end'] = data.pop('endY')
+        data['x_start'] = float(data.pop('scaledStartX'))
+        data['y_start'] = float(data.pop('scaledStartY'))
+        data['x_end'] = float(data.pop('scaledEndX'))
+        data['y_end'] = float(data.pop('scaledEndY'))
         data['image_path'] = img_path #ToDo get from ccs
         data['user'] = request.user.id
         serializer = MoodVectorSerializer(data=data)
@@ -140,7 +140,7 @@ class SaveMoodVector(APIView):
             # ToDo Trigger Recommendation / Playlist Creation
             return Response({ 'status': True, 'msg': 'Mood Vector successfully saved', 'playlist_uri':  mood_vector_instance.playlist_url }, status=status.HTTP_201_CREATED)
             
-        return Response({ 'status': False, 'msg': 'Error saving mood vector' })
+        return Response({'status': False, 'msg': serializer.errors})
 
 @method_decorator(csrf_protect, name='dispatch')
 class GetSpotifyAccess(APIView):
