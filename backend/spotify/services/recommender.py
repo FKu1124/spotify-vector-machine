@@ -1,17 +1,18 @@
-from statistics import median
-import pandas as pd
-import numpy as np
-from tqdm import tqdm
 import os
-from sqlalchemy import create_engine
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-import scipy.sparse
+
 from django.contrib.auth.models import User
+import numpy as np
+import scipy.sparse
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sqlalchemy import create_engine
+from tqdm import tqdm
+
 from accounts.models import MoodVector
 from spotipy import Spotify
 
+# Adjustable weights for the different feature vector components
 W_ARTIST = 1
 W_TITLE = 1
 W_GENRE = 1
@@ -19,6 +20,7 @@ W_SOUND = 1
 W_TAGS = 1
 
 
+# DB Connection to directly load in dataframe
 def _get_db_connection():
     db_name = os.environ.get('POSTGRES_NAME')
     db_user = os.environ.get('POSTGRES_USER')
@@ -30,7 +32,6 @@ def _get_db_connection():
         f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
 
     return engine
-
 
 def _preprocess_tags(df: pd.DataFrame) -> pd.DataFrame:
     df = df.drop('id', axis=1)

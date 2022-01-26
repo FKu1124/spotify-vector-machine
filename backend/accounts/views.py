@@ -137,7 +137,7 @@ class SaveMoodVector(APIView):
             mood_vector_instance.save()
             
             # ToDo Trigger Recommendation / Playlist Creation
-            return Response({ 'status': True, 'msg': 'Mood Vector successfully saved' }, status=status.HTTP_201_CREATED)
+            return Response({ 'status': True, 'msg': 'Mood Vector successfully saved', 'playlist_uri':  mood_vector_instance.playlist_url }, status=status.HTTP_201_CREATED)
             
         return Response({ 'status': False, 'msg': 'Error saving mood vector' })
 
