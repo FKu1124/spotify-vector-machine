@@ -17,3 +17,7 @@ sqlparse==0.4.2
 tqdm==4.62.3
 urllib3==1.26.8
 zipp==3.7.0
+pandas
+numpy
+sklearn
+scipy

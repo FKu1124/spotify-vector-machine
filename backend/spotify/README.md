@@ -1,11 +1,11 @@
 ## Fill up Database with json files
 
-Get into the django shell  
+Migrate DB first
 ```
-docker exec -it django_backend python3 manage.py shell
+docker exec django_backend python3 manage.py migrate
 ```
-Execute db_util.py
 
+Start scraping
 ```
-exec(open("spotify/services.py").read())
+docker exec -it django_backend python manage.py scrape_spotify
 ```

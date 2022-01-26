@@ -2,3 +2,5 @@ docker-compose-x.yml
 .DS_Store
 .devcontainer
 .env
+backend/storage/*npz
+backend/storage/*csv

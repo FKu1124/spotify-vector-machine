@@ -1,5 +1,6 @@
 import os
 from accounts.serializers import MoodVectorSerializer
+from spotify.services.recommender import create_playlist_for_vector, create_user_profile
 
 from django.contrib import auth
 from django.contrib.auth.models import User
@@ -17,7 +18,8 @@ from spotipy.cache_handler import DjangoSessionCacheHandler
 
 # Create your views here.
 
-scope = "user-read-email"
+scope = "user-read-email user-read-private user-top-read user-read-recently-played user-read-playback-position user-library-read playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public"
+
 client_id = os.environ.get('SPOTIFY_CLIENT_ID')
 client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
 redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
@@ -119,11 +121,42 @@ class SaveMoodVector(APIView):
         data['user'] = request.user.id
         serializer = MoodVectorSerializer(data=data)
 
+
         if serializer.is_valid():
-            serializer.save()
+            mood_vector_instance = serializer.save()
+
+            cache_handler = DjangoSessionCacheHandler(request=request)
+            auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret,
+                                        redirect_uri=redirect_uri, scope=scope, cache_handler=cache_handler)
+
+            auth_manager.get_access_token(self.request.GET.get("code"))
+            spotify = spotipy.Spotify(auth_manager=auth_manager)
+            
+            playlist_url = create_playlist_for_vector(
+                mood_vector_instance, request.user, spotify)
+            mood_vector_instance.playlist_url = playlist_url
+            mood_vector_instance.save()
             
             # ToDo Trigger Recommendation / Playlist Creation
-
-            return Response({ 'status': True, 'msg': 'Mood Vector successfully saved' }, status=status.HTTP_201_CREATED)
+            return Response({ 'status': True, 'msg': 'Mood Vector successfully saved', 'playlist_uri':  mood_vector_instance.playlist_url }, status=status.HTTP_201_CREATED)
             
         return Response({ 'status': False, 'msg': 'Error saving mood vector' })
+
+@method_decorator(csrf_protect, name='dispatch')
+class GetSpotifyAccess(APIView):
+    def get(self, request, format=None):
+        return Response({ 'status': True, 'token': request.session['token_info']}, status=status.HTTP_200_OK)
+
+@method_decorator(csrf_protect, name='dispatch')
+class CreateSpotifyProfile(APIView):
+    def get(self, request, format=None):
+        cache_handler = DjangoSessionCacheHandler(request=request)
+        auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret,
+                                    redirect_uri=redirect_uri, scope=scope, cache_handler=cache_handler)
+
+        auth_manager.get_access_token(self.request.GET.get("code"))
+        spotify = spotipy.Spotify(auth_manager=auth_manager)
+
+        create_user_profile(request.user, spotify)
+
+        return Response({ 'status': True, 'msg': 'User Profile created successfully'})
