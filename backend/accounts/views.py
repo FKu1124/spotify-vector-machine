@@ -6,7 +6,7 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
@@ -39,9 +39,9 @@ class LoginWithSpotify(APIView):
         try:
             cache_handler = DjangoSessionCacheHandler(request=request)
             auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope, cache_handler=cache_handler)
-            
             # Case 2: Spotify responds to auth attempt via given callback uri
             if self.request.GET.get("code"):
+                print("Case 2: Got Code")
                 auth_manager.get_access_token(self.request.GET.get("code"))
 
                 spotify = spotipy.Spotify(auth_manager=auth_manager)
@@ -61,20 +61,21 @@ class LoginWithSpotify(APIView):
                 user = auth.authenticate(username=username, password=password)
                 auth.login(request, user)
                 
-                return HttpResponseRedirect(redirect_to="http://localhost:3000/")
-
+                return redirect("/")
             # Case 1: User initiates authentication and retrieves auth_url
-            if not auth_manager.validate_token(cache_handler.get_cached_token()):
-                auth_url = auth_manager.get_authorize_url()
-                return Response({ 'auth_url': auth_url })
+            try:
+                if not auth_manager.validate_token(cache_handler.get_cached_token()):
+                    print("Case 1: Getting URL")
+                    auth_url = auth_manager.get_authorize_url()
+                    return Response({ 'status': True, 'auth_url': auth_url }, status=status.HTTP_200_OK)
+            except:
+                return Response({ 'status': False, 'msg': 'Error authenticating' }, status=status.HTTP_401_UNAUTHORIZED)
 
             # spotify = spotipy.Spotify(auth_manager=auth_manager)
         except Exception as e:
-            print("----------------------------------")
-            print(e)
-            return HttpResponseRedirect(redirect_to="http://localhost:3000/error")
+            return redirect("/Login?error=true")
         # Case 3: User is already authenticated with Spotify 
-        # return Response({ 'status': 'Success', 'me': spotify.me() })
+        # return Response({ 'status': 'Success' })
 
 @method_decorator(csrf_protect, name='dispatch')
 class CheckAuthentication(APIView):
