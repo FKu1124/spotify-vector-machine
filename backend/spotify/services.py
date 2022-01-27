@@ -3,6 +3,7 @@ from typing import List
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from tqdm import tqdm
+import pandas as pd
 from spotify.models import Genre, Artist, Album, Track, GenreArtist, GenreTrack
 
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
@@ -206,7 +207,53 @@ def get_or_create_album(album_spotify_id: str, base_genre: Genre):
         return None
 
 
-scrape_genres()
+def save_tracks_as_csv():
+    tracks = Track.objects.all()
 
-scrape_top_playlists_by_genre()
-scrape_top_artists_by_genre()
+    headings = ["danceability",
+                "loudness",
+                "speechiness",
+                "acousticness",
+                "instrumentalness",
+                "liveness",
+                "valence",
+                "energy",
+                "arousal",
+                "tempo",
+                "duration",
+                "key",
+                "mode",
+                "time_signature",
+                "popularity",
+                "genre"]
+
+    tracks_list = []
+
+    for track in tracks:
+        track_list = []
+        track_list.append(track.danceability)
+        track_list.append(track.loudness)
+        track_list.append(track.speechiness)
+        track_list.append(track.acousticness)
+        track_list.append(track.instrumentalness)
+        track_list.append(track.liveness)
+        track_list.append(track.valence)
+        track_list.append(track.energy)
+        track_list.append(track.arousal)
+        track_list.append(track.tempo)
+        track_list.append(track.duration)
+        track_list.append(track.key)
+        track_list.append(track.mode)
+        track_list.append(track.time_signature)
+        track_list.append(track.popularity)
+
+        genre = track.genres.filter(seed_genre=True)
+        if len(genre) == 0:
+            continue
+        track_list.append(genre[0].name)
+
+        tracks_list.append(track_list)
+
+    df = pd.DataFrame(tracks_list, columns=headings)
+
+    df.to_csv("tracks.csv")
