@@ -312,18 +312,19 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
 
     engine = _get_db_connection()
     tracks_df = pd.read_sql_query(
-        "SELECT energy, valence, spotify_id FROM spotify_track", con=engine)
+        "SELECT energy, valence, spotify_id, duration FROM spotify_track", con=engine)
 
     recommended_songs = recommended_songs.merge(
         tracks_df, how="left", left_on="spotify_id", right_on="spotify_id")
-
-    # ToDo Split vector in n parts
-    n = 10
+    
+    n = int(vector.length * 1000 * 60 / recommended_songs.duration.quantile(q=0.2))   
+    print("playlist creation with {} tracks.".format(n))
+    
     song_ids = []
     x_dif = vector.x_start - vector.x_end
     y_dif = vector.y_start - vector.y_end
-
-    for i in range(1, n):
+    
+    for i in range(1, n + 1):
         energy = vector.x_start - x_dif / n * i
         valence = vector.y_start - y_dif / n * i
         # ToDO generate dynamic intervals for filter! 
@@ -339,7 +340,7 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
                     filtered_track['spotify_id'].iloc[track_postion])
                 break
             track_postion = track_postion + 1
-
+    
     spotify_user_id = spotify.me()['id']
 
     playlist = spotify.user_playlist_create(
