@@ -33,6 +33,7 @@ def _get_db_connection():
 
     return engine
 
+
 def _preprocess_tags(df: pd.DataFrame) -> pd.DataFrame:
     df = df.drop('id', axis=1)
     df.dropna()
@@ -194,31 +195,29 @@ def create_song_vector_matrix():
         'storage/sparse_track_feature_matrix.npz', vect_matrix)
 
 
-def _recommend(df, similarity_matrix, number_of_recommendations):
+def _recommend(df, similarity_matrix):
     similarity_scores = list(enumerate(similarity_matrix))
     similarity_scores_sorted = sorted(
         similarity_scores, key=lambda x: x[1], reverse=True)
     recommendations_indices = [
-        t[0] for t in similarity_scores_sorted[1:(number_of_recommendations+1)]]
+        t[0] for t in similarity_scores_sorted[1:]]
     return df.iloc[recommendations_indices]
 
 
-def recommend_songs_for_profile(profile: scipy.sparse.csr.csr_matrix, count: int = 10):
+def recommend_songs_for_profile(profile: scipy.sparse.csr.csr_matrix):
     engine = _get_db_connection()
 
     #tracks_df = pd.read_sql_query("SELECT * FROM spotify_track", con=engine)
-    recommendable_songs = pd.read_csv('storage/spotify_ids.csv', index_col='index')
+    recommendable_songs = pd.read_csv(
+        'storage/spotify_ids.csv', index_col='index')
 
     track_feature_matrix = scipy.sparse.load_npz(
         'storage/sparse_track_feature_matrix.npz')
 
     similarity_matrix = cosine_similarity(track_feature_matrix, profile)
-    recommendations = _recommend(recommendable_songs, similarity_matrix, count)
+    recommendations = _recommend(recommendable_songs, similarity_matrix)
 
-    id_list = recommendations['spotify_id'].tolist()
-    #df_recommendations = tracks_df[tracks_df['spotify_id'].isin(id_list)]
-
-    return id_list
+    return recommendations
 
 
 def _get_user_profile_tracks(spotify: Spotify):
@@ -257,7 +256,8 @@ def _get_user_profile_tracks(spotify: Spotify):
 
 
 def _calculate_user_profile_from_track_weights(track_weight_dict: dict, user_id) -> None:
-    recommendable_songs = pd.read_csv('storage/spotify_ids.csv', index_col='index')
+    recommendable_songs = pd.read_csv(
+        'storage/spotify_ids.csv', index_col='index')
     track_feature_matrix = scipy.sparse.load_npz(
         'storage/sparse_track_feature_matrix.npz')
 
@@ -305,13 +305,41 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
     # Get the previously created user profile
     user_profile = _get_user_profile(user)
 
-    # ToDo Split vector in n parts
-
     # ToDo return 4 most unsimilar tracks for start and endpoint
 
     # Get recommendations
-    song_ids = recommend_songs_for_profile(user_profile)
-    # ToDo Save spotify ID to user
+    recommended_songs = recommend_songs_for_profile(user_profile)
+
+    engine = _get_db_connection()
+    tracks_df = pd.read_sql_query(
+        "SELECT energy, valence, spotify_id FROM spotify_track", con=engine)
+
+    recommended_songs = recommended_songs.merge(
+        tracks_df, how="left", left_on="spotify_id", right_on="spotify_id")
+
+    # ToDo Split vector in n parts
+    n = 10
+    song_ids = []
+    x_dif = vector.x_start - vector.x_end
+    y_dif = vector.y_start - vector.y_end
+
+    for i in range(1, n):
+        energy = vector.x_start - x_dif / n * i
+        valence = vector.y_start - y_dif / n * i
+        # ToDO generate dynamic intervals for filter! 
+        filter = (recommended_songs['energy'] > energy - 0.1) & (recommended_songs['energy'] < energy + 0.1) & (
+            recommended_songs['valence'] > valence - 0.1) & (recommended_songs['valence'] < valence + 0.1)
+        filtered_track = recommended_songs[filter]
+
+        # Pick the first track not already present in recommended song
+        track_postion = 0
+        while True:
+            if filtered_track['spotify_id'].iloc[track_postion] not in song_ids:
+                song_ids.append(
+                    filtered_track['spotify_id'].iloc[track_postion])
+                break
+            track_postion = track_postion + 1
+
     spotify_user_id = spotify.me()['id']
 
     playlist = spotify.user_playlist_create(

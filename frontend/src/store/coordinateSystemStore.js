@@ -9,6 +9,7 @@ export const useCoordinateSystemStore = create(set => ({
     genre: "rock",
     name: "Mood Vector Name!",
 
+    squareSize: 640,
     cnvCtx: null,
 
     setStartX: (val) => set({ startX: val }),

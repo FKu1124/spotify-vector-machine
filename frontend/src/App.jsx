@@ -13,7 +13,7 @@ function App() {
       <Navbar />
       <div className="content w-3/4 bg-gray-100 mx-auto my-4 p-4">
         <CoordinateSystemHeader />
-        <CoordinateSystem squareWidth='800' />
+        <CoordinateSystem/>
       </div>
       <div className="content w-3/4 bg-gray-100 mx-auto flex flex-wrap">
         <div className="w-full flex-none">
