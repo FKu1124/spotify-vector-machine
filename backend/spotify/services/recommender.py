@@ -238,38 +238,50 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
 
     engine = _get_db_connection()
     tracks_df = pd.read_sql_query(
-        "SELECT energy, valence, spotify_id, duration FROM spotify_track", con=engine)
+        "SELECT spotify_id, name, artists, energy, valence, duration FROM spotify_track", con=engine)
 
+    tracks_df.drop_duplicates(subset=['name', 'artists'], keep='first', inplace=True) #drop duplicates (~7.2k)
+    tracks_df.drop(columns=['name', 'artists'], inplace=True)
+ 
     recommended_songs = recommended_songs.merge(
         tracks_df, how="left", left_on="spotify_id", right_on="spotify_id")
-
-    n = int(vector.length * 1000 * 60 / recommended_songs.duration.quantile(q=0.2))
-    print("Creating a playlist with {} tracks based on the ~avg. of {} mins per track".format(n, recommended_songs.duration.quantile(q=0.2) / 1000 / 60))
+    
+    n = int(vector.length * 1000 * 60 / recommended_songs.duration.quantile(q=0.3))
     song_ids = []
     x_dif = vector.x_start - vector.x_end
     y_dif = vector.y_start - vector.y_end
 
+    print("Creating a playlist with {} tracks based on the ~avg. of {} mins per track".format(n, recommended_songs.duration.quantile(q=0.3) / 1000 / 60))
+    print("Based on {} potentially interesting tracks of {} tracks in total".format(len(recommended_songs), len(tracks_df)))
+    print("Start/End: {},{}/{},{}".format(vector.x_start, vector.y_start, vector.x_end, vector.y_end))
+    
+    #ToDo: implement dynamic filter size slider in frontend
+    dynamic_filter_size = 0.05
+
     for i in range(1, n + 1):
-        energy = vector.x_start - x_dif / n * i
-        valence = vector.y_start - y_dif / n * i
-        # ToDO generate dynamic intervals for filter!
-        filter = (recommended_songs['energy'] > energy - 0.1) & (recommended_songs['energy'] < energy + 0.1) & (
-            recommended_songs['valence'] > valence - 0.1) & (recommended_songs['valence'] < valence + 0.1)
+        energy = vector.y_start - y_dif / n * i
+        valence = vector.x_start - x_dif / n * i
+        filter = (recommended_songs['energy'] > energy - dynamic_filter_size) & (recommended_songs['energy'] < energy + dynamic_filter_size) & (
+            recommended_songs['valence'] > valence - dynamic_filter_size) & (recommended_songs['valence'] < valence + dynamic_filter_size)
         filtered_track = recommended_songs[filter]
+        print("X/Y {}/{}, number of tracks to choose from: {}".format(valence, energy, len(filtered_track)))
 
         # Pick the first track not already present in recommended song
         track_postion = 0
         while True:
             if filtered_track['spotify_id'].iloc[track_postion] not in song_ids:
+                print("Length:", len(recommended_songs))
                 song_ids.append(
                     filtered_track['spotify_id'].iloc[track_postion])
                 break
-            track_postion = track_postion + 1
-
+            track_postion += 1
+    
     spotify_user_id = spotify.me()['id']
 
+    #ToDo: calculate the closest emotion to the start- and endpoint respectively
     playlist = spotify.user_playlist_create(
-        spotify_user_id, vector.name, public=False, description='Created with Spotify Vector Machine')
+        spotify_user_id, vector.name, public=False, description='Created with Spotify Vector Machine. We will be taking you from {} to {} my friend.'.format(
+            "emotion1", "emotion2"))
     spotify.playlist_add_items(playlist['id'], song_ids)
 
     return playlist['uri']

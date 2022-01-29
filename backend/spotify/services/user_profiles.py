@@ -2,11 +2,14 @@ import math
 
 from django.contrib.auth.models import User
 from django.db.models import Count
+from django.core.exceptions import MultipleObjectsReturned
 import scipy.sparse
 import pandas as pd
+from sqlalchemy import null
 
 from spotify.models import UserTrack, Track
 from spotipy import Spotify
+from .spotify_scraping import save_tracks_by_id
 
 TYPE_WEIGHTS = {
     'top_tracks_short': 1,
@@ -20,28 +23,52 @@ TYPE_WEIGHTS = {
 
 
 def _get_user_profile_tracks(user: User, spotify: Spotify):
+    print("Starting to create the user profile.")
+    newly_added = []
     def _create_user_track_mappings(tracks, type: str):
         for track in tracks['items']:
             track_obj, created = Track.objects.get_or_create(
                 spotify_id=track['id'])
-            UserTrack.objects.get_or_create(
+            if created : newly_added.append(track['id'])
+            try :
+                UserTrack.objects.get_or_create(
                 user=user, track=track_obj, type=type)
-
+            except MultipleObjectsReturned: pass
+    
+    #variation for liked/recent tracks
+    def _create_user_track_mappings_recent(tracks, type: str): 
+        for elem in tracks['items']:
+            track_obj, created = Track.objects.get_or_create(
+                spotify_id=elem['track']['id'])
+            if created : newly_added.append(elem['track']['id'])
+            try: 
+                UserTrack.objects.get_or_create(
+                user=user, track=track_obj, type=type)
+            except MultipleObjectsReturned: pass
+    
+    print("Fetching recent and liked tracks...", len(newly_added))
+    saved_tracks = spotify.current_user_saved_tracks(limit=50)
+    recent_tracks = spotify.current_user_recently_played(limit=50)
+    _create_user_track_mappings_recent(saved_tracks, 'saved')
+    _create_user_track_mappings_recent(recent_tracks, 'recent')
+    
+    print("Fetching top tracks...", len(newly_added))
     top_tracks_short = spotify.current_user_top_tracks(
         limit=50, time_range='short_term')
     top_tracks_medium = spotify.current_user_top_tracks(
         limit=50, time_range='medium_term')
     top_tracks_long = spotify.current_user_top_tracks(
         limit=50, time_range='long_term')
-    # recent_track = spotify.current_user_recently_played()
-    # saved_tracks = spotify.current_user_saved_tracks(limit=50)
-
     _create_user_track_mappings(top_tracks_short, 'top_tracks_short')
     _create_user_track_mappings(top_tracks_medium, 'top_tracks_medium')
     _create_user_track_mappings(top_tracks_long, 'top_tracks_long')
-    # _create_user_track_mappings(recent_track[0]['items'], 'recent')
-    # _create_user_track_mappings(saved_tracks, 'saved')
-
+    
+    print("Deleting & Re-fetching {} tracks that have invalid values...".format(Track.objects.filter(spotify_id__isnull=False).filter(energy__isnull=True).count()))
+    Track.objects.filter(spotify_id__isnull=False).filter(energy__isnull=True).delete()
+    save_tracks_by_id(newly_added)
+    print("Added {} new tracks and their features to the data base.\n".format(len(newly_added)))
+    print(newly_added)
+    print("User profile done.")
 
 def _generate_user_profile(user_id) -> None:
     recommendable_songs = pd.read_csv(
