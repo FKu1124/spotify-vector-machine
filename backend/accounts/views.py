@@ -119,12 +119,11 @@ class SaveMoodVector(APIView):
         data['y_end'] = float(data.pop('scaledEndY'))
         data['image_path'] = img_path #ToDo get from ccs
         data['user'] = request.user.id
-        data['length'] = float(data.pop('length'))
+        data['length'] = int(data.pop('length'))
         serializer = MoodVectorSerializer(data=data)
 
 
         if serializer.is_valid():
-            print("valid")
             mood_vector_instance = serializer.save()
 
             cache_handler = DjangoSessionCacheHandler(request=request)
