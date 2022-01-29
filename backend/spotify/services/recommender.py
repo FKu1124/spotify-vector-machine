@@ -7,7 +7,6 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy import create_engine
-from tqdm import tqdm
 
 from accounts.models import MoodVector
 from spotipy import Spotify
@@ -18,7 +17,6 @@ W_TITLE = 1
 W_GENRE = 1
 W_SOUND = 1
 W_TAGS = 1
-
 
 # DB Connection to directly load in dataframe
 def _get_db_connection():
@@ -219,84 +217,14 @@ def recommend_songs_for_profile(profile: scipy.sparse.csr.csr_matrix):
 
     return recommendations
 
-
-def _get_user_profile_tracks(spotify: Spotify):
-    w_short = 3
-    w_medium = 2
-    w_long = 1
-
-    def _generate_track_weight_list(tracks, weight):
-        return [(track['id'], weight) for track in tracks]
-
-    top_tracks_short = spotify.current_user_top_tracks(
-        limit=50, time_range='short_term')
-    top_tracks_medium = spotify.current_user_top_tracks(
-        limit=50, time_range='medium_term')
-    top_tracks_long = spotify.current_user_top_tracks(
-        limit=50, time_range='long_term')
-
-    track_weight_short = _generate_track_weight_list(
-        top_tracks_short['items'], w_short)
-    track_weight_medium = _generate_track_weight_list(
-        top_tracks_medium['items'], w_medium)
-    track_weight_long = _generate_track_weight_list(
-        top_tracks_long['items'], w_long)
-
-    track_weight_list = track_weight_short + \
-        track_weight_medium + track_weight_long
-
-    track_weight_dict = {}
-    for id, weight in track_weight_list:
-        if id in track_weight_dict:
-            track_weight_dict[id] = track_weight_dict[id] + weight
-        else:
-            track_weight_dict[id] = weight
-
-    return track_weight_dict
-
-
-def _calculate_user_profile_from_track_weights(track_weight_dict: dict, user_id) -> None:
-    recommendable_songs = pd.read_csv(
-        'storage/spotify_ids.csv', index_col='index')
-    track_feature_matrix = scipy.sparse.load_npz(
-        'storage/sparse_track_feature_matrix.npz')
-
-    top_tracks = recommendable_songs[recommendable_songs['spotify_id'].isin(
-        track_weight_dict.keys())]
-    top_tracks_ids = list(top_tracks.index)
-    top_tracks_spotify_ids = top_tracks['spotify_id'].tolist()
-    top_track_vects = track_feature_matrix[np.array(top_tracks_ids)]
-
-    track_weight_dict = {
-        k: v for (k, v) in track_weight_dict.items() if k in top_tracks_spotify_ids}
-
-    count = 0
-    count_weight = 0
-    user_profile = None
-
-    for weight in track_weight_dict.values():
-        if user_profile is None:
-            user_profile = top_track_vects[count] * weight
-        else:
-            user_profile = user_profile + top_track_vects[count] * weight
-
-        count = count + 1
-        count_weight = count_weight + weight
-
-    user_profile = user_profile / count_weight
-
-    scipy.sparse.save_npz(f'storage/user_profile_{user_id}.npz', user_profile)
-
-
-def create_user_profile(user: User, spotify: Spotify):
-    # Query top track endpoints and calculate user profile
-    top_track_weight_dict = _get_user_profile_tracks(spotify)
-    _calculate_user_profile_from_track_weights(top_track_weight_dict, user.id)
-
-
 def _get_user_profile(user: User):
-    # ToDo Load save vector
-    user_profile = scipy.sparse.load_npz(f'storage/user_profile_{user.id}.npz')
+    # ToDo What profile to chose on default?
+    profiles = []
+    for profile in os.listdir('storage/'):
+        if f"user_profile_{user.id}" in profile:
+            profiles.append(f"storage/{profile}")
+
+    user_profile = scipy.sparse.load_npz(profiles[0])
 
     return user_profile
 
@@ -304,9 +232,7 @@ def _get_user_profile(user: User):
 def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify) -> str:
     # Get the previously created user profile
     user_profile = _get_user_profile(user)
-
-    # ToDo return 4 most unsimilar tracks for start and endpoint
-
+    
     # Get recommendations
     recommended_songs = recommend_songs_for_profile(user_profile)
 
@@ -326,7 +252,7 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
     for i in range(1, n):
         energy = vector.x_start - x_dif / n * i
         valence = vector.y_start - y_dif / n * i
-        # ToDO generate dynamic intervals for filter! 
+        # ToDO generate dynamic intervals for filter!
         filter = (recommended_songs['energy'] > energy - 0.1) & (recommended_songs['energy'] < energy + 0.1) & (
             recommended_songs['valence'] > valence - 0.1) & (recommended_songs['valence'] < valence + 0.1)
         filtered_track = recommended_songs[filter]

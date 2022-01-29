@@ -1,6 +1,7 @@
 import os
 from accounts.serializers import MoodVectorSerializer
-from spotify.services.recommender import create_playlist_for_vector, create_user_profile
+from spotify.services.recommender import create_playlist_for_vector
+from spotify.services.user_profiles import create_user_profile
 
 from django.contrib import auth
 from django.contrib.auth.models import User
