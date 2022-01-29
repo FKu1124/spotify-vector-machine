@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { usePlayerStore } from '../../store/playerStore';
 import { msToTime, useInterval } from '../../utils';
-import { Range, Direction, getTrackBackground } from 'react-range'
 import { seekPlayback } from '../../utils/spotify';
+import {
+	Slider,
+	SliderTrack,
+	SliderFilledTrack,
+	SliderThumb,
+	SliderMark,
+} from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
+
+import { MdGraphicEq } from 'react-icons/md'
+
 
 export default function Progress() {
 	const { duration, position, paused, token } = usePlayerStore()
@@ -35,64 +45,15 @@ export default function Progress() {
 	return (
 		<div className='w-3/4 mx-auto relative'>
 			{/* Progressbar */}
-
-			<Range
-				values={[currentPosition]}
-				step={STEP}
-				min={MIN}
-				max={MAX}
-				onChange={(values) => {
-					// TODO:
-					// Seek Spotify Playback
-					console.log(values[0])
-					seekPlayback(token, values[0])
-					// setValues(values)
-				}}
-				renderTrack={({ props, children }) => (
-					<div
-						onMouseDown={props.onMouseDown}
-						onTouchStart={props.onTouchStart}
-						style={{
-							...props.style,
-							height: '36px',
-							display: 'flex',
-							width: '100%'
-						}}
-					>
-						<div
-							ref={props.ref}
-							style={{
-								height: '5px',
-								width: '100%',
-								borderRadius: '4px',
-								background: getTrackBackground({
-									values: [currentPosition],
-									colors: ['#548BF4', '#ccc'],
-									min: MIN,
-									max: MAX,
-								}),
-								alignSelf: 'center'
-							}}
-						>
-							{children}
-						</div>
-					</div>
-				)}
-				renderThumb={({ props, isDragged }) => (
-					<div
-						{...props}
-						style={{
-							...props.style,
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<i style={arrow}></i>
-					</div>
-				)}
-			/>
-
+			<Slider aria-label='slider-ex-4' value={currentPosition} min={MIN} max={MAX} step={STEP} onChange={(value) => seekPlayback(token, value)}>
+				<SliderTrack bg='red.100'>
+					<SliderFilledTrack bg='tomato' />
+				</SliderTrack>
+				<SliderThumb boxSize={6}>
+					<Box color='tomato' as={MdGraphicEq} />
+				</SliderThumb>
+			</Slider>
+			
 			{/* Current time and song length */}
 			<div className='progress w-full mt-2 flex justify-between'>
 				<span className='text-sm'>{msToTime(currentPosition)}</span>

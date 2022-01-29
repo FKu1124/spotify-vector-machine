@@ -60,13 +60,21 @@ export default function Login() {
     checkAUTH();
   }, [])
 
+  if(isAuthenticated === undefined) {
+    return (
+      <div className='h-screen w-screen bg-spotify'>
+        {/* LOADING SCREEN */}
+      </div>
+    )
+  }
+
   return (
     <>
       {isAuthenticated ? (<Navigate to="/" />) : (
         <div className='h-screen w-screen grid place-content-center bg-red-500'>
           { searchParams.get('error') && (<Toast duration={3000} line1="An Error Occured During Authentication." line2="Please Wait a Moment and Try Again." />) }
           <div>
-            <h1 className='text-white text-6xl' style={{ fontFamily: 'Source Code Pro' }}>
+            <h1 className='text-white text-center text-6xl' style={{ fontFamily: 'Source Code Pro' }}>
               <span>Welcome to the S</span><span>potify</span>
               <span> V</span><span>ector</span>
               <span> M</span><span>achine</span>

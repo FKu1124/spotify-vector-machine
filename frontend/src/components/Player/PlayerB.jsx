@@ -6,8 +6,7 @@ import Progress from './Progress'
 
 export default function PlayerB() {
 
-	const { token, player, setPlayer, paused, position, duration, cover, updatePlayerState, setDeviceID, setDevices, setActive, deviceID, devices, setNextTracks, setPrevTracks } = usePlayerStore()
-	// TODO: Countdown
+	const { token, player, setPlayer, paused, position, duration, cover, updatePlayerState, setDeviceID, setDevices, active, setActive, deviceID, devices, setNextTracks, setPrevTracks } = usePlayerStore()
 
 	const test = () => {
 		const swithTo = devices.find(d => d.name.includes('MacBook')).id
@@ -69,6 +68,8 @@ export default function PlayerB() {
 			}));
 
 			player.connect();
+			console.log("Player connected?")
+			console.log(player)
 		};
 	}, []);
 
@@ -77,10 +78,13 @@ export default function PlayerB() {
 		setDevices(deviceList)
 	}
 
-	
+	if(!active) {
+		return (
+			<div></div>
+		)
+	}
 	return (
-		<div className='flex md:flex-col w-11/12 mx-auto mb-3 bg-gray-200 border border-black rounded-lg'>
-			<button onClick={() => TESTSTST()}> Countdown </button>
+		<div className='flex md:flex-col w-11/12 mx-auto mb-3 bg-gray-200 border border-black rounded-lg' style={{ transform: 'scale(0,0)' }} >
 			<button onClick={() => xxx()}> DEVICES </button>
 			<button onClick={() => test()}> SWITCH </button>
 			<div>{ JSON.stringify(devices) } </div>
@@ -94,19 +98,6 @@ export default function PlayerB() {
 
 			<div className='flex flex-col w-3/5 md:w-full mx-auto py-3 md:py-3 justify-center'>
 				<Progress />
-				{/* <div className='w-3/4 mx-auto relative'> */}
-					{/* Progressbar */}
-					{/* <div className="w-full bg-black absolute mt-1 top-px" style={{ height: 2 }} /> */}
-					{/* <div className='h-3 w-3 rounded-full bg-gray-200 border border-black absolute left-10' /> */}
-
-					{/* Current time and song length */}
-					{/* <div className='progress w-full mt-2 flex justify-between'> */}
-						{/* <span className='text-sm'>{ msToTime(position) }</span> */}
-						{/* <span className='text-sm'>{ position }</span> */}
-						{/* <span className='text-sm'>{ msToTime(duration) }</span> */}
-					{/* </div> */}
-				{/* </div> */}
-
 				{/* Player  */}
 				<div className="player flex w-1/2 mx-auto justify-around">
 					{/* Prev */}

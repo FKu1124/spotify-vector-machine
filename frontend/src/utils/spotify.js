@@ -47,7 +47,7 @@ export const togglePlayBack = (token, play) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         }
-    }).catch(e => console.log(e, "error"))
+    }).catch(e => console.log(e))
 }
 
 export const startPlayback = (token, uris, deviceID) => {

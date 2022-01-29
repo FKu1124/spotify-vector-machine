@@ -1,17 +1,17 @@
 import React from 'react'
 import { useUserStore } from '../store/userStore'
 
-export default function Navbar() {
+export default function Navbar({ openModal }) {
 
   const { username } = useUserStore()
 
   return (
-    <div className='h-6 bg-transparent flex justify-between top-0 sticky mx-3'>
+    <div className='bg-transparent flex justify-between top-0 sticky mx-3'>
       <div className='logo text-gray font-bold'>
         SVM
       </div>
-      <div className='user text-gray font-bold flex flex-row mx-3'>
-        <div className="username mr-1">
+      <div onClick={() => openModal(true)} className='user text-gray font-bold flex flex-row mx-3 mt-1'>
+        <div className="username mr-4">
           { username }
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 " fill="none" viewBox="0 0 24 24" stroke="currentColor">
