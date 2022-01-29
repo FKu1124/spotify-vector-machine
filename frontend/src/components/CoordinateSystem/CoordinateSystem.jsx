@@ -7,8 +7,8 @@ import { useCoordinateSystemStore } from '../../store/coordinateSystemStore'
 
 const colorsImagePath = new URL('../../static/colors.png', import.meta.url).href
 
-export default function CoordinateSystem({ squareWidth }) {
-  const [squareSize, setSquareSize] = useState(parseInt(squareWidth))
+export default function CoordinateSystem() {
+  const [squareSize, setSquareSize] = useState(640)
   const [drawing, setDrawing] = useState(false)
   const [coordinates, setCoordinates] = useState(getMoodCoordinateArray())
   const [cnv, setCnv] = useState(null)
@@ -81,8 +81,9 @@ export default function CoordinateSystem({ squareWidth }) {
     if (drawing == false || typeof (cnvCtx) !== 'object') return
 
     let x = e.clientX - cnv.getBoundingClientRect().left
-    let y = e.clientY - cnv.getBoundingClientRect().top
+    let y = squareSize - ( e.clientY - cnv.getBoundingClientRect().top )
 
+    setStartY(squareSize - startY)
     setEndX(x)
     setEndY(y)
     setDrawing(false)

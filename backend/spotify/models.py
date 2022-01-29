@@ -1,3 +1,4 @@
+from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -20,89 +21,73 @@ class Genre(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class Artist(models.Model):
-    spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=250)
-    popularity = models.IntegerField(null=True)
-    followers = models.IntegerField(null=True)
+# class Artist(models.Model):
+#     spotify_id = models.CharField(max_length=50, unique=True)
+#     name = models.CharField(max_length=250)
+#     popularity = models.IntegerField(null=True)
+#     followers = models.IntegerField(null=True)
 
-    genres = models.ManyToManyField(Genre,
-                                    related_name="artists",
-                                    through="GenreArtist")
+#     genres = models.ManyToManyField(Genre,
+#                                     related_name="artists",
+#                                     through="GenreArtist")
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
-class GenreArtist(models.Model):
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-
-    base_genre = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
 
 
-class Album(models.Model):
-    spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=100)
+# class GenreArtist(models.Model):
+#     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+#     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
 
-    artists = models.ManyToManyField(Artist, related_name="albums")
+#     base_genre = models.BooleanField(default=False)
 
-    popularity = models.IntegerField()
-    album_type = models.CharField(max_length=25, null=True)
-    total_tracks = models.IntegerField(null=True)
-    release_date = models.CharField(max_length=100, null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def genres(self):
-        genres = []
-        for artist in self.artists.all():
-            genres += artist.genres.all()
-        return genres
-
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
 
 class Track(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=250, null=True)
 
-    genres = models.ManyToManyField(Genre,
-                                    related_name="tracks",
-                                    through="GenreTrack")
-    artists = models.ManyToManyField(Artist, related_name="tracks")
-    album = models.ForeignKey(Album,
-                              on_delete=models.DO_NOTHING,
-                              related_name="tracks",
-                              null=True)
+    genres = models.CharField(max_length=500, null=True)
+    artists = models.CharField(max_length=500, null=True)
+    album = models.CharField(max_length=300, null=True)
 
-    danceability = models.FloatField()
-    loudness = models.FloatField()
-    speechiness = models.FloatField()
-    acousticness = models.FloatField()
-    instrumentalness = models.FloatField()
-    liveness = models.FloatField()
-    valence = models.FloatField()
-    energy = models.FloatField()
-    arousal = models.FloatField()
-    tempo = models.FloatField()
-    duration = models.BigIntegerField()
-    key = models.IntegerField()
-    mode = models.IntegerField()
-    time_signature = models.IntegerField()
-    popularity = models.IntegerField()
+    danceability = models.FloatField(null=True)
+    loudness = models.FloatField(null=True)
+    speechiness = models.FloatField(null=True)
+    acousticness = models.FloatField(null=True)
+    instrumentalness = models.FloatField(null=True)
+    liveness = models.FloatField(null=True)
+    valence = models.FloatField(null=True)
+    energy = models.FloatField(null=True)
+    tempo = models.FloatField(null=True)
+    duration = models.BigIntegerField(null=True)
+    key = models.IntegerField(null=True)
+    mode = models.IntegerField(null=True)
+    time_signature = models.IntegerField(null=True)
+    popularity = models.IntegerField(null=True)
+
+    cluster = models.CharField(max_length=100, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class GenreTrack(models.Model):
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+# class GenreTrack(models.Model):
+#     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+#     track = models.ForeignKey(Track, on_delete=models.CASCADE)
+
+#     base_genre = models.BooleanField(default=False)
+
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+class Tag(models.Model):
+    name = models.CharField(max_length=100)
+    count = models.PositiveIntegerField()
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
 
-    base_genre = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class UserTrack(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    track = models.ForeignKey(Track, on_delete=models.CASCADE)
+    type = models.CharField(max_length=100)
