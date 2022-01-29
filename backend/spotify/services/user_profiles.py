@@ -36,7 +36,7 @@ def _get_user_profile_tracks(user: User, spotify: Spotify):
     # recent_track = spotify.current_user_recently_played()
     # saved_tracks = spotify.current_user_saved_tracks(limit=50)
 
-    _create_user_track_mappings(top_tracks_short', 'top_tracks_short')
+    _create_user_track_mappings(top_tracks_short, 'top_tracks_short')
     _create_user_track_mappings(top_tracks_medium, 'top_tracks_medium')
     _create_user_track_mappings(top_tracks_long, 'top_tracks_long')
     # _create_user_track_mappings(recent_track[0]['items'], 'recent')
@@ -50,7 +50,7 @@ def _generate_user_profile(user_id) -> None:
         'storage/sparse_track_feature_matrix.npz')
 
     tracks = Track.objects.filter(
-        usertrack__user=4, name__isnull=False, spotify_id__in=recommendable_songs['spotify_id'].tolist())
+        usertrack__user=user_id, name__isnull=False, spotify_id__in=recommendable_songs['spotify_id'].tolist())
 
     spotify_ids = list(tracks.values_list('spotify_id', flat=True))
     tracks_df = recommendable_songs[recommendable_songs['spotify_id'].isin(
