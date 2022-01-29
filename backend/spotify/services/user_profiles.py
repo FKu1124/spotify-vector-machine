@@ -36,10 +36,10 @@ def _get_user_profile_tracks(user: User, spotify: Spotify):
     # recent_track = spotify.current_user_recently_played()
     # saved_tracks = spotify.current_user_saved_tracks(limit=50)
 
-    _create_user_track_mappings(top_tracks_short, 'top_tracks_short')
+    _create_user_track_mappings(top_tracks_short', 'top_tracks_short')
     _create_user_track_mappings(top_tracks_medium, 'top_tracks_medium')
     _create_user_track_mappings(top_tracks_long, 'top_tracks_long')
-    # _create_user_track_mappings(recent_track, 'recent')
+    # _create_user_track_mappings(recent_track[0]['items'], 'recent')
     # _create_user_track_mappings(saved_tracks, 'saved')
 
 

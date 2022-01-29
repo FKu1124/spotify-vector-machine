@@ -6,7 +6,7 @@ from spotify.models import Track
 
 
 class Command(BaseCommand):
-    help = "Scrapes lastfm data for previously scraped spotify tracks."
+    help = "Assigns cluster to tracks."
 
     def handle(self, *args, **kwargs):
         self.stdout.write(self.style.SUCCESS(
