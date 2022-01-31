@@ -1,4 +1,5 @@
 import os
+import time
 from accounts.serializers import MoodVectorSerializer
 from spotify.services.recommender import create_playlist_for_vector
 from spotify.services.user_profiles import create_user_profile
@@ -19,7 +20,7 @@ from spotipy.cache_handler import DjangoSessionCacheHandler
 
 # Create your views here.
 
-scope = "user-read-email user-read-private user-top-read user-read-recently-played user-read-playback-position user-library-read playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public"
+scope = "streaming user-read-email user-read-private user-top-read user-read-recently-played user-read-playback-state user-read-playback-position user-library-read user-library-modify playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public"
 
 client_id = os.environ.get('SPOTIFY_CLIENT_ID')
 client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
@@ -42,22 +43,20 @@ class LoginWithSpotify(APIView):
             auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope, cache_handler=cache_handler)
             # Case 2: Spotify responds to auth attempt via given callback uri
             if self.request.GET.get("code"):
-                print("Case 2: Got Code")
                 auth_manager.get_access_token(self.request.GET.get("code"))
 
                 spotify = spotipy.Spotify(auth_manager=auth_manager)
                 user_data = spotify.me()
                 username = user_data['id']
                 email = user_data['email']
+                first_name = user_data['display_name']
 
                 # TODO: Solve password issue 
                 password = "BASEPASSWORD1234s"
-                boolea = False
                 if not User.objects.filter(username=username).exists():
                     # Create User
-                    user = User.objects.create_user(username=username, password=password, email=email)
+                    user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name)
                     user.save()
-                    boolea = True
                 # Sign User in
                 user = auth.authenticate(username=username, password=password)
                 auth.login(request, user)
@@ -66,13 +65,11 @@ class LoginWithSpotify(APIView):
             # Case 1: User initiates authentication and retrieves auth_url
             try:
                 if not auth_manager.validate_token(cache_handler.get_cached_token()):
-                    print("Case 1: Getting URL")
                     auth_url = auth_manager.get_authorize_url()
                     return Response({ 'status': True, 'auth_url': auth_url }, status=status.HTTP_200_OK)
             except:
                 return Response({ 'status': False, 'msg': 'Error authenticating' }, status=status.HTTP_401_UNAUTHORIZED)
 
-            # spotify = spotipy.Spotify(auth_manager=auth_manager)
         except Exception as e:
             return redirect("/Login?error=true")
         # Case 3: User is already authenticated with Spotify 
@@ -88,6 +85,37 @@ class CheckAuthentication(APIView):
         except:
             return Response({ 'error': 'Error checking authentication' })
 
+
+@method_decorator(csrf_protect, name='dispatch')
+class GetUserProfile(APIView):
+
+    def get(self, request, format=None):
+        try:
+            user = self.request.user
+            user = User.objects.get(username=user.username)
+
+            return Response({ 'status': True, 'data': { 'username': user.first_name } }, status=status.HTTP_200_OK)
+        except:
+            return Response({ 'status': False, 'msg': 'Error while loading user data' }, status=status.HTTP_403_FORBIDDEN)
+
+
+@method_decorator(csrf_protect, name='dispatch')
+class GetSpotifyAccess(APIView):
+
+    def get(self, request, format=None):
+        try:
+            cache_handler = DjangoSessionCacheHandler(request=request)
+            auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope, cache_handler=cache_handler)
+            
+            token = auth_manager.get_access_token()
+
+            return Response({ 'status': True, 'data': { 'token': token['access_token'], 'expires_in': (token['expires_at'] - int(time.time())) * 1000 } }, status=status.HTTP_200_OK)
+        except:
+            return Response({ 'status': False, 'msg': 'Error fetching the Spotify access token' }, status=status.HTTP_403_FORBIDDEN)
+
+
+
+
 @method_decorator(csrf_protect, name='dispatch')
 class LogOutView(APIView):
     def post(self, request, format=None):
@@ -99,10 +127,10 @@ class LogOutView(APIView):
 
 class DeleteAccountView(APIView):
     def delete(self, request, format=None):
-        user = self.request.user
 
         try:
-            user = User.objects.filter(id=user.id).delete()
+            user = self.request.user
+            user = User.objects.filter(username=user.username).delete()
             return Response({ 'success': 'User deleted successfully' })
         except:
             return Response({ 'error': 'Error deleting user' })
@@ -142,11 +170,6 @@ class SaveMoodVector(APIView):
             return Response({ 'status': True, 'msg': 'Mood Vector successfully saved', 'playlist_uri':  mood_vector_instance.playlist_url }, status=status.HTTP_201_CREATED)
             
         return Response({'status': False, 'msg': serializer.errors})
-
-@method_decorator(csrf_protect, name='dispatch')
-class GetSpotifyAccess(APIView):
-    def get(self, request, format=None):
-        return Response({ 'status': True, 'token': request.session['token_info']}, status=status.HTTP_200_OK)
 
 @method_decorator(csrf_protect, name='dispatch')
 class CreateSpotifyProfile(APIView):

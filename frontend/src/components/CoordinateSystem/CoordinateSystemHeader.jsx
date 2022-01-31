@@ -2,6 +2,7 @@ import React from 'react'
 import { useCoordinateSystemStore } from '../../store/coordinateSystemStore'
 import { useCookies } from 'react-cookie';
 import './ccs_header.css'
+import { URL_ACCOUNTS } from '../../Config';
 
 export default function CoordinateSystemHeader() {
   const [cookies] = useCookies(['csrftoken']);
@@ -35,7 +36,7 @@ export default function CoordinateSystemHeader() {
     let scaledEndX = endX / squareSize
     let scaledEndY = endY / squareSize
 
-    fetch("http://localhost:8000/accounts/save_vector", {
+    fetch(`${URL_ACCOUNTS}save_vector`, {
       method: "POST",
       headers: {
         'Accept': 'application/json',

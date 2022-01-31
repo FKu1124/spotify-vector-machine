@@ -15,10 +15,6 @@ export default function SignUpModal() {
 
   const cancelButtonRef = useRef(null)
 
-  // useEffect(() => {
-  //   console.log(process.env.BACKEND_URL)
-  // }, [])
-
   const isPasswordValid = (e) => {
     // Handle min. requirements
     // Check if both entries are identical

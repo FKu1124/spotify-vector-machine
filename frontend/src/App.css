@@ -9,12 +9,6 @@
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -34,6 +28,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -41,4 +36,214 @@
 
 button {
   font-size: calc(10px + 2vmin);
+}
+
+.hiddenStack {
+  opacity: 0;
+  position: absolute;
+}
+
+#word10 {
+  animation: anim10 15s infinite;
+}
+
+#word11 {
+  animation: anim11 15s infinite;
+}
+
+#word12 {
+  animation: anim12 15s infinite;
+}
+
+#word13 {
+  animation: anim13 15s infinite;
+}
+
+#word14 {
+  animation: anim14 15s infinite;
+}
+
+#word20 {
+  animation: anim20 15s infinite;
+}
+
+#word21 {
+  animation: anim21 15s infinite;
+}
+
+#word22 {
+  animation: anim22 15s infinite;
+}
+
+#word23 {
+  animation: anim23 15s infinite;
+}
+
+#word24 {
+  animation: anim24 15s infinite;
+}
+
+@keyframes anim10 {
+  0% {
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  20% {
+    opacity: 0;
+  }
+}
+
+@keyframes anim11 {
+  20% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  40% {
+    opacity: 0;
+  }
+}
+
+@keyframes anim12 {
+  40% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  60% {
+    opacity: 0;
+  }
+}
+
+@keyframes anim13 {
+  60% {
+    opacity: 0;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 0;
+  }
+}
+
+@keyframes anim14 {
+  80% {
+    opacity: 0;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes anim20 {
+  0% {
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  20% {
+    opacity: 0;
+  }
+}
+
+@keyframes anim21 {
+  20% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  40% {
+    opacity: 0;
+  }
+}
+
+@keyframes anim22 {
+  40% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  60% {
+    opacity: 0;
+  }
+}
+
+@keyframes anim23 {
+  60% {
+    opacity: 0;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 0;
+  }
+}
+
+@keyframes anim24 {
+  80% {
+    opacity: 0;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+
+/* SONG COVERS */
+
+.cover {
+  animation: cover-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes cover-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  50% {
+    opacity: .6;
+    transform: scale(1);
+  }
+}
+
+.svm-animation {
+  transition: opacity 1s;
 }
