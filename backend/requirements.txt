@@ -23,3 +23,4 @@ sklearn
 scipy
 sqlalchemy
 bs4
+django_pandas

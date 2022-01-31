@@ -15,3 +15,4 @@ class MoodVector(models.Model):
     y_start = models.FloatField()
     x_end = models.FloatField()
     y_end = models.FloatField()
+    length = models.IntegerField()

@@ -149,6 +149,71 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
             except DataError:
                 # Value too long for CharField
                 continue
+            
+def save_tracks_by_id(tracks: List) -> None:
+    for track in tracks:
+        if track is None:
+            continue
+                
+        try:
+            audio_feature_response = spotify.audio_features(
+                track)
+            track_audio_features = audio_feature_response[0]
+        except ReadTimeout:
+            print("Spotify audio feature request timed out multiple times, continuing....")
+            continue
+        except TypeError:
+            print(f"Error fetching audio feature for track {track['id']}")
+            continue
+        
+        if track_audio_features is None:
+            continue
+                
+        track_response = spotify.track(track)
+        track_obj = Track(spotify_id=track_response['id'])
+        track_obj.name = track_response["name"]
+        track_obj.album = track_response["album"]["name"]
+        track_obj.popularity = track_response["popularity"]
+        
+        track_obj.danceability = track_audio_features["danceability"]
+        track_obj.loudness = track_audio_features["loudness"]
+        track_obj.speechiness = track_audio_features["speechiness"]
+        track_obj.acousticness = track_audio_features["acousticness"]
+        track_obj.instrumentalness = track_audio_features["instrumentalness"]
+        track_obj.liveness = track_audio_features["liveness"]
+        track_obj.valence = track_audio_features["valence"]
+        track_obj.energy = track_audio_features["energy"]
+        track_obj.tempo = track_audio_features["tempo"]
+        track_obj.duration = track_audio_features["duration_ms"]
+        track_obj.key = track_audio_features["key"]
+        track_obj.mode = track_audio_features["mode"]
+        track_obj.time_signature = track_audio_features["time_signature"]
+
+        # add artists to track
+        artist_strings = []
+        genre_strings = []
+
+        for artist in track_response["artists"]:
+            artist_strings.append(artist["name"])
+
+            try:
+                artist_obj = spotify.artist(artist["id"])
+            except ReadTimeout:
+                print(
+                    "Spotify artist genre request timed out multiple times, continuing....")
+                continue
+
+            for genre in artist_obj["genres"]:
+                genre_strings.append(genre.strip())
+        
+        track_obj.genres = ','.join(genre_strings)
+        track_obj.artists = ','.join(artist_strings)
+        
+        try:
+            track_obj.save()
+        except DataError:
+            # Value too long for CharField
+            continue
 
 
 # def get_or_create_artist(artist_spotify_id: str, name: str, base_genre: Genre):
