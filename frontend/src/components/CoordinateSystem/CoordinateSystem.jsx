@@ -96,7 +96,7 @@ export default function CoordinateSystem() {
       <img id="colors" src={colorsImagePath} width={squareSize} height={squareSize} className='object-contain hidden' />
 
       {/* Canvas layer we draw on */}
-      <canvas id="cnv" width={squareSize} height={squareSize} className='absolute rounded-lg border border-black'></canvas>
+      <canvas id="cnv" width={squareSize} height={squareSize} className='absolute rounded-lg border border-black bg-green2'></canvas>
       <div
         onMouseDown={e => start(e)}
         onMouseMove={throttle(draw, 60)}

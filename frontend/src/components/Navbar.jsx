@@ -6,11 +6,11 @@ export default function Navbar({ openModal }) {
   const { username } = useUserStore()
 
   return (
-    <div className='bg-transparent flex justify-between top-0 sticky mx-3'>
-      <div className='logo text-gray font-bold'>
+    <div className='bg-transparent text-green1 font-black text-xl flex justify-between top-0 sticky mx-3'>
+      <div >
         SVM
       </div>
-      <div onClick={() => openModal(true)} className='user text-gray font-bold flex flex-row mx-3 mt-1'>
+      <div onClick={() => openModal(true)} className='user font-black flex flex-row mx-3 mt-1'>
         <div className="username mr-4">
           { username }
         </div>

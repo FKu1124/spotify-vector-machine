@@ -26,6 +26,13 @@ spotify = spotipy.Spotify(
 # \dt
 # SELECT * FROM spotify_genre;
 
+def get_playlist(id) -> dict:
+    playlist = spotify.playlist(id)
+
+    tracks = playlist['tracks']['items']
+
+    covers = [track['track']['album']['images'][2]['url'] for track in tracks]
+    print(covers)
 
 def scrape_genres() -> None:
     genres = spotify.recommendation_genre_seeds()["genres"]

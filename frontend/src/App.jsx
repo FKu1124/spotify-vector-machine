@@ -10,16 +10,8 @@ import { useCookies } from 'react-cookie';
 import { URL_ACCOUNTS } from './Config'
 import { usePlayerStore } from './store/playerStore'
 import UserSettings from './components/UserSettings'
-import { Center, Icon, Box, Flex } from '@chakra-ui/react'
-import { FaPlay } from 'react-icons/fa'
-
-const WORDS = [
-  "Tired",
-  "Angry",
-  "Sad",
-  "Happy",
-  "Excited",
-]
+import Background from './components/LandingPage/Background'
+import SVMAnimation from './components/LandingPage/SVMAnimation'
 
 function App() {
   const { username, setUsername } = useUserStore()
@@ -72,64 +64,27 @@ function App() {
         <div className='mt-10'>
           <div onClick={() => setIsOpen(false)}>X</div>
           <UserSettings />
-          {/* <Player /> */}
-          <button onClick={() => alert("Log Out!")} className='bg-red-500 text-white rounded rounded-lg' >Log Out</button>
+          <Player />
+          <button onClick={() => alert("Log Out!")} className='bg-red-500 text-white rounded-lg' >Log Out</button>
         </div>
       </motion.div>
 
       <div className='sticky top-0 z-50 h-0'>
         <Navbar openModal={setIsOpen} />
       </div>
-      <div className='w-screen h-screen text-center flex flex-col justify-center bg-spotify'>
-        <div className='w-screen flex flex-row justify-center'>
-          <div className='text-6xl text-white'>
-            Let Us Take You From
-          </div>
-          <div className='text-6xl text-white w-48 mx-3'>
-            <div className='absolute'>
-              {WORDS.map((word, i) =>
-                <span key={i} id={`word1${i}`} className='hiddenStack'>{word}</span>
-                )}
-            </div>
-          </div>
-          <p className='text-6xl text-white'>
-            to
-          </p>
-          <div className='text-6xl text-white w-48 mx-3'>
-            <div className='absolute'>
-              {WORDS.map((word, i) =>
-                <span key={i} id={`word2${i}`} className='hiddenStack'>{word}</span>
-                )}
-            </div>
-          </div>
-        </div>
-        <div style={{ height: '10%' }} />
-        {/* <div className='flex justify-center'> */}
-        <Flex direction='column' align='center'>
-          <Center className='animate-pulse cursor-pointer'>
-            <Icon w={20} h={20} color='tomato' as={FaPlay} onClick={() => contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })} />
-          </Center>
-        </Flex>
-        {/* </div> */}
+      <div className='w-full h-screen text-center flex flex-col justify-center'>
+        <Background />
+        <SVMAnimation />
       </div>
-      <div ref={contentRef} className='App h-screen w-screen bg-pink' style={{ height: '120vh' }} >
-        <div className="content w-3/4 bg-gray-100 mx-auto p-4 bg-pink">
+      <div ref={contentRef} className='App h-screen w-full' >
+        <div className="content w-full mx-auto p-4 bg-green7">
           <button onClick={() => setIsOpen(!isOpen)}> Toggle Sidebar </button>
           <CoordinateSystemHeader />
           <CoordinateSystem squareWidth='800' />
         </div>
-        {/* <div className="content w-3/4 bg-gray-100 mx-auto flex flex-wrap"> */}
-        {/* <div className="w-full flex-none"> */}
-        {/* <PlaylistVector /> */}
-        {/* </div> */}
         <div className="flex-auto z-1 w-full md:w-1/2 bg-spotify">
           {token && <Player />}
-          {/* { token && <PlayerB /> } */}
         </div>
-        {/* <div className="flex-auto w-full md:w-1/2 border-l-2">
-          <Playlist token={token} />
-        </div> */}
-        {/* </div> */}
       </div>
     </>
   )
