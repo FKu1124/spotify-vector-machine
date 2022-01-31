@@ -8,38 +8,39 @@ import { FaPlay } from 'react-icons/fa'
 
 export default function SVMAnimation() {
     const [animationState, setAnimationState] = useState('init')
-    // const cover_images = [
-    //     'https://i.scdn.co/image/ab67616d00004851482869c6f9416161dab79d39',
-    //     'https://i.scdn.co/image/ab67616d00004851aca059cebc1841277db22d1c',
-    //     'https://i.scdn.co/image/ab67616d000048517e42a53ea7f2ad4f36ab23a5',
-    //     'https://i.scdn.co/image/ab67616d000048510c5127071182a8dd9afcdcf8',
-    //     'https://i.scdn.co/image/ab67616d00004851db89b08034de626ebee6823d',
-    //     'https://i.scdn.co/image/ab67616d000048514509204d0860cc0cc67e83dc',
-    //     'https://i.scdn.co/image/ab67616d00004851a461aa96bd9a8fcd0a492aee',
-    //     'https://i.scdn.co/image/ab67616d00004851b7bea3d01f04e6d0408d2afe',
-    //     'https://i.scdn.co/image/ab67616d000048519a81658775e67d37b9e13be1',
-    //     'https://i.scdn.co/image/ab67616d00004851e2213d84fabb15100c425198',
-    //     'https://i.scdn.co/image/ab67616d00004851cbdeb4ed581e56ac25609357',
-    //     'https://i.scdn.co/image/ab67616d00004851522088789d49e216d9818292',
-    //     'https://i.scdn.co/image/ab67616d000048518399047ff71200928f5b6508',
-    //     'https://i.scdn.co/image/ab67616d000048511dfb1645591b74f5d59c66be',
-    //     'https://i.scdn.co/image/ab67616d000048515b96a8c5d61be8878452f8f1',
-    //     'https://i.scdn.co/image/ab67616d00004851a7865e686c36a4adda6c9978',
-    //     'https://i.scdn.co/image/ab67616d00004851707d13d3f87652e737e94d45',
-    //     'https://i.scdn.co/image/ab67616d00004851a20464e6697dc1149d3a5cdc',
-    //     'https://i.scdn.co/image/ab67616d000048515695a657aef0e81bde0c6001',
-    //     'https://i.scdn.co/image/ab67616d0000485156a6d6e493a8f338be63fc49',
-    //     'https://i.scdn.co/image/ab67616d0000485168384dd85fd5e95831252f60',
-    //     'https://i.scdn.co/image/ab67616d0000485113f2466b83507515291acce4',
-    //     'https://i.scdn.co/image/ab67616d00004851e175a19e530c898d167d39bf',
-    //     'https://i.scdn.co/image/ab67616d00004851198b72cd638a4ddea81b0b03',
-    //     'https://i.scdn.co/image/ab67616d00004851c12b6aa3d50150032e455286',
-    //     'https://i.scdn.co/image/ab67616d00004851d400d27cba05bb0545533864',
-    //     'https://i.scdn.co/image/ab67616d0000485111c2cc2ef9cada4f6bd84690',
-    //     'https://i.scdn.co/image/ab67616d000048518d1570a03b9354518f0b618b',
-    //     'https://i.scdn.co/image/ab67616d000048515e66bc0df2bd18e746dbb823',
-    //     'https://i.scdn.co/image/ab67616d00004851a5ce236c22035a02cf87d4de',
-    // ]
+    const [covers, setCovers] = useState([])
+    const cover_images = [
+        'https://i.scdn.co/image/ab67616d00004851482869c6f9416161dab79d39',
+        'https://i.scdn.co/image/ab67616d00004851aca059cebc1841277db22d1c',
+        'https://i.scdn.co/image/ab67616d000048517e42a53ea7f2ad4f36ab23a5',
+        'https://i.scdn.co/image/ab67616d000048510c5127071182a8dd9afcdcf8',
+        'https://i.scdn.co/image/ab67616d00004851db89b08034de626ebee6823d',
+        'https://i.scdn.co/image/ab67616d000048514509204d0860cc0cc67e83dc',
+        'https://i.scdn.co/image/ab67616d00004851a461aa96bd9a8fcd0a492aee',
+        'https://i.scdn.co/image/ab67616d00004851b7bea3d01f04e6d0408d2afe',
+        'https://i.scdn.co/image/ab67616d000048519a81658775e67d37b9e13be1',
+        'https://i.scdn.co/image/ab67616d00004851e2213d84fabb15100c425198',
+        'https://i.scdn.co/image/ab67616d00004851cbdeb4ed581e56ac25609357',
+        'https://i.scdn.co/image/ab67616d00004851522088789d49e216d9818292',
+        'https://i.scdn.co/image/ab67616d000048518399047ff71200928f5b6508',
+        'https://i.scdn.co/image/ab67616d000048511dfb1645591b74f5d59c66be',
+        'https://i.scdn.co/image/ab67616d000048515b96a8c5d61be8878452f8f1',
+        'https://i.scdn.co/image/ab67616d00004851a7865e686c36a4adda6c9978',
+        'https://i.scdn.co/image/ab67616d00004851707d13d3f87652e737e94d45',
+        'https://i.scdn.co/image/ab67616d00004851a20464e6697dc1149d3a5cdc',
+        'https://i.scdn.co/image/ab67616d000048515695a657aef0e81bde0c6001',
+        'https://i.scdn.co/image/ab67616d0000485156a6d6e493a8f338be63fc49',
+        'https://i.scdn.co/image/ab67616d0000485168384dd85fd5e95831252f60',
+        'https://i.scdn.co/image/ab67616d0000485113f2466b83507515291acce4',
+        'https://i.scdn.co/image/ab67616d00004851e175a19e530c898d167d39bf',
+        'https://i.scdn.co/image/ab67616d00004851198b72cd638a4ddea81b0b03',
+        'https://i.scdn.co/image/ab67616d00004851c12b6aa3d50150032e455286',
+        'https://i.scdn.co/image/ab67616d00004851d400d27cba05bb0545533864',
+        'https://i.scdn.co/image/ab67616d0000485111c2cc2ef9cada4f6bd84690',
+        'https://i.scdn.co/image/ab67616d000048518d1570a03b9354518f0b618b',
+        'https://i.scdn.co/image/ab67616d000048515e66bc0df2bd18e746dbb823',
+        'https://i.scdn.co/image/ab67616d00004851a5ce236c22035a02cf87d4de',
+    ]
 
     const WORDS = [
         'Happy',
@@ -52,52 +53,25 @@ export default function SVMAnimation() {
     let x_rand, y_rand, count = 0
     let img = null
     let playlist = false
-    let covers = [
-        { "img": "https://i.scdn.co/image/ab67616d00004851482869c6f9416161dab79d39", "top": 142.52656339233394, "left": 122.56698066289829, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d00004851aca059cebc1841277db22d1c", "top": 390.26848307937826, "left": 96.65312327893717, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d000048517e42a53ea7f2ad4f36ab23a5", "top": 635.7692634073475, "left": 151.37216229437718, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d000048510c5127071182a8dd9afcdcf8", "top": 888.5816328152539, "left": 175.93894225401638, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d00004851db89b08034de626ebee6823d", "top": 1195.4694114109905, "left": 154.83527479694152, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d000048514509204d0860cc0cc67e83dc", "top": 159.12272314443487, "left": 287.3419618224884, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d00004851b7bea3d01f04e6d0408d2afe", "top": 621.5848172312635, "left": 287.1380622694912, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d000048519a81658775e67d37b9e13be1", "top": 891.0397351118876, "left": 339.4284576265576, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d00004851e2213d84fabb15100c425198", "top": 1193.0337010818673, "left": 283.10301738203066, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d00004851cbdeb4ed581e56ac25609357", "top": 169.41190680715482, "left": 578.7422255723675, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d000048518399047ff71200928f5b6508", "top": 627.1492918616527, "left": 565.3708828310968, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d000048511dfb1645591b74f5d59c66be", "top": 991.2337507274855, "left": 566.3088048550765, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d000048515b96a8c5d61be8878452f8f1", "top": 1190.0391796455654, "left": 574.2347105823652, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d00004851a7865e686c36a4adda6c9978", "top": 125.57574513389828, "left": 685.6147780217382, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d00004851707d13d3f87652e737e94d45", "top": 416.0117293237442, "left": 785.981766553973, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d00004851a20464e6697dc1149d3a5cdc", "top": 653.068870509145, "left": 764.5256302167628, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d000048515695a657aef0e81bde0c6001", "top": 960.5499023688453, "left": 687.6860132650718, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d0000485168384dd85fd5e95831252f60", "top": 85.00112924944642, "left": 917.3071242933761, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d0000485113f2466b83507515291acce4", "top": 436.3348184693863, "left": 899.4459010658987, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d00004851e175a19e530c898d167d39bf", "top": 693.2677241210224, "left": 975.8440351492022, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d00004851198b72cd638a4ddea81b0b03", "top": 924.9737795627912, "left": 973.1153586615065, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d00004851c12b6aa3d50150032e455286", "top": 1155.5824636622485, "left": 908.8870679097947, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d00004851d400d27cba05bb0545533864", "top": 170.23614694336112, "left": 1160.2124238358024, "playlist": false },
-        { "img": "https://i.scdn.co/image/ab67616d000048518d1570a03b9354518f0b618b", "top": 714.7255278429392, "left": 1147.276127004762, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d000048515e66bc0df2bd18e746dbb823", "top": 924.8524309750647, "left": 1083.8651173836604, "playlist": true },
-        { "img": "https://i.scdn.co/image/ab67616d00004851a5ce236c22035a02cf87d4de", "top": 1205.26605130264, "left": 1172.2369403102027, "playlist": false }
-    ]
-
+    
+    if(covers.length === 0){
+        for (let x = 0; x < window.innerWidth * 0.8; x += window.innerWidth / 7) {
+            for (let y = 0; y < window.innerHeight; y += window.innerHeight / 5) {
+                x_rand = window.innerWidth * 0.1 + (x - window.innerWidth * 0.04) + Math.random() * window.innerWidth * 0.08
+                y_rand = window.innerHeight * 0.1 + (y - window.innerHeight * 0.04) + Math.random() * window.innerHeight * 0.08
+    
+                playlist_covers.includes(count) ? playlist = true : playlist = false
+                img = cover_images[count]
+                count++
+                if (Math.random() > 0.2) {
+                    covers.push({ img: img, top: y_rand, left: x_rand, playlist: playlist })
+                }
+            }
+        }
+    }
 
     useEffect(() => {
         console.log('START RENDER');
-
-        // for (let x = 0; x < window.innerWidth * 0.8; x += window.innerWidth / 7) {
-        //     for (let y = 0; y < window.innerHeight; y += window.innerHeight / 5) {
-        //         x_rand = window.innerWidth * 0.1 + (x - window.innerWidth * 0.04) + Math.random() * window.innerWidth * 0.08
-        //         y_rand = window.innerHeight * 0.1 + (y - window.innerHeight * 0.04) + Math.random() * window.innerHeight * 0.08
-
-        //         playlist_covers.includes(count) ? playlist = true : playlist = false
-        //         img = cover_images[count]
-        //         count++
-        //         if (Math.random() > 0.2) {
-        //             covers.push({ img: img, top: y_rand, left: x_rand, playlist: playlist })
-        //         }
-        //     }
-        // }
 
         const tween = KUTE.fromTo(
             '#mainVec1',
