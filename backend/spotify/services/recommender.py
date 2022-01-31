@@ -19,7 +19,7 @@ W_SOUND = 1
 W_TAGS = 1
 
 # DB Connection to directly load in dataframe
-def _get_db_connection():
+def get_db_connection():
     db_name = os.environ.get('POSTGRES_NAME')
     db_user = os.environ.get('POSTGRES_USER')
     db_pass = os.environ.get('POSTGRES_PASSWORD')
@@ -165,7 +165,7 @@ def _extract_track_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def create_song_vector_matrix():
-    engine = _get_db_connection()
+    engine = get_db_connection()
 
     tracks_df = pd.read_sql_query("SELECT * FROM spotify_track", con=engine)
     tags_df = pd.read_sql_query("SELECT * FROM spotify_tag", con=engine)
@@ -203,7 +203,7 @@ def _recommend(df, similarity_matrix):
 
 
 def recommend_songs_for_profile(profile: scipy.sparse.csr.csr_matrix):
-    engine = _get_db_connection()
+    engine = get_db_connection()
 
     #tracks_df = pd.read_sql_query("SELECT * FROM spotify_track", con=engine)
     recommendable_songs = pd.read_csv(
@@ -224,7 +224,9 @@ def _get_user_profile(user: User):
         if f"user_profile_{user.id}" in profile:
             profiles.append(f"storage/{profile}")
 
-    user_profile = scipy.sparse.load_npz(profiles[0])
+    user_profile = scipy.sparse.load_npz(profiles[1])
+    
+    print(user_profile)
 
     return user_profile
 
@@ -236,7 +238,7 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
     # Get recommendations
     recommended_songs = recommend_songs_for_profile(user_profile)
 
-    engine = _get_db_connection()
+    engine = get_db_connection()
     tracks_df = pd.read_sql_query(
         "SELECT spotify_id, name, artists, energy, valence, duration FROM spotify_track", con=engine)
 
@@ -256,6 +258,7 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
     print("Start/End: {},{}/{},{}".format(vector.x_start, vector.y_start, vector.x_end, vector.y_end))
     
     #ToDo: implement dynamic filter size slider in frontend
+    #ToDo: plot energy/valence of recommended tracks [song_ids]
     dynamic_filter_size = 0.05
 
     for i in range(1, n + 1):
@@ -277,7 +280,7 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
             track_postion += 1
     
     spotify_user_id = spotify.me()['id']
-
+    
     #ToDo: calculate the closest emotion to the start- and endpoint respectively
     playlist = spotify.user_playlist_create(
         spotify_user_id, vector.name, public=False, description='Created with Spotify Vector Machine. We will be taking you from {} to {} my friend.'.format(
