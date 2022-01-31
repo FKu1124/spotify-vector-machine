@@ -12,9 +12,9 @@ class LastFM:
         artist = track.artists.split(',')[0]
 
         response = requests.get(
-            self.url, {'method': 'track.gettoptags', 'track': title, 'artist': artist, 'api_key': self.api_key, 'format': 'json'})
+            self.url, {'method': 'track.gettoptags', 'track': title, 'artist': artist, 'autocorrect': 1, 'api_key': self.api_key, 'format': 'json'})
         if response.status_code != 200:
-            print(f"{response.status_code}: {response.content}")
+            print(f"ERROR {response.status_code}: {response.content}")
             return None
 
         json = response.json()
