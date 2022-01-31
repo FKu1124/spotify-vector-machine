@@ -14,6 +14,15 @@ min_max_norm <- function(x) {
   (x - min(x)) / (max(x) - min(x))
 }
 
+WCSS = function(x){
+  wcss = c()
+  for(i in 1:length(x)){
+    cl = x[i][[1]]
+    wcss = c(wcss, cl$tot.withinss)
+  }
+  return(wcss)
+}
+
 FILE_PATH = dirname(rstudioapi::getSourceEditorContext()$path)
 PLOT_PATH = file.path(FILE_PATH, "cluster-plots")
 TRACKS_FILE_PATH = file.path(FILE_PATH, "enao.csv")
@@ -50,20 +59,20 @@ genres_cluster_centers = genres %>% filter(font_size >= font_size_threshold)
 genres_without_cluster_centers = genres %>% filter(font_size < font_size_threshold)
 
 cluster_center_plot = ggplot(genres_cluster_centers, aes(x_value, y_value, size = font_size, color = color_hex, label = genre)) +
-            geom_point() +
-            geom_text(vjust=1.8, size = 4) +
-            scale_colour_manual(values=genres_cluster_centers$color_hex) +
-            theme_minimal() +
-            ggtitle("Biggest 36 Genres from everynoise.com as Cluster Centers") +
-            theme(plot.title = element_text(hjust = 0.5),
-                  legend.position="none",
-                  axis.text.x = element_blank(),
-                  axis.text.y = element_blank(),
-                  axis.title.x = element_blank(),
-                  axis.title.y = element_blank())
+                            geom_point() +
+                            geom_text(vjust=1.8, size = 4) +
+                            scale_colour_manual(values=genres_cluster_centers$color_hex) +
+                            theme_minimal() +
+                            ggtitle("Biggest 36 Genres from everynoise.com as Cluster Centers") +
+                            theme(plot.title = element_text(hjust = 0.5),
+                                  legend.position="none",
+                                  axis.text.x = element_blank(),
+                                  axis.text.y = element_blank(),
+                                  axis.title.x = element_blank(),
+                                  axis.title.y = element_blank())
   
 cluster_center_plot
-ggsave(filename = file.path(PLOT_PATH, "cluster_centers.png"), plot = cluster_center_plot, width = 5, height = 10))
+ggsave(filename = file.path(PLOT_PATH, "cluster_centers.png"), plot = cluster_center_plot, width = 5, height = 10)
 
 cluster_centers = genres_cluster_centers %>% select(color_R, color_G, color_B)
 genre_data = genres_without_cluster_centers %>% select(color_R, color_G, color_B)
@@ -80,7 +89,7 @@ genres = rbind(genres_cluster_centers, genres_without_cluster_centers)
 genres = genres %>% arrange(cluster)
 
 
-plt = ggplot(genres_without_cluster_centers, aes(x_value, y_value, color = cluster_color)) +
+genres_clustered_plot = ggplot(genres_without_cluster_centers, aes(x_value, y_value, color = cluster_color)) +
             geom_point(size = 1.2) +
             geom_point(data=genres_cluster_centers, aes(color = color_hex), size=8, stroke = 1.5, shape=10) +
             #scale_colour_manual(values=genres_cluster_centers$color_hex, labels = genres_cluster_centers$genre)
@@ -94,8 +103,8 @@ plt = ggplot(genres_without_cluster_centers, aes(x_value, y_value, color = clust
                   axis.title.x = element_blank(),
                   axis.title.y = element_blank())
   
-plt
-ggsave(filename = file.path(PLOT_PATH, "clustered_genres"), plot = plt, width = 5, height = 10)))
+genres_clustered_plot
+ggsave(filename = file.path(PLOT_PATH, "clustered_genres.png"), plot = genres_clustered_plot, width = 8, height = 10)
 
 
 
@@ -112,42 +121,58 @@ k_dist = unlist(k_dist)
 k_dist = sort(k_dist, decreasing = TRUE)
 k_dist = as.data.frame(k_dist)
 k_dist$x = c(1:nrow(k_dist))
-ggplot(k_dist[3:250,], aes(x, k_dist)) + geom_line()
-
+k_dist_plot = ggplot(k_dist[1:1000,], aes(x, k_dist)) + 
+                    geom_line() +
+                    theme_minimal() +
+                    ggtitle("First 1000 ordered pairwise distances of each point to 4 neighbours") +
+                    ylab("distance")+
+                    theme(plot.title = element_text(hjust = 0.5),
+                          legend.title = element_blank(),
+                          axis.title.x = element_blank())
+k_dist_plot
+ggsave(filename = file.path(PLOT_PATH, "dbscan_k_distances.png"), plot = k_dist_plot, width = 10, height = 10)
 
 genres$dbscan_cluster = as.factor(dbscan(genres_data, eps=21, minPts = k_neighbors)$cluster)
 
-plt = ggplot(genres, aes(x_value, y_value, color = dbscan_cluster)) +
+dbscan_plot = ggplot(genres, aes(x_value, y_value, color = dbscan_cluster)) +
             geom_point() +
-            scale_colour_manual(values=c25[1:nrow(genres)])
+            scale_colour_manual(values=c25[1:nrow(genres)]) +
+            theme_minimal() +
+            ggtitle("All Genres clustered") +
+            theme(plot.title = element_text(hjust = 0.5),
+                  legend.title = element_blank(),
+                  axis.text.x = element_blank(),
+                  axis.text.y = element_blank(),
+                  axis.title.x = element_blank(),
+                  axis.title.y = element_blank())
 
-plt
+dbscan_plot
 
 
 min_cluster = 2
-max_cluster = 250
+max_cluster = 100
 
 registerDoParallel(cores=parallel::detectCores())
 km = foreach(i=min_cluster:max_cluster) %dopar% {
-  kmeans(genres_data, centers = i, nstart = 50, iter.max = 500, algorithm = "Lloyd")
+  kmeans(genres_data, centers = i, nstart = 25, iter.max = 500, algorithm = "Lloyd")
 }
 km
 
 clu = km[1][[1]]
 clu$tot.withinss
 
-WCSS = function(x){
-  wcss = c()
-  for(i in 1:length(x)){
-    cl = x[i][[1]]
-    wcss = c(wcss, cl$tot.withinss)
-  }
-  return(wcss)
-}
-
 wcss = WCSS(km)
 wcss = as.data.frame(wcss)
 wcss$cluster = min_cluster:max_cluster
 
-ggplot(wcss, aes(cluster, wcss)) + geom_line()
+wcss_plot = ggplot(wcss, aes(cluster, wcss)) + 
+                  geom_line() +
+                  theme_minimal() +
+                  ggtitle("Within cluster sum of squares of k-means clustering") +
+                  ylab("wcss")+
+                  theme(plot.title = element_text(hjust = 0.5),
+                        legend.title = element_blank(),
+                        axis.title.x = element_blank())
+wcss_plot
 
+ggsave(filename = file.path(PLOT_PATH, "k-means-wcss.png"), plot = wcss_plot, width = 10, height = 10)
