@@ -26,6 +26,7 @@ class Command(BaseCommand):
             writer = csv.writer(file)
             writer.writerow(['Genre','x_value', 'y_value'])
             for genre in genres:
+                genre_slug = genre.contents[0].strip().replace('-', ' ')
                 x = y = 0
                 styles = genre['style'].split('; ')
                 for style in styles:
@@ -34,6 +35,6 @@ class Command(BaseCommand):
                         y = canvas_height - int(value[:-2])
                     if key == 'left':
                         x = int(value[:-2])
-                writer.writerow([genre.contents[0], x, y])
+                writer.writerow([genre_slug, x, y])
 
         print(len(genres))

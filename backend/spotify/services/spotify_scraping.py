@@ -10,8 +10,9 @@ from django.db.utils import DataError
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
 
-PLAYLIST_LIMIT = 10
-ARTIST_LIMIT = 40
+PLAYLIST_LIMIT = 40
+ARTIST_LIMIT = 100
+EXCLUDED_GENRES = ['children', 'kids', 'movies', 'show-tunes']
 
 spotify = spotipy.Spotify(
     requests_timeout=7,
@@ -31,8 +32,10 @@ def scrape_genres() -> None:
     genres = spotify.recommendation_genre_seeds()["genres"]
     for genre in genres:
         try:
-            genre_obj = Genre.objects.get_or_create(name=genre, seed_genre=True)
-            genre_obj.save()
+            if genre not in EXCLUDED_GENRES:
+                genre_slug = genre.strip().replace('-', ' ')
+                genre_obj = Genre.objects.get_or_create(name=genre, seed_genre=True)
+                genre_obj.save()
         except:
             continue
 
@@ -136,7 +139,7 @@ def save_tracks(tracks: List, base_genre: Genre) -> None:
                     continue
 
                 for genre in artist_obj["genres"]:
-                    genre_strings.append(genre.strip())
+                    genre_strings.append(genre.strip().replace('-', ' '))
             
             track_obj.genres = ','.join(genre_strings)
             track_obj.artists = ','.join(artist_strings)
