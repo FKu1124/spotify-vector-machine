@@ -133,13 +133,13 @@ export default function SVMAnimation() {
 
     return (
         <>
-            <div className={`w-full flex items-center h-screen absolute ${animationState !== 'init' && 'invisible'} `}>
+            <div className={`svm-animation w-full flex items-center h-screen absolute ${animationState !== 'init' ? 'opacity-0' : 'opacity-100'} `}>
                 <div className='w-full flex-col justify-center text-green2 text-6xl pb-64'>
                     Welcome to the Spotify Vector Machine
                 </div>
             </div>
 
-            <div className={`w-full h-screen absolute overflow-hidden ${animationState == 'init' && 'invisible'}`}>
+            <div className={`svm-animation w-full h-screen absolute overflow-hidden ${animationState === 'init' ? 'opacity-0' : 'opacity-100'}`}>
                 <div className='covers'>
                     {covers.map((cover, id) => (
                         <SongCover albumCover={cover.img} top={cover.top} left={cover.left} key={id} playlist={cover.playlist} />
@@ -162,7 +162,7 @@ export default function SVMAnimation() {
                 </svg>
             </div>
 
-            <div className={`w-full flex-col absolute justify-center text-green2 pb-64 ${animationState !== 'finish' && 'invisible'}`}>
+            <div className={`svm-animation w-full flex-col absolute justify-center text-green2 pb-64 ${animationState !== 'finish' ? 'opacity-0' : 'opacity-100'}`}>
                 <div className='text-6xl h-14 mb-10'>
                     Let Us Take You From
                     <span id='word1' className='mx-8'>Happy</span>
