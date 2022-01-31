@@ -4,3 +4,4 @@ docker-compose-x.yml
 .env
 backend/storage/*npz
 backend/storage/spotify_ids.csv
+data/

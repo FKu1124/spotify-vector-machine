@@ -31,7 +31,10 @@ module.exports = {
       scale: {
         '175': '1.75',
         '200': '2',
-      }
+      },
+      backgroundImage: {
+        'bg_main': "url('/static/bg_main.svg')" 
+      },
     },
   },
   variants: {
