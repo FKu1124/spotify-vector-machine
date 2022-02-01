@@ -5,13 +5,14 @@ import { Navigate } from 'react-router-dom';
 import { URL_ACCOUNTS } from '../Config';
 import Toast from '../components/Toast'
 import { useSearchParams } from 'react-router-dom';
+import { Icon } from '@chakra-ui/react'
+import { FaSpotify } from 'react-icons/fa'
 
-const spotifyIconImgUrl = new URL('../static/SpotifyIcon.png', import.meta.url).href
+const bg_main = new URL('../static/bg_main.png', import.meta.url).href
 
 export default function Login() {
 
-  const isAuthenticated = useUserStore(state => state.isAuthenticated)
-  const setIsAuthenticated = useUserStore(state => state.setIsAuthenticated)
+  const { isAuthenticated, setIsAuthenticated } = useUserStore()
   const [cookies, setCookie, removeCookie] = useCookies(['csrftoken']);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -61,20 +62,30 @@ export default function Login() {
     checkAUTH();
   }, [])
 
+  if (isAuthenticated === undefined) {
+    return (
+      <div className='h-screen w-screen' style={{ backgroundImage: `url(${bg_main})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        {/* LOADING SCREEN */}
+      </div>
+    )
+  }
+
   return (
     <>
       {isAuthenticated ? (<Navigate to="/" />) : (
-        <div className='h-screen w-screen grid place-content-center bg-red-500'>
-          { searchParams.get('error') && (<Toast duration={3000} line1="An Error Occured During Authentication." line2="Please Wait a Moment and Try Again." />) }
+        <div className='h-screen w-screen grid place-content-center' style={{ backgroundImage: `url(${bg_main})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          {searchParams.get('error') && (<Toast duration={3000} line1="An Error Occured During Authentication." line2="Please Wait a Moment and Try Again." />)}
           <div>
-            <h1 className='text-white text-6xl' style={{ fontFamily: 'Source Code Pro' }}>
+            <h1 className='text-white text-center text-6xl' style={{ fontFamily: 'Source Code Pro' }}>
               <span>Welcome to the S</span><span>potify</span>
               <span> V</span><span>ector</span>
               <span> M</span><span>achine</span>
             </h1>
             <div className='h-80'></div>
           </div>
-          <button onClick={() => signin()} className="mx-auto w-80 mt-8 rounded-xl px-3 py-1 text-white text-lg align-middle bg-spotify text-white">Login with Spotify<img style={{ height: "30px", width: "30px" }} className="inline pb-1 pl-1" src={spotifyIconImgUrl} alt="Spotify Icon"></img></button>
+          <div onClick={() => signin()} className="mx-auto w-80 rounded-xl px-3 text-white text-lg text-center content-center align-middle bg-spotify cursor-pointer flex justify-center">
+            <p>Login with Spotify<Icon w={4} h={4} as={FaSpotify} className='ml-2 mb-1' /></p>
+          </div>
         </div>
       )}
     </>

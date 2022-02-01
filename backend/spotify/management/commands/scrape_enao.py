@@ -34,6 +34,7 @@ class Command(BaseCommand):
                              'color_G',
                              'color_B'])
             for genre in genres:
+                genre_slug = genre.contents[0].strip().replace('-', ' ')
                 x = y = 0
                 styles = genre['style'].split('; ')
                 for style in styles:

@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.views.generic import TemplateView
 from rest_framework import serializers, views, viewsets, routers
 from rest_framework.authtoken import views
-from spotify.views import UserCreate
 
 # Serializers define the API representation.
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -32,6 +31,7 @@ urlpatterns = [
     # AUTHENTICATION
     path('api-auth/', include('rest_framework.urls')),
     path('accounts/', include('accounts.urls')),
+    path('presentation', TemplateView.as_view(template_name='presentation.html')),
     path('', TemplateView.as_view(template_name='index.html'))
 ]
 

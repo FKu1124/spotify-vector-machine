@@ -46,26 +46,28 @@ class Genre(models.Model):
 
 class Track(models.Model):
     spotify_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, null=True)
 
-    genres = models.CharField(max_length=500)
-    artists = models.CharField(max_length=500)
-    album = models.CharField(max_length=300)
+    genres = models.CharField(max_length=500, null=True)
+    artists = models.CharField(max_length=500, null=True)
+    album = models.CharField(max_length=300, null=True)
 
-    danceability = models.FloatField()
-    loudness = models.FloatField()
-    speechiness = models.FloatField()
-    acousticness = models.FloatField()
-    instrumentalness = models.FloatField()
-    liveness = models.FloatField()
-    valence = models.FloatField()
-    energy = models.FloatField()
-    tempo = models.FloatField()
-    duration = models.BigIntegerField()
-    key = models.IntegerField()
-    mode = models.IntegerField()
-    time_signature = models.IntegerField()
-    popularity = models.IntegerField()
+    danceability = models.FloatField(null=True)
+    loudness = models.FloatField(null=True)
+    speechiness = models.FloatField(null=True)
+    acousticness = models.FloatField(null=True)
+    instrumentalness = models.FloatField(null=True)
+    liveness = models.FloatField(null=True)
+    valence = models.FloatField(null=True)
+    energy = models.FloatField(null=True)
+    tempo = models.FloatField(null=True)
+    duration = models.BigIntegerField(null=True)
+    key = models.IntegerField(null=True)
+    mode = models.IntegerField(null=True)
+    time_signature = models.IntegerField(null=True)
+    popularity = models.IntegerField(null=True)
+
+    cluster = models.CharField(max_length=100, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -84,3 +86,9 @@ class Tag(models.Model):
     name = models.CharField(max_length=100)
     count = models.PositiveIntegerField()
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
+
+
+class UserTrack(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    track = models.ForeignKey(Track, on_delete=models.CASCADE)
+    type = models.CharField(max_length=100)
