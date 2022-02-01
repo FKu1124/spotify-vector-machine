@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.stdout.write(self.style.SUCCESS(
-            "Successfully started Clust Assignment command."))
+            "Successfully started Cluster Assignment command."))
 
         genres_df = pd.read_csv('storage/enao.csv')
         genres_df = genres_df[['genre', 'cluster']]
@@ -38,4 +38,4 @@ class Command(BaseCommand):
             track.save()
 
         self.stdout.write(self.style.SUCCESS(
-            "Finished Clust Assignment command."))
+            "Finished Cluster Assignment command."))

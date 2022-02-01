@@ -31,7 +31,8 @@ def scrape_genres() -> None:
     genres = spotify.recommendation_genre_seeds()["genres"]
     for genre in genres:
         try:
-            genre_obj = Genre.objects.get_or_create(name=genre, seed_genre=True)
+            genre_obj = Genre.objects.get_or_create(
+                name=genre, seed_genre=True)
             genre_obj.save()
         except:
             continue
@@ -50,12 +51,13 @@ def scrape_top_playlists_by_genre() -> None:
             try:
                 playlist_response = spotify.playlist(playlist["id"])
             except ReadTimeout:
-                print("Spotify playlist request timed out multiple times, continuing....")
+                print(
+                    "Spotify playlist request timed out multiple times, continuing....")
                 continue
 
             tracks = playlist_response["tracks"]["items"]
             tracks = [track["track"] for track in tracks if track is not None]
-            save_tracks(tracks, genre)
+            save_tracks(tracks)
 
 
 def scrape_top_artists_by_genre() -> None:
@@ -69,109 +71,120 @@ def scrape_top_artists_by_genre() -> None:
 
         for artist in search_response["artists"]["items"]:
             try:
-                tracks = spotify.artist_top_tracks(artist["id"], country="DE")['tracks']
+                tracks = spotify.artist_top_tracks(
+                    artist["id"], country="DE")['tracks']
             except ReadTimeout:
-                print("Spotify Artist top tracks request timed out multiple times, continuing....")
+                print(
+                    "Spotify Artist top tracks request timed out multiple times, continuing....")
                 continue
 
-            save_tracks(tracks, genre)
+            save_tracks(tracks)
 
 
-def save_tracks(tracks: List, base_genre: Genre) -> None:
+def save_tracks(tracks: List) -> None:
     for track in tracks:
-        if track is None:
-            continue
+        save_or_update_track(track)
 
-        updated = Track.objects.filter(spotify_id=track["id"]).update(
-            popularity=track["popularity"])
 
-        if updated == 1:
-            continue
-        else:
-            track_obj = Track(spotify_id=track["id"])
-            track_obj.name = track["name"]
-            track_obj.album = track["album"]["name"]
-            
+def save_or_update_track(track) -> Track:
+    if track is None:
+        return
+
+    updated = Track.objects.filter(spotify_id=track["id"]).update(
+        popularity=track["popularity"])
+
+    if updated == 1:
+        return
+    else:
+        track_obj = Track(spotify_id=track["id"])
+        track_obj.name = track["name"]
+        track_obj.album = track["album"]["name"]
+
+        try:
+            audio_feature_response = spotify.audio_features(
+                track["id"])
+            track_audio_features = audio_feature_response[0]
+        except ReadTimeout:
+            print(
+                "Spotify audio feature request timed out multiple times, continuing....")
+            return
+        except TypeError:
+            print(f"Error fetching audio feature for track {track['id']}")
+            return
+
+        if track_audio_features is None:
+            return
+
+        track_obj.popularity = track["popularity"]
+        track_obj.danceability = track_audio_features["danceability"]
+        track_obj.loudness = track_audio_features["loudness"]
+        track_obj.speechiness = track_audio_features["speechiness"]
+        track_obj.acousticness = track_audio_features["acousticness"]
+        track_obj.instrumentalness = track_audio_features["instrumentalness"]
+        track_obj.liveness = track_audio_features["liveness"]
+        track_obj.valence = track_audio_features["valence"]
+        track_obj.energy = track_audio_features["energy"]
+        track_obj.tempo = track_audio_features["tempo"]
+        track_obj.duration = track_audio_features["duration_ms"]
+        track_obj.key = track_audio_features["key"]
+        track_obj.mode = track_audio_features["mode"]
+        track_obj.time_signature = track_audio_features["time_signature"]
+
+        # add artists to track
+        artist_strings = []
+        genre_strings = []
+
+        for artist in track["artists"]:
+            artist_strings.append(artist["name"])
+
             try:
-                audio_feature_response = spotify.audio_features(
-                    track["id"])
-                track_audio_features = audio_feature_response[0]
+                artist_obj = spotify.artist(artist["id"])
             except ReadTimeout:
-                print("Spotify audio feature request timed out multiple times, continuing....")
-                continue
-            except TypeError:
-                print(f"Error fetching audio feature for track {track['id']}")
-                continue
-            
-            if track_audio_features is None:
+                print(
+                    "Spotify artist genre request timed out multiple times, continuing....")
                 continue
 
-            track_obj.popularity = track["popularity"]
-            track_obj.danceability = track_audio_features["danceability"]
-            track_obj.loudness = track_audio_features["loudness"]
-            track_obj.speechiness = track_audio_features["speechiness"]
-            track_obj.acousticness = track_audio_features["acousticness"]
-            track_obj.instrumentalness = track_audio_features["instrumentalness"]
-            track_obj.liveness = track_audio_features["liveness"]
-            track_obj.valence = track_audio_features["valence"]
-            track_obj.energy = track_audio_features["energy"]
-            track_obj.tempo = track_audio_features["tempo"]
-            track_obj.duration = track_audio_features["duration_ms"]
-            track_obj.key = track_audio_features["key"]
-            track_obj.mode = track_audio_features["mode"]
-            track_obj.time_signature = track_audio_features["time_signature"]
+            for genre in artist_obj["genres"]:
+                genre_strings.append(genre.strip())
 
-            # add artists to track
-            artist_strings = []
-            genre_strings = []
+        track_obj.genres = ','.join(genre_strings)
+        track_obj.artists = ','.join(artist_strings)
 
-            for artist in track["artists"]:
-                artist_strings.append(artist["name"])
+        try:
+            track_obj.save()
+        except DataError:
+            # Value too long for CharField
+            return
 
-                try:
-                    artist_obj = spotify.artist(artist["id"])
-                except ReadTimeout:
-                    print(
-                        "Spotify artist genre request timed out multiple times, continuing....")
-                    continue
+    return track_obj
 
-                for genre in artist_obj["genres"]:
-                    genre_strings.append(genre.strip())
-            
-            track_obj.genres = ','.join(genre_strings)
-            track_obj.artists = ','.join(artist_strings)
-            
-            try:
-                track_obj.save()
-            except DataError:
-                # Value too long for CharField
-                continue
-            
+
 def save_tracks_by_id(tracks: List) -> None:
     for track in tracks:
         if track is None:
             continue
-                
+
         try:
             audio_feature_response = spotify.audio_features(
                 track)
             track_audio_features = audio_feature_response[0]
         except ReadTimeout:
-            print("Spotify audio feature request timed out multiple times, continuing....")
+            print(
+                "Spotify audio feature request timed out multiple times, continuing....")
             continue
         except TypeError:
             print(f"Error fetching audio feature for track {track['id']}")
             continue
-        
+
         if track_audio_features is None:
             continue
-                
+
         track_response = spotify.track(track)
         track_obj = Track(spotify_id=track_response['id'])
         track_obj.name = track_response["name"]
         track_obj.album = track_response["album"]["name"]
         track_obj.popularity = track_response["popularity"]
-        
+
         track_obj.danceability = track_audio_features["danceability"]
         track_obj.loudness = track_audio_features["loudness"]
         track_obj.speechiness = track_audio_features["speechiness"]
@@ -202,10 +215,10 @@ def save_tracks_by_id(tracks: List) -> None:
 
             for genre in artist_obj["genres"]:
                 genre_strings.append(genre.strip())
-        
+
         track_obj.genres = ','.join(genre_strings)
         track_obj.artists = ','.join(artist_strings)
-        
+
         try:
             track_obj.save()
         except DataError:
