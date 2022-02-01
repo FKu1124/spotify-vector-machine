@@ -25,8 +25,9 @@ WCSS = function(x){
 
 FILE_PATH = dirname(rstudioapi::getSourceEditorContext()$path)
 PLOT_PATH = file.path(FILE_PATH, "cluster-plots")
-TRACKS_FILE_PATH = file.path(FILE_PATH, "enao.csv")
-genres = as.data.frame(readr::read_csv(TRACKS_FILE_PATH))
+GENRE_FILE_PATH = file.path(FILE_PATH, "enao.csv")
+TRACK_FILE_PATH = file.path(FILE_PATH, "tracks.csv")
+genres = as.data.frame(readr::read_csv(GENRE_FILE_PATH))
 genres = genres %>% arrange(y_value)
 #genres$x_value = min_max_norm(genres$x_value)
 #genres$y_value = min_max_norm(genres$y_value)
