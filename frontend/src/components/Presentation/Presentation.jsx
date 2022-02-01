@@ -26,6 +26,7 @@ export default function Presentation({ scrollBack }) {
             <div className="reveal">
                 {/* Any section element inside of this container is displayed as a slide */}
                 <div className="slides" data-transition="slide">
+
                     <section data-transition="slide" data-background-color="#001220">
                         {/* <a href="https://revealjs.com">
                             <img
@@ -43,6 +44,181 @@ export default function Presentation({ scrollBack }) {
                     </section>
                     
                     {/* <Intro /> */}
+
+                    <section data-auto-animate>
+                        <h2>Spotify keeps recommending the same Songs?</h2>
+                    </section>
+
+                    <section data-auto-animate>
+                        <h2>You want to get recommendations for different moods?</h2>
+                    </section>
+
+                    <section data-auto-animate>
+						<h2>Here is the solution:</h2>
+					</section>
+
+                    <section data-auto-animate>
+						<h1><span>Spotify</span><span> Vector</span><span> Machine</span></h1>
+					</section>
+					<section data-auto-animate>
+						<h2>Spotify Vector Machine</h2>
+					</section>
+                    <section data-auto-animate>
+						<h2>Spotify Vector Machine</h2>
+						<h4>Let us help you change your mood:</h4>
+					</section>
+
+                    <section data-auto-animate>
+						<h2>Spotify Vector Machine</h2>
+						<h4>Let us help you change your mood:</h4>
+						<ol>
+							<li>Draw a vector into Music-Emotion-Grid</li>
+						</ol>
+					</section>
+                    <section data-auto-animate>
+						<h2>Spotify Vector Machine</h2>
+						<h4>Let us help you change your mood:</h4>
+						<ol>
+							<li>Draw a vector into Music-Emotion-Grid</li>
+							<li>Choose a Genre</li>
+						</ol>
+					</section>
+                    <section data-auto-animate>
+						<h2>Spotify Vector Machine</h2>
+						<h4>Let us help you change your mood:</h4>
+						<ol>
+							<li>Draw a vector into Music-Emotion-Grid</li>
+							<li>Choose a Genre</li>
+							<li>Enjoy!</li>
+						</ol>
+					</section>
+
+                    <section>
+					<section data-transition="slide">
+						<h2>Project Reflection</h2>
+					</section>
+					<section data-auto-animate>
+						<h3>TechStack</h3>
+						<ul>
+							<p><strong>Pandas: </strong>Numpy, Sklearn, Spotipy, bs4</p>
+							<p><strong>React: </strong>Tailwind</p>
+							<p><strong>Postgres </strong>(dockerized)</p>
+						</ul>
+					</section>
+					<section>
+						<h3>Project Tools</h3>
+						<ul>
+							<p><strong>GitHub</strong></p>
+							<p><strong>Figma Designs</strong></p>
+						</ul>
+					</section>
+					<section>
+						<h3>Organization</h3>
+						<ul>
+							<p><strong>Technological Infrastructure: </strong></p>
+							<li>Backend</li>
+							<li>Frontend/Design</li>
+							<li>Recommender</li>
+							<p><strong>Contextual Research</strong></p>
+						</ul>
+					</section>
+					<section data-auto-animate>
+						<h2></h2>
+					</section>
+					<section data-auto-animate>
+						<h2>TechStack</h2>
+						<ul>
+							<p><strong>Pandas: </strong>Numpy, Sklearn, Spotipy, bs4</p>
+							<p><strong>React: </strong>Tailwind</p>
+							<p><strong>Postgres </strong>(dockerized)</p>
+						</ul>
+					</section>
+				</section>
+
+                <section>
+					<section data-auto-animate>
+						<h2>Data Integration</h2>
+					</section>
+					<section data-auto-animate>
+						<h3>TechStack</h3>
+						<ul>
+							<p><strong>Spotify: </strong>Metadata, Artist Information, Audiofeatures</p>
+							<p><strong>Last.FM: </strong>Community Tags</p>
+							<p><strong>Scraper: </strong>Spotipy, Last.FM (scraper selfmade), everynoise.com (requests, bs4)</p>
+						</ul>
+					</section>
+				</section>
+
+                <section>
+					<section data-auto-animate>
+						<h1>Recommender</h1>
+					</section>
+					<section data-auto-animate>
+						<h2>Recommender</h2>
+						<h4>Item Profile</h4>
+						<ul>
+							<p class="fragment fade-in"><strong>Data Sources: </strong>Spotify, Last.FM</p>
+							<p class="fragment fade-in">&raquo; Weighted Features</p>
+							<p class="fragment fade-in">&raquo; CountVector</p>
+						</ul>
+					</section>
+					<section data-auto-animate>
+						<h2>Recommender</h2>
+						<h4>User Profile</h4>
+						<p>Fetch personal music preferences from existing Spotify Profile: </p>
+						<ul class="fragment fade-in">
+							<li>Liked Tracks</li>
+							<li>Recent Tracks</li>
+							<li>Top Tracks: short-term, medium-term, long-term</li>
+							<p class="fragment fade-in"> &rarr; each playlist can be weighted</p>
+						</ul>
+					</section>
+					<section data-auto-animate>
+						<h2>Recommender</h2>
+						<h4>User Profile</h4>
+						<ol>
+							<li>Fetch personal music preferences from existing Spotify Profile</li>
+						</ol>
+					</section>
+					<section data-auto-animate>
+						<h2>Recommender</h2>
+						<h4>User Profile</h4>
+						<ol>
+							<li>Fetch personal music preferences from existing Spotify Profile</li>
+							<li>Create subsets of tracks associated to user by genre cluster</li>
+						</ol>
+					</section>
+					<section data-auto-animate>
+						<h2>Recommender</h2>
+						<h4>User Profile</h4>
+						<ol>
+							<li>Fetch personal music preferences from existing Spotify Profile</li>
+							<li>Create subsets of tracks associated to user by genre cluster</li>
+							<li>For each subset: Create user-genre-profile based on song profiles included</li>
+						</ol>
+					</section>
+					<section data-auto-animate>
+						<h2>Recommender</h2>
+						<ul>
+							<li>Content-based Filtering</li>
+							<p class="fragment fade-in"> &rarr; Cosine similarity of picked user-genre-profile & track-feature-matrix</p>
+                        </ul>
+					</section>
+					<section data-auto-animate>
+						<h2>Recommender</h2>
+						<ul>
+							<li>Content-based Filtering</li>
+							<p> &rarr; Cosine similarity of picked user-genre-profile & track-feature-matrix</p>
+							<li>Filtered by energy/valence values derived from drawn vector</li>
+						</ul>
+						<p class="fragment fade-in">&raquo; Playlist containing transition from start to end mood</p>
+					</section>
+				</section>
+
+
+
+
+                
                     <section data-transition="slide">
                         <h2>Hello There</h2>
                         <p>
@@ -52,6 +228,10 @@ export default function Presentation({ scrollBack }) {
                         </p>
                         <button onClick={() => scrollBack()}>Go Home</button>
                     </section>
+
+                    
+
+
 
                     <section>
                         <h2 className="fragment shrink current-visible" >SVM</h2>
@@ -76,10 +256,23 @@ export default function Presentation({ scrollBack }) {
                     </section>
 
                     <section data-auto-animate>
+                        <h1>Spotify keeps recommending the same Songs?</h1>
+                    </section>
+                    <section data-auto-animate>
+                        <h1>You want to get recommendations for different moods?</h1>
+                    </section>
+                    <section data-auto-animate>
+                        <h1>Here is the solution:</h1>
+                    </section>
+                    <section data-auto-animate>
                         <span>S</span><span>V</span><span>M</span>
                     </section>
                     <section data-auto-animate>
-                        <span>S</span><span>upport</span><span> V</span><span>ector</span><span> M</span><span>achine</span>
+                        <span>S</span><span>potify</span><span> V</span><span>ector</span><span> M</span><span>achine</span>
+                    </section>
+                    <section data-auto-animate>
+                        <h1>Spotify Vector Machine</h1>
+
                     </section>
 
                     <section>
