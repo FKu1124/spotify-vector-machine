@@ -1,8 +1,9 @@
 import os
 import time
 from accounts.serializers import MoodVectorSerializer
-from spotify.services.recommender import create_playlist_for_vector
+from spotify.services.recommender import create_playlist_for_vector, get_previews_for_vector
 from spotify.services.user_profiles import create_user_profile
+
 
 from django.contrib import auth
 from django.contrib.auth.models import User
@@ -134,6 +135,26 @@ class DeleteAccountView(APIView):
             return Response({ 'success': 'User deleted successfully' })
         except:
             return Response({ 'error': 'Error deleting user' })
+
+@method_decorator(csrf_protect, name='dispatch')
+class GetMoodVectorPreview(APIView):
+    def post(self, request, format=None):
+        vec_data = {}
+
+        data = JSONParser().parse(request)
+        vec_data['x_start'] = float(data.pop('scaledStartX'))
+        vec_data['y_start'] = float(data.pop('scaledStartY'))
+        vec_data['x_end'] = float(data.pop('scaledEndX'))
+        vec_data['y_end'] = float(data.pop('scaledEndY'))
+        
+        try:
+            previews = get_previews_for_vector(
+                vec_data, request.user)
+
+            return Response({'status': True,  'msg': 'Preview created successfull', 'data': previews})
+        except Exception as e:
+            print(e)
+            return Response({'error': print(e)})
 
 @method_decorator(csrf_protect, name='dispatch')
 class SaveMoodVector(APIView):

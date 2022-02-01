@@ -14,6 +14,11 @@ export const useCoordinateSystemStore = create(set => ({
     squareSize: 640,
     cnvCtx: null,
 
+    startPreviews: null,
+    endPreviews: null,
+    startProfile: null,
+    endProfile: null,
+
     setStartX: (val) => set({ startX: val }),
     setStartY: (val) => set({ startY: val }),
     setStartMood: (val) => set({ startMood: val }),
@@ -24,4 +29,9 @@ export const useCoordinateSystemStore = create(set => ({
     setGenre: (val) => set({ genre: val }),
     setName: (val) => set({ name: val }),
     setCnvCtx: (val) => set({ cnvCtx: val }),
+    setSquareSizeStore: (val) => set({ squareSize: val }),
+    setStartPreviews: (val) => set({ startPreviews: val }),
+    setEndPreviews: (val) => set({ endPreviews: val }),
+    setStartProfile: (val) => set({ startProfile: val }),
+    setEndProfile: (val) => set({ endProfile: val }),
 }))

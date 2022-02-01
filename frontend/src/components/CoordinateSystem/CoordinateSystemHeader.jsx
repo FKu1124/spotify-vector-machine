@@ -6,7 +6,7 @@ import { URL_ACCOUNTS } from '../../Config';
 
 export default function CoordinateSystemHeader() {
   const [cookies] = useCookies(['csrftoken']);
-  const { squareSize, startX, startY, startMood, endX, endY, endMood, setStartX, setStartY, setStartMood, setEndX, setEndY, setEndMood, length, genre, name, cnvCtx, setLength, setGenre, setName } = useCoordinateSystemStore()
+  const { squareSize, startX, startY, startMood, endX, endY, endMood, setStartX, setStartY, setStartMood, setEndX, setEndY, setEndMood, length, genre, name, cnvCtx, setLength, setGenre, setName, setStartPreviews, setEndPreviews } = useCoordinateSystemStore()
 
   const onLengthChange = e => {
     setLength(e.target.value)
@@ -28,7 +28,7 @@ export default function CoordinateSystemHeader() {
     cnvCtx.clearRect(0, 0, canvasWidth, canvasWidth)
   }
 
-  function sendVector() {
+  function getStringifiedVector() {
     if (startX == 0 || startY == 0) {
       alert("Please draw a vector before submiting.")
     }
@@ -39,7 +39,33 @@ export default function CoordinateSystemHeader() {
     let scaledEndX = endX / (squareSize + 4)
     let scaledEndY = endY / (squareSize + 4)
 
-    console.log(scaledStartX, scaledStartY, scaledEndX, scaledEndY, endX, endY);
+    return JSON.stringify({
+      scaledStartX, scaledStartY, scaledEndX, scaledEndY
+    })
+  }
+
+  function getPreviews() {
+    let vector_json = getStringifiedVector()
+    
+    fetch(`${URL_ACCOUNTS}get_vector_preview`, {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRFToken': cookies['csrftoken']
+      },
+      credentials: 'include',
+      body: vector_json
+    }).then(res => res.json())
+      .then(data => {
+        console.log(data.data.start)
+        setStartPreviews(data.data.start)
+        setEndPreviews(data.data.end)
+      })
+  }
+
+  function sendVector() {
+    let vector_json = getStringifiedVector()
 
     fetch(`${URL_ACCOUNTS}save_vector`, {
       method: "POST",
@@ -49,9 +75,7 @@ export default function CoordinateSystemHeader() {
         'X-CSRFToken': cookies['csrftoken']
       },
       credentials: 'include',
-      body: JSON.stringify({
-        scaledStartX, scaledStartY, scaledEndX, scaledEndY, length, genre, name
-      })
+      body: vector_json
     }).then(res => res.json())
       .then(data => {
         console.log(data)
@@ -66,6 +90,9 @@ export default function CoordinateSystemHeader() {
         <h1 className='text-xl'>
           Let us take you from <span style={{ 'textShadow': '1px 1px #4895ef' }}>tired</span> to <span style={{ 'textShadow': '1px 1px #B5179E' }}>energized</span>
         </h1>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 p-2 cursor-pointer bg-green1 text-white rounded-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" onClick={getPreviews}>
+          <path strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+        </svg>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 p-2 cursor-pointer bg-gray-400 text-white rounded-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" onClick={sendVector}>
           <path strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
         </svg>

@@ -1,6 +1,7 @@
 import { React, useState, useEffect } from 'react'
 import moodMapping from '../../static/mood.json'
 import Coordinate from './Coordinate'
+import Preview from './Preview'
 import { repeat, throttle } from 'lodash'
 import { useCoordinateSystemStore } from '../../store/coordinateSystemStore'
 
@@ -13,7 +14,7 @@ export default function CoordinateSystem({ squareWidth }) {
   const [coordinates, setCoordinates] = useState(getMoodCoordinateArray())
   const [cnv, setCnv] = useState(null)
 
-  const { startX, startY, startMood, endX, endY, endMood, setStartX, setStartY, setStartMood, setEndX, setEndY, setEndMood,   setName, cnvCtx, setCnvCtx } = useCoordinateSystemStore()
+  const { startX, startY, startMood, endX, endY, endMood, setStartX, setStartY, setStartMood, setEndX, setEndY, setEndMood,   setName, cnvCtx, setCnvCtx, setSquareSizeStore, startPreviews, endPreviews } = useCoordinateSystemStore()
 
   useEffect(() => {
     let canvas = document.getElementById("cnv")
@@ -23,24 +24,10 @@ export default function CoordinateSystem({ squareWidth }) {
 
     setCnv(canvas)
     setCnvCtx(canvasContext)
+    setSquareSizeStore(squareSize)
   }, [])
 
-  function getMoodCoordinateArray() {
-    let moodArr = []
-    let scaledX, scaledY, relativeX, relativeY = 0
-
-    moodMapping.forEach(item => {
-      scaledX = getScaledCoordinate(item.coordinate.x)
-      scaledY = getScaledCoordinate(item.coordinate.y)
-      moodArr.push(
-        {
-          "top": squareSize - scaledY,
-          "left": scaledX,
-          "label": item.label
-        }
-      )
-    })
-
+   
     return moodArr
   }
 
@@ -159,6 +146,24 @@ export default function CoordinateSystem({ squareWidth }) {
             left={item.left}
           />
         ))}
+
+        {startPreviews &&
+          <Preview
+            pos='start'
+            top={squareSize - startY}
+            left={startX}
+            data={startPreviews} 
+          />
+        }
+        
+        {endPreviews &&
+          <Preview
+            pos='end'
+            top={squareSize - endY}
+            left={endX}
+            data={endPreviews}
+          />
+        }
       </div>
     </div>
 
