@@ -27,6 +27,21 @@ export default function CoordinateSystem({ squareWidth }) {
     setSquareSizeStore(squareSize)
   }, [])
 
+  function getMoodCoordinateArray() {
+    let moodArr = []
+    let scaledX, scaledY, relativeX, relativeY = 0
+
+    moodMapping.forEach(item => {
+      scaledX = getScaledCoordinate(item.coordinate.x)
+      scaledY = getScaledCoordinate(item.coordinate.y)
+      moodArr.push(
+        {
+          "top": squareSize - scaledY,
+          "left": scaledX,
+          "label": item.label
+        }
+      )
+    })
    
     return moodArr
   }
