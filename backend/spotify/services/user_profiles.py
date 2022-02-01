@@ -203,9 +203,6 @@ def _generate_user_profile(user_id) -> None:
 
         weights = (weight for weight in user_profile)
 
-        print(user_profile)
-        print(len(ids))
-        print(len(weights))
         scipy.sparse.save_npz(
             f'storage/user_profile_{user_id}_{cluster}.npz', user_profile)
 
