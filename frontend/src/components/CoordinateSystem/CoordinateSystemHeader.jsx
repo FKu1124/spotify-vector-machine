@@ -6,7 +6,7 @@ import { URL_ACCOUNTS } from '../../Config';
 
 export default function CoordinateSystemHeader() {
   const [cookies] = useCookies(['csrftoken']);
-  const { squareSize, startX, startY, endX, endY, setStartX, setStartY, setEndX, setEndY, length, genre, name, cnvCtx, setLength, setGenre, setName } = useCoordinateSystemStore()
+  const { squareSize, startX, startY, startMood, endX, endY, endMood, setStartX, setStartY, setStartMood, setEndX, setEndY, setEndMood, length, genre, name, cnvCtx, setLength, setGenre, setName } = useCoordinateSystemStore()
 
   const onLengthChange = e => {
     setLength(e.target.value)
@@ -19,22 +19,27 @@ export default function CoordinateSystemHeader() {
   function resetVector() {
     setStartX(0)
     setStartY(0)
+    setStartMood('neutral')
     setEndX(0)
     setEndY(0)
+    setEndMood('neutral')
 
     let canvasWidth = cnvCtx.canvas.attributes.width.nodeValue
     cnvCtx.clearRect(0, 0, canvasWidth, canvasWidth)
   }
 
   function sendVector() {
-    if (endX == 0 || endY == 0) {
-      alert("pls draw vec bro")
+    if (startX == 0 || startY == 0) {
+      alert("Please draw a vector before submiting.")
     }
 
-    let scaledStartX = startX / squareSize
-    let scaledStartY = startY / squareSize
-    let scaledEndX = endX / squareSize
-    let scaledEndY = endY / squareSize
+    // Added small offset to since leave position can be higher than div size
+    let scaledStartX = startX / (squareSize + 4)
+    let scaledStartY = startY / (squareSize + 4)
+    let scaledEndX = endX / (squareSize + 4)
+    let scaledEndY = endY / (squareSize + 4)
+
+    console.log(scaledStartX, scaledStartY, scaledEndX, scaledEndY, endX, endY);
 
     fetch(`${URL_ACCOUNTS}save_vector`, {
       method: "POST",
@@ -51,7 +56,7 @@ export default function CoordinateSystemHeader() {
       .then(data => {
         console.log(data)
       })
-      // TODO Handle redirecting of successful response
+    // TODO Handle redirecting of successful response
   }
 
   return (
