@@ -177,3 +177,26 @@ wcss_plot = ggplot(wcss, aes(cluster, wcss)) +
 wcss_plot
 
 ggsave(filename = file.path(PLOT_PATH, "k-means-wcss.png"), plot = wcss_plot, width = 10, height = 10)
+
+
+
+
+tracks = as.data.frame(readr::read_csv(TRACK_FILE_PATH))
+
+tracks_aggregated = tracks %>%
+  group_by(genre) %>%
+  summarise_at(c("valence", "energy"), mean)
+
+track_plot = ggplot(tracks_aggregated, aes(valence, energy, label = genre)) +
+  geom_point() +
+  geom_text(vjust=1.5, size = 4) +
+  scale_colour_manual(values=genres_cluster_centers$color_hex) +
+  theme_minimal() +
+  ggtitle("Biggest 36 Genres from everynoise.com as Cluster Centers") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position="none",
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+track_plot
