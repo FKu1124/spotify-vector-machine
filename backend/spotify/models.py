@@ -1,6 +1,7 @@
 from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
@@ -87,7 +88,23 @@ class Tag(models.Model):
     count = models.PositiveIntegerField()
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
 
+
 class UserTrack(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
     type = models.CharField(max_length=100)
+
+
+class UserProfile(models.Model):
+    name = models.CharField(max_length=100)
+    spotify_ids = ArrayField(models.CharField(max_length=50))
+    weights = ArrayField(models.FloatField())
+
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def get_weights(self):
+        spotify_id_to_weight = {}
+        for spotify_id, weight in zip(spotify_ids, weights):
+            spotify_id_to_weight[spotify_id] = weight
+
+        return spotify_id_to_weight

@@ -17,21 +17,17 @@ from .spotify_scraping import save_tracks_by_id, save_or_update_track
 
 TYPE_WEIGHTS = {
     'top_tracks_short': 1,
-    'top_tracks_medium': 1,
-    'top_tracks_long': 1,
-    'recent': 1,
-    'saved': 1,
+    'top_tracks_medium': 2,
+    'top_tracks_long': 3,
+    'recent': 2,
+    'saved': 6,
     'feedback_positive': 1,
     'feedback_negative': 1
 }
 
 
 def _get_user_profile_tracks(user: User, spotify: Spotify):
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.debug('something here')
     print("Starting to create the user profile.")
-    newly_added_count = 0
 
     # def _create_user_track_mappings(tracks, type: str):
     #     for track in tracks['items']:
@@ -46,6 +42,7 @@ def _get_user_profile_tracks(user: User, spotify: Spotify):
     #             pass
 
     # variation for liked/recent tracks
+
     def _create_user_track_mappings(tracks: List, type: str) -> None:
 
         for track in tracks:
@@ -56,17 +53,21 @@ def _get_user_profile_tracks(user: User, spotify: Spotify):
                                                 track=track_obj,
                                                 type=type)
 
-                newly_added_count += 1
+                # newly_added_count += 1
+
+    newly_added_count = 0
 
     print(
         "Fetching recent and liked tracks... (previous step's new: {})".format(newly_added_count))
     saved_tracks = spotify.current_user_saved_tracks(limit=50)['items']
     recent_tracks = spotify.current_user_recently_played(limit=50)['items']
+    saved_tracks = [t['track'] for t in saved_tracks]
+    recent_tracks = [t['track'] for t in recent_tracks]
     _create_user_track_mappings(saved_tracks, 'saved')
     _create_user_track_mappings(recent_tracks, 'recent')
 
     print("Fetching top tracks... (previous step's new: {})".format(
-        len(newly_added_count)))
+        newly_added_count))
     top_tracks_short = spotify.current_user_top_tracks(limit=50,
                                                        time_range='short_term')['items']
     top_tracks_medium = spotify.current_user_top_tracks(limit=50,
@@ -79,7 +80,7 @@ def _get_user_profile_tracks(user: User, spotify: Spotify):
     _create_user_track_mappings(top_tracks_long, 'top_tracks_long')
 
     tracks_with_missing_values = Track.objects.filter(
-        spotify_id__isnull=False).filter(energy__isnull=True)
+        spotify_id__isnull=False).filter(energy__isnull=True).filter(valence__isnull=True)
 
     if tracks_with_missing_values:
         print("Deleting & Re-fetching {} tracks that have missing values...".format(
@@ -115,6 +116,10 @@ def _get_user_profile_tracks(user: User, spotify: Spotify):
                                   None)
             if track_response:
                 _create_user_track_mappings(track_response, 'top_tracks_long')
+
+            if not track_response:
+                save_or_update_track(track)
+                newly_added_count += 1
 
     print("Added {} new tracks and their features to the data base. New IDs:".format(
         newly_added_count))
@@ -156,6 +161,8 @@ def _generate_user_profile(user_id) -> None:
         for user_track in user_tracks:
             weight = weight + TYPE_WEIGHTS[user_track.type]
 
+        # in weight we store the cummulated weights of the occurences of the song
+        # e.g. in top_tracks_short and recent, we then add those weights up
         spotify_id_vect_id[track.spotify_id] = {
             'vect': track_feature_matrix[track.Index],
             'weight': weight
@@ -167,31 +174,38 @@ def _generate_user_profile(user_id) -> None:
     cluster_count = sorted(list(cluster_count),
                            key=lambda x: x[1], reverse=True)
 
-    count_threshhold = math.ceil(len(spotify_ids) * 0.1)
+    count_threshhold = math.ceil(len(spotify_ids) * 0.05)
     user_profiles = {}
 
     for (cluster, count) in cluster_count:
         if count > count_threshhold:
             cluster_track_ids = tracks.filter(
                 cluster=cluster).values_list('spotify_id', flat=True)
-            user_profiles[cluster] = [vect_weight for spotify_id,
-                                      vect_weight in spotify_id_vect_id.items() if spotify_id in cluster_track_ids]
+            user_profiles[cluster] = [(spotify_id, vect_weight) for spotify_id, vect_weight
+                                      in spotify_id_vect_id.items()
+                                      if spotify_id in cluster_track_ids]
 
     for cluster, vect_weights in user_profiles.items():
         count_weight = 0
         user_profile = None
-
-        for vect_weight in vect_weights:
+        ids = []
+        for spotify_id, vect_weight in vect_weights:
+            ids.append(spotify_id)
             if user_profile is None:
                 user_profile = vect_weight['vect'] * vect_weight['weight']
             else:
                 user_profile = user_profile + \
                     vect_weight['vect'] * vect_weight['weight']
 
-            count_weight = count_weight + weight
+            count_weight += weight
 
         user_profile = user_profile / count_weight
 
+        weights = (weight for weight in user_profile)
+
+        print(user_profile)
+        print(len(ids))
+        print(len(weights))
         scipy.sparse.save_npz(
             f'storage/user_profile_{user_id}_{cluster}.npz', user_profile)
 

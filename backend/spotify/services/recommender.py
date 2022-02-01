@@ -12,13 +12,15 @@ from accounts.models import MoodVector
 from spotipy import Spotify
 
 # Adjustable weights for the different feature vector components
-W_ARTIST = 1
+W_ARTIST = 3
 W_TITLE = 1
-W_GENRE = 1
+W_GENRE = 3
 W_SOUND = 1
 W_TAGS = 1
 
 # DB Connection to directly load in dataframe
+
+
 def get_db_connection():
     db_name = os.environ.get('POSTGRES_NAME')
     db_user = os.environ.get('POSTGRES_USER')
@@ -217,6 +219,7 @@ def recommend_songs_for_profile(profile: scipy.sparse.csr.csr_matrix):
 
     return recommendations
 
+
 def _get_user_profile(user: User):
     # ToDo What profile to chose on default?
     profiles = []
@@ -224,8 +227,8 @@ def _get_user_profile(user: User):
         if f"user_profile_{user.id}" in profile:
             profiles.append(f"storage/{profile}")
 
-    user_profile = scipy.sparse.load_npz(profiles[1])
-    
+    user_profile = scipy.sparse.load_npz(profiles[2])
+
     print(user_profile)
 
     return user_profile
@@ -234,7 +237,7 @@ def _get_user_profile(user: User):
 def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify) -> str:
     # Get the previously created user profile
     user_profile = _get_user_profile(user)
-    
+
     # Get recommendations
     recommended_songs = recommend_songs_for_profile(user_profile)
 
@@ -242,23 +245,29 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
     tracks_df = pd.read_sql_query(
         "SELECT spotify_id, name, artists, energy, valence, duration FROM spotify_track", con=engine)
 
-    tracks_df.drop_duplicates(subset=['name', 'artists'], keep='first', inplace=True) #drop duplicates (~7.2k)
+    # drop duplicates (~7.2k)
+    tracks_df.drop_duplicates(
+        subset=['name', 'artists'], keep='first', inplace=True)
     tracks_df.drop(columns=['name', 'artists'], inplace=True)
- 
+
     recommended_songs = recommended_songs.merge(
         tracks_df, how="left", left_on="spotify_id", right_on="spotify_id")
-    
-    n = int(vector.length * 1000 * 60 / recommended_songs.duration.quantile(q=0.3))
+
+    n = int(vector.length * 1000 * 60 /
+            recommended_songs.duration.quantile(q=0.3))
     song_ids = []
     x_dif = vector.x_start - vector.x_end
     y_dif = vector.y_start - vector.y_end
 
-    print("Creating a playlist with {} tracks based on the ~avg. of {} mins per track".format(n, recommended_songs.duration.quantile(q=0.3) / 1000 / 60))
-    print("Based on {} potentially interesting tracks of {} tracks in total".format(len(recommended_songs), len(tracks_df)))
-    print("Start/End: {},{}/{},{}".format(vector.x_start, vector.y_start, vector.x_end, vector.y_end))
-    
-    #ToDo: implement dynamic filter size slider in frontend
-    #ToDo: plot energy/valence of recommended tracks [song_ids]
+    print("Creating a playlist with {} tracks based on the ~avg. of {} mins per track".format(
+        n, recommended_songs.duration.quantile(q=0.3) / 1000 / 60))
+    print("Based on {} potentially interesting tracks of {} tracks in total".format(
+        len(recommended_songs), len(tracks_df)))
+    print("Start/End: {},{}/{},{}".format(vector.x_start,
+          vector.y_start, vector.x_end, vector.y_end))
+
+    # ToDo: implement dynamic filter size slider in frontend
+    # ToDo: plot energy/valence of recommended tracks [song_ids]
     dynamic_filter_size = 0.05
 
     for i in range(1, n + 1):
@@ -267,7 +276,8 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
         filter = (recommended_songs['energy'] > energy - dynamic_filter_size) & (recommended_songs['energy'] < energy + dynamic_filter_size) & (
             recommended_songs['valence'] > valence - dynamic_filter_size) & (recommended_songs['valence'] < valence + dynamic_filter_size)
         filtered_track = recommended_songs[filter]
-        print("X/Y {}/{}, number of tracks to choose from: {}".format(valence, energy, len(filtered_track)))
+        print("X/Y {}/{}, number of tracks to choose from: {}".format(valence,
+              energy, len(filtered_track)))
 
         # Pick the first track not already present in recommended song
         track_postion = 0
@@ -278,10 +288,10 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
                     filtered_track['spotify_id'].iloc[track_postion])
                 break
             track_postion += 1
-    
+
     spotify_user_id = spotify.me()['id']
-    
-    #ToDo: calculate the closest emotion to the start- and endpoint respectively
+
+    # ToDo: calculate the closest emotion to the start- and endpoint respectively
     playlist = spotify.user_playlist_create(
         spotify_user_id, vector.name, public=False, description='Created with Spotify Vector Machine. We will be taking you from {} to {} my friend.'.format(
             "emotion1", "emotion2"))
