@@ -23,3 +23,4 @@ sklearn=1.0.2
 scipy==1.7.3
 SQLAlchemy==1.4.31
 beautifulsoup4==4.10.0
+django_pandas==0.6.6
