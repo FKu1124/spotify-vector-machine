@@ -39,7 +39,6 @@ plt_all_genre = ggplot(genres, aes(x_value, y_value, color = color_hex, size=fon
                       geom_point() +
                       scale_colour_manual(values = genres$color_hex) +
                       theme_minimal() +
-                      ggtitle("All Genres from everynoise.com") +
                       theme(plot.title = element_text(hjust = 0.5),
                             legend.position="none",
                             axis.text.x = element_blank(),
@@ -47,7 +46,7 @@ plt_all_genre = ggplot(genres, aes(x_value, y_value, color = color_hex, size=fon
                             axis.title.x = element_blank(),
                             axis.title.y = element_blank())
 plt_all_genre
-ggsave(filename = file.path(PLOT_PATH, "all_genres.png"), plot = plt_all_genre, width = 5, height = 10)
+ggsave(filename = file.path(PLOT_PATH, "all_genres.png"), plot = plt_all_genre)
 
 genre_font_sizes = genres %>%
                       group_by(font_size) %>%
@@ -64,7 +63,6 @@ cluster_center_plot = ggplot(genres_cluster_centers, aes(x_value, y_value, size 
                             geom_text(vjust=1.8, size = 4) +
                             scale_colour_manual(values=genres_cluster_centers$color_hex) +
                             theme_minimal() +
-                            ggtitle("Biggest 36 Genres from everynoise.com as Cluster Centers") +
                             theme(plot.title = element_text(hjust = 0.5),
                                   legend.position="none",
                                   axis.text.x = element_blank(),
@@ -73,7 +71,7 @@ cluster_center_plot = ggplot(genres_cluster_centers, aes(x_value, y_value, size 
                                   axis.title.y = element_blank())
   
 cluster_center_plot
-ggsave(filename = file.path(PLOT_PATH, "cluster_centers.png"), plot = cluster_center_plot, width = 5, height = 10)
+ggsave(filename = file.path(PLOT_PATH, "cluster_centers.png"), plot = cluster_center_plot)
 
 cluster_centers = genres_cluster_centers %>% select(color_R, color_G, color_B)
 genre_data = genres_without_cluster_centers %>% select(color_R, color_G, color_B)
@@ -96,7 +94,6 @@ genres_clustered_plot = ggplot(genres_without_cluster_centers, aes(x_value, y_va
             #scale_colour_manual(values=genres_cluster_centers$color_hex, labels = genres_cluster_centers$genre)
             scale_colour_manual(values=c25[1:nrow(genres_cluster_centers)], labels = genres_cluster_centers$genre) +
             theme_minimal() +
-            ggtitle("All Genres clustered") +
             theme(plot.title = element_text(hjust = 0.5),
                   legend.title = element_blank(),
                   axis.text.x = element_blank(),
@@ -105,7 +102,7 @@ genres_clustered_plot = ggplot(genres_without_cluster_centers, aes(x_value, y_va
                   axis.title.y = element_blank())
   
 genres_clustered_plot
-ggsave(filename = file.path(PLOT_PATH, "clustered_genres.png"), plot = genres_clustered_plot, width = 8, height = 10)
+ggsave(filename = file.path(PLOT_PATH, "clustered_genres.png"), plot = genres_clustered_plot)
 
 
 
