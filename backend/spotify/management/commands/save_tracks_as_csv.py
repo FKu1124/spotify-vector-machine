@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 import pandas as pd
-from spotify.models import Track
+from spotify.models import Track, Genre
 from tqdm import tqdm
 
 
@@ -18,9 +18,11 @@ class Command(BaseCommand):
 
     def _save_tracks(self) -> None:
         track_objects = Track.objects.all()
+        all_genres = [genre.name for genre in Genre.objects.all()]
 
         column_names = ["spotify_id",
                         "name",
+                        "genre",
                         "danceability",
                         "loudness",
                         "speechiness",
@@ -39,8 +41,16 @@ class Command(BaseCommand):
         track_list = []
 
         for track in tqdm(track_objects):
+            genres = track.genres.split(",")
+            genre = "undefined"
+            for g in genres:
+                if g in all_genres:
+                    genre = g
+                    break
+
             track_list.append([track.spotify_id,
                                track.name,
+                               genre,
                                track.danceability,
                                track.loudness,
                                track.speechiness,
