@@ -126,7 +126,19 @@ def _get_user_profile_tracks(user: User, spotify: Spotify):
 
 
 def _generate_user_profile(user_id) -> None:
-
+    
+    ### spotify_ids.csv tweaks
+    # recommendable_songs = pd.read_csv(
+    #     'storage/spotify_ids.csv', index_col='index')
+    
+    # tracks = Track.objects.filter(
+    #     usertrack__user=user_id, name__isnull=False, spotify_id__in=recommendable_songs['spotify_id'].tolist())
+    
+    # spotify_ids = list(tracks.values_list('spotify_id', flat=True))
+    
+    # tracks_df = recommendable_songs[recommendable_songs['spotify_id'].isin(
+    #     spotify_ids)]
+    
     track_feature_matrix = scipy.sparse.load_npz(
         'storage/sparse_track_feature_matrix.npz')
 
