@@ -186,14 +186,10 @@ tracks_aggregated = tracks %>%
 
 track_plot = ggplot(tracks_aggregated, aes(valence, energy, label = genre)) +
   geom_point() +
-  geom_text(vjust=1.5, size = 4) +
+  geom_text(vjust=1.5, size = 5) +
   scale_colour_manual(values=genres_cluster_centers$color_hex) +
   theme_minimal() +
-  ggtitle("Biggest 36 Genres from everynoise.com as Cluster Centers") +
   theme(plot.title = element_text(hjust = 0.5),
-        legend.position="none",
-        axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank())
+        legend.position="none")
 track_plot
+ggsave(filename = file.path(PLOT_PATH, "genre_energy_valence.png"), plot = track_plot)
