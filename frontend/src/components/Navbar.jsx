@@ -4,7 +4,7 @@ import { Icon } from '@chakra-ui/react'
 import { HiOutlinePresentationChartLine } from 'react-icons/hi'
 import SideDrawer from './SideDrawer'
 
-export default function Navbar({ openModal, openPresentation }) {
+export default function Navbar({ openPresentation }) {
 
   const { username } = useUserStore()
 
@@ -14,7 +14,7 @@ export default function Navbar({ openModal, openPresentation }) {
         SVM
         <Icon w={4} h={4} as={HiOutlinePresentationChartLine} className='mb-1 ml-4 cursor-pointer' onClick={() => openPresentation()} />
       </div>
-      <div onClick={() => openModal(true)} className='user text-white font-bold flex flex-row mx-3 mt-1'>
+      <div className='user text-white font-bold flex flex-row mx-3 mt-1'>
         <div className="username mr-4">
           { username }
         </div>

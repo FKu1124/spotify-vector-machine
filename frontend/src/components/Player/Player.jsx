@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { usePlayerStore } from '../../store/playerStore'
-import { startPlayback, getAvailableDevices, transferPlayback, msToTime } from '../../utils'
-import { togglePlayBack } from '../../utils/spotify'
+import { startPlayback, getAvailableDevices, transferPlayback, togglePlayBack, msToTime } from '../../utils'
 import Progress from './Progress'
-import { Box } from '@chakra-ui/react'
+import { Icon, Center } from '@chakra-ui/react'
 import { FaPlay, FaPause, FaForward, FaBackward } from 'react-icons/fa'
+import { RiThumbDownLine, RiThumbUpLine } from 'react-icons/ri'
 
 export default function PlayerB() {
 
@@ -72,11 +72,7 @@ export default function PlayerB() {
 
       }));
 
-
-
       player.connect();
-      console.log("Player connected?")
-      console.log(player)
     };
   }, []);
 
@@ -86,39 +82,28 @@ export default function PlayerB() {
     )
   }
   return (
-    <div>
-      <div className=''>
-        {/* Song Cover */}
-        {cover &&
-          <img src={cover} alt="" className='now-playing__cover w-9/12 md:w-3/4 mx-auto my-auto' />
-        }
-      </div>
-      <div>
+    // <div className='bg-deepBlue rounded-lg h-5/6 grid grid-cols-1 content-center'>
+    <div className='bg-deepBlue rounded-lg lg:h-2/3 lg:w-11/12 2xl:h-5/6 2xl:w-3/4 grid grid-cols-1'>
+      {/* Song Cover */}
+      {cover &&
+        <img src={cover} alt="" className='now-playing__cover mx-auto my-auto rounded-lg w-3/4' />
+      }
+      <div className='mt-4'>
         <Progress />
       </div>
-      <div className="player flex w-1/2 mx-auto justify-around">
-        <Box color='tomato' as={FaBackward} onClick={() => player.previousTrack()} />
-        {/* <svg onClick={() => { player.previousTrack() }} xmlns="http://www.w3.org/2000/svg" className="btn-spotify h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-        </svg> */}
-        {/* <svg onClick={() => { player.togglePlay() }} xmlns="http://www.w3.org/2000/svg" className="btn-spotify h-12 w-12 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"> */}
-        <Box color='tomato' as={paused ? FaPlay : FaPause} onClick={() => player.togglePlay()} />
-        {/* <svg onClick={() => { togglePlayBack(token, paused) }} xmlns="http://www.w3.org/2000/svg" className="btn-spotify h-12 w-12 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {paused ? (
-            <>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </>
-          ) : (
-            <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          )}
-        </svg> */}
+      <div className="player flex w-1/2 pt-3 mx-auto justify-around">
+        <Icon w={8} h={8} color='tomato' as={FaBackward} onClick={() => player.previousTrack()} className='cursor-pointer' />
+
+        <Icon w={8} h={8} color='tomato' as={paused ? FaPlay : FaPause} onClick={() => player.togglePlay()} className='cursor-pointer' />
+        {/* <Icon w={8} h={8} color='tomato' as={paused ? FaPlay : FaPause} onClick={() => togglePlayBack(token, paused)} className='cursor-pointer' /> */}
 
         {/* Skip */}
-        <Box color='tomato' as={FaForward} onClick={() => player.nextTrack()} />
-        {/* <svg onClick={() => { player.nextTrack() }} xmlns="http://www.w3.org/2000/svg" className="btn-spotify h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg> */}
+        <Icon w={8} h={8} color='tomato' as={FaForward} onClick={() => player.nextTrack()} className='cursor-pointer' />
+      </div>
+      <div className='h-16 flex w-1/2 2xl:pt-12 lg:pt-2 mx-auto justify-around'>
+        <Icon w={10} h={10} as={RiThumbDownLine} color='white' className='cursor-pointer' onClick={() => alert('TODO: Downvote')} />
+        <span></span>
+        <Icon w={10} h={10} as={RiThumbUpLine} color='white' className='cursor-pointer' onClick={() => alert('TODO: Upvote')} />
       </div>
     </div>
   )

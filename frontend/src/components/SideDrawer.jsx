@@ -5,26 +5,45 @@ import {
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
-  DrawerCloseButton,
   useDisclosure,
   Button,
-  Input
+  Stack,
+  Box,
+  FormLabel,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  Link,
+  Icon,
+  DrawerCloseButton
 } from '@chakra-ui/react'
+import { HiExternalLink } from 'react-icons/hi'
 
-import { useRef } from 'react'
+import { useState, useRef } from 'react'
 
 const frostedStyle = {
   backgroundColor: 'rgba(255, 255, 255, .15)',
   backdropFilter: 'blur(5px)'
 }
 
+const MIN = 1
+const MAX = 100
+const STEP = 1
+
 export default function SideDrawer() {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [defaultVolume, setDefaultVolume] = useState(localStorage.getItem('svmPlayerDefaultVolume' || 30))
   const btnRef = useRef()
 
   const deleteAccount = () => {
     // TODO
     alert('TODO: Delete Account')
+  }
+
+  const saveDefaultValue = (vol) => {
+    setDefaultVolume(vol)
+    localStorage.setItem('svmPlayerDefaultVolume', vol)
   }
 
   return (
@@ -40,17 +59,32 @@ export default function SideDrawer() {
       >
         <DrawerOverlay />
         <DrawerContent style={frostedStyle}>
-          {/* <DrawerCloseButton /> */}
+          <DrawerCloseButton />
           <DrawerHeader style={frostedStyle}>User Settings</DrawerHeader>
-
-          <DrawerBody style={frostedStyle}>
-            <Input placeholder='Type here...' />
+          <DrawerBody style={frostedStyle} className="flex flex-col justify-between">
+            <Stack spacing='24px' className='mt-10'>
+              <Box>
+                <FormLabel>Default Player Volume</FormLabel>
+                <Slider aria-label='slider-ex-1' min={MIN} max={MAX} step={STEP} value={defaultVolume} onChange={(value) => saveDefaultValue(value)}>
+                  <SliderTrack>
+                    <SliderFilledTrack bg='blue.900' />
+                  </SliderTrack>
+                  <SliderThumb bg='green.400' />
+                </Slider>
+              </Box>
+              <Box>
+                <FormLabel>Tastes</FormLabel>
+                <Box className='mx-2'>
+                  <p>Drake, Kanye West, ...</p>
+                </Box>
+              </Box>
+            </Stack>
+            <Link href='https://www.spotify.com/us/account/apps/' isExternal className='font-bold' >
+              Revoke Spotify Access <Icon w={4} h={4} as={HiExternalLink} className='mb-1' />
+            </Link>
           </DrawerBody>
-
           <DrawerFooter style={frostedStyle}>
-            <Button variant='outline' mr={3} onClick={onClose}>
-              Cancel
-            </Button>
+            <Button variant='outline' mr={3} onClick={onClose}>Cancel</Button>
             <Button colorScheme='red' onClick={() => deleteAccount()} >Delete Account</Button>
           </DrawerFooter>
         </DrawerContent>

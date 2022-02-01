@@ -3,7 +3,7 @@ import React from 'react'
 export default function Background() {
 
     return (
-        <div className='w-full h-screen  bg-deepBlue absolute'>
+        <div className='w-full h-screen bg-deepBlue absolute'>
             {/* Waves */}
             <svg id="visual" viewBox="0 0 1920 1080" className='w-full absolute bottom-0 '>
                 {/* <g>
