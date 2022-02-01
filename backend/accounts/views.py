@@ -1,8 +1,9 @@
 import os
 import time
 from accounts.serializers import MoodVectorSerializer
-from spotify.services.recommender import create_playlist_for_vector
+from spotify.services.recommender import create_playlist_for_vector, get_previews_for_vector
 from spotify.services.user_profiles import create_user_profile
+
 
 from django.contrib import auth
 from django.contrib.auth.models import User
@@ -136,6 +137,26 @@ class DeleteAccountView(APIView):
             return Response({ 'error': 'Error deleting user' })
 
 @method_decorator(csrf_protect, name='dispatch')
+class GetMoodVectorPreview(APIView):
+    def post(self, request, format=None):
+        vec_data = {}
+
+        data = JSONParser().parse(request)
+        vec_data['x_start'] = float(data.pop('scaledStartX'))
+        vec_data['y_start'] = float(data.pop('scaledStartY'))
+        vec_data['x_end'] = float(data.pop('scaledEndX'))
+        vec_data['y_end'] = float(data.pop('scaledEndY'))
+        
+        try:
+            previews = get_previews_for_vector(
+                vec_data, request.user)
+
+            return Response({'status': True,  'msg': 'Preview created successfull', 'data': previews})
+        except Exception as e:
+            print(e)
+            return Response({'error': print(e)})
+
+@method_decorator(csrf_protect, name='dispatch')
 class SaveMoodVector(APIView):
     def post(self, request, format=None):
         # ToDo: Create Image
@@ -146,12 +167,14 @@ class SaveMoodVector(APIView):
         data['y_start'] = float(data.pop('scaledStartY'))
         data['x_end'] = float(data.pop('scaledEndX'))
         data['y_end'] = float(data.pop('scaledEndY'))
+        data['length'] = int(data.pop('length'))
         data['image_path'] = img_path #ToDo get from ccs
         data['user'] = request.user.id
         serializer = MoodVectorSerializer(data=data)
 
 
         if serializer.is_valid():
+            print("serializer is valid.")
             mood_vector_instance = serializer.save()
 
             cache_handler = DjangoSessionCacheHandler(request=request)

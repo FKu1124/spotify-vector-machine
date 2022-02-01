@@ -1,44 +1,52 @@
 import { React, useState, useEffect } from 'react'
 import moodMapping from '../../static/mood.json'
 import Coordinate from './Coordinate'
+import Preview from './Preview'
 import { repeat, throttle } from 'lodash'
 import { useCoordinateSystemStore } from '../../store/coordinateSystemStore'
 
 
 const colorsImagePath = new URL('../../static/colors.png', import.meta.url).href
 
-export default function CoordinateSystem() {
-  const [squareSize, setSquareSize] = useState(640)
+export default function CoordinateSystem({ squareWidth }) {
+  const [squareSize, setSquareSize] = useState(parseInt(squareWidth))
   const [drawing, setDrawing] = useState(false)
   const [coordinates, setCoordinates] = useState(getMoodCoordinateArray())
   const [cnv, setCnv] = useState(null)
 
-  const { startX, startY, endX, endY, setStartX, setStartY, setEndX, setEndY, cnvCtx, setCnvCtx } = useCoordinateSystemStore()
+  const { startX, startY, startMood, endX, endY, endMood, setStartX, setStartY, setStartMood, setEndX, setEndY, setEndMood,   setName, cnvCtx, setCnvCtx, setSquareSizeStore, startPreviews, endPreviews } = useCoordinateSystemStore()
 
   useEffect(() => {
     let canvas = document.getElementById("cnv")
     let canvasContext = canvas.getContext("2d")
     let img = document.getElementById("colors")
     let pat = canvasContext.createPattern(img, 'repeat');
-    
+
     setCnv(canvas)
     setCnvCtx(canvasContext)
+    setSquareSizeStore(squareSize)
   }, [])
 
-  function getMoodCoordinateArray() {
-    let moodArr = []
-
-    moodMapping.forEach(item => (
-      moodArr.push(
-        {
-          "top": getScaledCoordinate(item.coordinate.y),
-          "left": getScaledCoordinate(item.coordinate.x),
-          "label": item.label
-        }
-      )
-    ))
-
+   
     return moodArr
+  }
+
+  function getNearestMood(x, y) {
+    let mood = 'neutral'
+    let dist = 0
+    let minDistance = squareSize
+
+    for (let item of coordinates) {
+      // Euclidean distance between selected point and all mood points
+      dist = Math.sqrt(((parseInt(x) - parseInt(item.left)) ** 2 + (parseInt(y) - parseInt(item.top)) ** 2))
+
+      if (dist < minDistance) {
+        mood = item.label
+        minDistance = dist
+      }
+    }
+
+    return mood
   }
 
   function getScaledCoordinate(val) {
@@ -50,9 +58,11 @@ export default function CoordinateSystem() {
   function start(e) {
     let x = e.clientX - cnv.getBoundingClientRect().left
     let y = e.clientY - cnv.getBoundingClientRect().top
-
+    let mood = getNearestMood(x, y)
+    
     setStartX(x)
     setStartY(y)
+    setStartMood(mood)
     setDrawing(true)
   }
 
@@ -63,7 +73,7 @@ export default function CoordinateSystem() {
 
     // cnvCtx.fillRect(startX - 2, startY - 2, 4, 4);
     let img = document.getElementById("colors")
-    let pat = cnvCtx.createPattern(img, 'repeat');
+    let pat = cnvCtx.createPattern(img, 'no-repeat');
     cnvCtx.strokeStyle = pat;
 
     cnvCtx.lineWidth = 3
@@ -81,11 +91,23 @@ export default function CoordinateSystem() {
     if (drawing == false || typeof (cnvCtx) !== 'object') return
 
     let x = e.clientX - cnv.getBoundingClientRect().left
-    let y = squareSize - ( e.clientY - cnv.getBoundingClientRect().top )
+    let y = e.clientY - cnv.getBoundingClientRect().top
+
+    let mood = getNearestMood(x, y)
+
+    if (x < 0) {
+      x = 0
+    }
+
+    if (y < 0) {
+      y = 0
+    }
 
     setStartY(squareSize - startY)
     setEndX(x)
-    setEndY(y)
+    setEndY(squareSize - y)
+    setEndMood(mood)
+    setName(`from ${startMood} to ${mood}`)
     setDrawing(false)
   }
 
@@ -93,7 +115,7 @@ export default function CoordinateSystem() {
     <div className='relative mx-auto' style={{ width: squareSize, height: squareSize }}>
 
       {/* Color Palette for vector colors */}
-      <img id="colors" src={colorsImagePath} width={squareSize} height={squareSize} className='object-contain hidden' />
+      <img id="colors" src={colorsImagePath} width={squareSize} height={squareSize} className='object-cover hidden' />
 
       {/* Canvas layer we draw on */}
       <canvas id="cnv" width={squareSize} height={squareSize} className='absolute rounded-lg bg-green3 border border-black'></canvas>
@@ -124,6 +146,24 @@ export default function CoordinateSystem() {
             left={item.left}
           />
         ))}
+
+        {startPreviews &&
+          <Preview
+            pos='start'
+            top={squareSize - startY}
+            left={startX}
+            data={startPreviews} 
+          />
+        }
+        
+        {endPreviews &&
+          <Preview
+            pos='end'
+            top={squareSize - endY}
+            left={endX}
+            data={endPreviews}
+          />
+        }
       </div>
     </div>
 

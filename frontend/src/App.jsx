@@ -104,7 +104,7 @@ function App() {
         <Navbar openModal={setIsOpen} openPresentation={openPresentation} />
       </div>
 
-      <div className='w-full h-screen text-center flex-col justify-center'>
+      <div ref={siteStartRef} className='w-full h-screen text-center flex-col justify-center'>
         <Background />
         <SVMAnimation />
       </div>
