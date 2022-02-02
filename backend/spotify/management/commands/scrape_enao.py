@@ -1,6 +1,7 @@
 import os
 import csv
 import requests
+from typing import Tuple
 from bs4 import BeautifulSoup
 from django.core.management.base import BaseCommand
 
@@ -24,7 +25,14 @@ class Command(BaseCommand):
 
         with open('enao.csv', 'w') as file:
             writer = csv.writer(file)
-            writer.writerow(['Genre','x_value', 'y_value'])
+            writer.writerow(['genre',
+                             'x_value',
+                             'y_value',
+                             'font_size',
+                             'color_hex',
+                             'color_R',
+                             'color_G',
+                             'color_B'])
             for genre in genres:
                 genre_slug = genre.contents[0].strip().replace('-', ' ')
                 x = y = 0
@@ -33,8 +41,19 @@ class Command(BaseCommand):
                     key, value = style.split(': ')
                     if key == 'top':
                         y = canvas_height - int(value[:-2])
-                    if key == 'left':
+                    elif key == 'left':
                         x = int(value[:-2])
-                writer.writerow([genre_slug, x, y])
-
+                    elif key == 'color':
+                        color_R, color_G, color_B = self._hex_to_rgb(value)
+                        color_hex = value
+                    else:
+                        font_size = value[-5:-1]
+                writer.writerow([genre.contents[0],
+                                 x, y,
+                                 font_size,
+                                 color_hex, color_R, color_G, color_B])
         print(len(genres))
+
+    def _hex_to_rgb(self, hex_color: str) -> Tuple[int, int, int]:
+        hex_color = hex_color.lstrip('#')
+        return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))

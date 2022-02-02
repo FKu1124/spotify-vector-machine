@@ -3,6 +3,8 @@ docker-compose-x.yml
 .devcontainer
 .env
 backend/storage/*npz
+backend/storage/*csv
+data
 data/
 backend/storage/spotify_ids.csv
 backend/storage/test.csv

@@ -87,6 +87,7 @@ class Tag(models.Model):
     count = models.PositiveIntegerField()
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
 
+
 class UserTrack(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
