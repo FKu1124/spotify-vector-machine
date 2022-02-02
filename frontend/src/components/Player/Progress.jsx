@@ -7,7 +7,6 @@ import {
 	SliderTrack,
 	SliderFilledTrack,
 	SliderThumb,
-	SliderMark,
 } from '@chakra-ui/react'
 import { Box } from '@chakra-ui/react'
 
@@ -56,9 +55,9 @@ export default function Progress() {
 			
 			{/* Current time and song length */}
 			<div className='progress w-full mt-2 flex justify-between'>
-				<span className='text-sm'>{msToTime(currentPosition)}</span>
+				<span className='text-sm text-white'>{msToTime(currentPosition)}</span>
 				{/* <span className='text-sm'>{ position }</span> */}
-				<span className='text-sm'>{msToTime(duration)}</span>
+				<span className='text-sm text-white'>{msToTime(duration)}</span>
 			</div>
 		</div>)
 }
