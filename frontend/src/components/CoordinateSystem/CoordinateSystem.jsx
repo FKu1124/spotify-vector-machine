@@ -7,6 +7,8 @@ import './ccs_header.css'
 import { usePlayerStore } from '../../store/playerStore';
 import { URL_ACCOUNTS } from '../../Config';
 import { getTrack } from '../../utils'
+import { Icon } from '@chakra-ui/react'
+import { FaPlay } from 'react-icons/fa'
 
 const colorsImagePath = new URL('../../static/colors.png', import.meta.url).href
 
@@ -29,15 +31,15 @@ export default function CoordinateSystem({ squareWidth }) {
   const [startPreviews, setStartPreviews] = useState([])
   const [endPreviews, setEndPreviews] = useState([])
   const [showPreviews, setShowPreviews] = useState(false)
-  
+
   const [startProfile, setStartProfile] = useState()
   const [endProfile, setEndProfile] = useState()
 
   const { setCurrentPlaylist, setCurrentPlaylistData } = usePlayerStore()
-  
+
   // const [remountCount, setRemountCount] = useState(0);
   // const refresh = () => setRemountCount(remountCount + 1);
-  
+
   // const showPreviews = startPreviews.length !== 0
 
   // HEADER SECTION
@@ -47,6 +49,24 @@ export default function CoordinateSystem({ squareWidth }) {
 
   const onLengthChange = e => {
     setLength(e.target.value)
+  }
+
+  const selectStartMood = (e, profile) => {
+    let prev_elements = document.getElementsByClassName('selected-start-mood')
+    if (prev_elements.length !== 0) {
+      prev_elements[0].classList.remove('selected-start-mood')
+    }
+    setStartMood(profile)
+    e.target.parentNode.parentNode.classList.add('selected-start-mood')
+  }
+
+  const selectEndMood = (e, profile) => {
+    let prev_elements = document.getElementsByClassName('selected-end-mood')
+    if (prev_elements.length !== 0) {
+      prev_elements[0].classList.remove('selected-end-mood')
+    }
+    setEndMood(profile)
+    e.target.parentNode.parentNode.classList.add('selected-end-mood')
   }
 
   function resetVector() {
@@ -75,7 +95,7 @@ export default function CoordinateSystem({ squareWidth }) {
     let scaledEndY = endY / (squareSize + 4)
 
     return JSON.stringify({
-      scaledStartX, scaledStartY, scaledEndX, scaledEndY, length, name
+      scaledStartX, scaledStartY, scaledEndX, scaledEndY, length, name, startMood, endMood
     })
   }
 
@@ -103,20 +123,23 @@ export default function CoordinateSystem({ squareWidth }) {
         setShowPreviews(true)
       })
   }
-  
+
   function getPreviewTrackData(data, token, pos) {
     let previews = []
     let uris = []
+    let profiles = []
     for (let profile in data) {
       uris.push(data[profile])
+      profiles.push(profile)
     }
 
     getTrack(token, uris.join(',')).then(res => {
-      for(let track in res.tracks) {
-        let album = res.tracks[track].album.images[2].url
-        let uri = track.uri
-        previews.push({ "album": album, "uri": uri })
+      let i = 0
+      for (let track in res.tracks) {
+        let album = res.tracks[track].album.images[1].url
+        previews.push({ "album": album, "uri": uris[track], "profile": profiles[i++]})
       }
+      console.log(previews);
       pos === 'start' ? setStartPreviews(previews) : setEndPreviews(previews)
     })
     return previews
@@ -262,7 +285,7 @@ export default function CoordinateSystem({ squareWidth }) {
 
   return (
     <>
-    {/* CCS HEADER */}
+      {/* CCS HEADER */}
       <div className="header flex flex-row items-center justify-center gap-3">
         <h1 className='text-xl'>
           Let us take you from <span style={{ 'textShadow': '1px 1px #4895ef' }}>tired</span> to <span style={{ 'textShadow': '1px 1px #B5179E' }}>energized</span>
@@ -310,43 +333,65 @@ export default function CoordinateSystem({ squareWidth }) {
         <canvas id="cnv" width={squareSize} height={squareSize} className='absolute rounded-lg bg-green3 border border-black'></canvas>
 
         <div
-          className='absolute flex flex-wrap items-center justify-center gap-4 opacity-50 z-50'
-          style={{ top: squareSize - startY - 82, left: startX - 82, width: 164, height: 164, display: startPreviews.length !== 0 ? 'flex' : 'none' }}
-        > 
+          className='absolute flex flex-wrap items-center justify-evenly z-10'
+          style={{ top: squareSize - startY - 84, left: startX - 84, width: 168, height: 168, display: startPreviews.length !== 0 ? 'flex' : 'none' }}
+        >
           {startPreviews.map((entry, i) => (
-            <img
-              // key={i}
-              src={entry.album}
-              // src="https://i.scdn.co/image/ab67616d00004851a5ce236c22035a02cf87d4de"
-              alt='qwe'
-              className='flex-1/2'
-              // style={{height: '32px', width: '32px'}} 
-              // onClickCapture={}
-              // className={getClassname(entry[0])}
-            />
+            <div 
+              className='md:flex-1/2 opacity-70 transition hover:opacity-100 bg-white z-30' 
+              style={{width: '64px', height: '64px'}}
+            >
+              <div 
+                className={`h-full w-full z-40 transition transform hover:scale-150`}
+                style={{ background: `center / contain no-repeat url('${entry.album}')`}}
+              >
+                <div className='flex-row h-full w-full opacity-0 hover:opacity-100'>
+                  <div>
+                    <Icon w={8} h={8} color='white' as={FaPlay} className='cursor-pointer' />
+                  </div>
+                  <span 
+                    className='text-white text-tiny select-non cursor-pointer'
+                    onClick={e => selectStartMood(e, entry.profile)}
+                  >
+                    SELECT
+                  </span>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
 
         <div
-          className='absolute flex flex-wrap items-center justify-center gap-4 opacity-50 z-50'
-          style={{ top: squareSize - endY - 82, left: endX - 82, width: 164, height: 164, display: endPreviews.length !== 0 ? 'flex' : 'none' }}
-        > 
+          className='absolute flex flex-wrap items-center justify-evenly z-10'
+          style={{ top: squareSize - endY - 82, left: endX - 82, width: 168, height: 168, display: endPreviews.length !== 0 ? 'flex' : 'none' }}
+        >
           {endPreviews.map((entry, i) => (
-            <img
-              // key={i}
-              src={entry.album}
-              // src="https://i.scdn.co/image/ab67616d00004851a5ce236c22035a02cf87d4de"
-              alt='qwe'
-              className='flex-1/2'
-              // style={{height: '32px', width: '32px'}} 
-              // onClickCapture={}
-              // className={getClassname(entry[0])}
-            />
+            <div
+              className='md:flex-1/2 opacity-70 transition hover:opacity-100 bg-white z-30'
+              style={{ width: '64px', height: '64px' }}
+            >
+              <div
+                className={`h-full w-full z-40 transition transform hover:scale-150`}
+                style={{ background: `center / contain no-repeat url('${entry.album}')` }}
+              >
+                <div className='flex-row h-full w-full opacity-0 hover:opacity-100'>
+                  <div>
+                    <Icon w={8} h={8} color='white' as={FaPlay} className='cursor-pointer' />
+                  </div>
+                  <span
+                    className='text-white text-tiny select-non cursor-pointer'
+                    onClick={e => selectEndMood(e, entry.profile)}
+                  >
+                    SELECT
+                  </span>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
 
-        
-        
+
+
 
         <div
           onMouseDown={e => start(e)}

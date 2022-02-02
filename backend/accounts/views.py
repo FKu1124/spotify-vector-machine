@@ -168,6 +168,8 @@ class SaveMoodVector(APIView):
         data['x_end'] = float(data.pop('scaledEndX'))
         data['y_end'] = float(data.pop('scaledEndY'))
         data['length'] = int(data.pop('length'))
+        data['start_profile'] = data.pop('startMood')
+        data['end_profile'] = data.pop('endMood')
         data['image_path'] = img_path #ToDo get from ccs
         data['user'] = request.user.id
         serializer = MoodVectorSerializer(data=data)

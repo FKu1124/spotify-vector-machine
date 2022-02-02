@@ -280,7 +280,7 @@ def get_previews_for_vector(vec_data: dict, user: User) -> str:
             filtered_track = recommended_songs[filter]
             track = filtered_track['spotify_id'].iloc[0]
             previews[pos][name] = track
-
+            
 
     return previews
             
