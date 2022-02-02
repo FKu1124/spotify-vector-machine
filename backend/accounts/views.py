@@ -207,3 +207,15 @@ class CreateSpotifyProfile(APIView):
         create_user_profile(request.user, spotify)
 
         return Response({ 'status': True, 'msg': 'User Profile created successfully'})
+
+
+@method_decorator(csrf_protect, name='dispatch')
+class GetPlaylistDummy(APIView):
+    def get(self, request, format=None):
+        
+        cache_handler = DjangoSessionCacheHandler(request=request)
+        auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope, cache_handler=cache_handler)
+        spotify = spotipy.Spotify(auth_manager=auth_manager)
+        data = spotify.playlist('37i9dQZF1DZ06evO2NufN6')
+
+        return Response({ 'status': True, 'data': data }, status=status.HTTP_200_OK)

@@ -20,6 +20,7 @@ module.exports = {
         green7: '#2d6a4f',
         green8: '#1b4332',
         green9: '#081c15',
+        spotify: '#1DB954'
       },
       fontSize: {
         'tiny': '.65rem',

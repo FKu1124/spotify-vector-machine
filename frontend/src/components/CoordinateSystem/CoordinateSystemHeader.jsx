@@ -3,9 +3,11 @@ import { useCoordinateSystemStore } from '../../store/coordinateSystemStore'
 import { useCookies } from 'react-cookie';
 import './ccs_header.css'
 import { URL_ACCOUNTS } from '../../Config';
+import { usePlayerStore } from '../../store/playerStore';
 
 export default function CoordinateSystemHeader() {
   const [cookies] = useCookies(['csrftoken']);
+  const { setCurrentPlaylist } = usePlayerStore()
   const { squareSize, startX, startY, startMood, endX, endY, endMood, setStartX, setStartY, setStartMood, setEndX, setEndY, setEndMood, length, genre, name, cnvCtx, setLength, setGenre, setName, setStartPreviews, setEndPreviews } = useCoordinateSystemStore()
 
   const onLengthChange = e => {
@@ -40,7 +42,7 @@ export default function CoordinateSystemHeader() {
     let scaledEndY = endY / (squareSize + 4)
 
     return JSON.stringify({
-      scaledStartX, scaledStartY, scaledEndX, scaledEndY
+      scaledStartX, scaledStartY, scaledEndX, scaledEndY, length, name
     })
   }
 
@@ -58,6 +60,9 @@ export default function CoordinateSystemHeader() {
       body: vector_json
     }).then(res => res.json())
       .then(data => {
+        console.log("THIS")
+        console.log(data.data)
+        console.log("THIS")
         console.log(data.data.start)
         setStartPreviews(data.data.start)
         setEndPreviews(data.data.end)
@@ -78,8 +83,9 @@ export default function CoordinateSystemHeader() {
       body: vector_json
     }).then(res => res.json())
       .then(data => {
-        console.log(data)
+        setCurrentPlaylist(data.playlist_uri)
       })
+      // Playlist URI Right HERE
     // TODO Handle redirecting of successful response
   }
 

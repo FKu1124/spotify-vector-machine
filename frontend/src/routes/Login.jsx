@@ -36,7 +36,11 @@ export default function Login() {
       },
       credentials: 'include'
     }).then(res => res.json())
-      .then(data => setIsAuthenticated(data.status))
+      .then(data => { 
+        setIsAuthenticated(data.status)
+        // console.log(data.status)
+        // console.log(isAuthenticated)
+      })
   }
 
   const signin = () => {
@@ -50,7 +54,7 @@ export default function Login() {
       credentials: 'include'
     }).then(res => res.json())
       .then(data => {
-        console.log(data)
+        // console.log(data)
         if (data?.auth_url != "")
           // opener(data.auth_url)
           window.location.replace(data.auth_url)

@@ -65,7 +65,7 @@ export default function SideDrawer() {
             <Stack spacing='24px' className='mt-10'>
               <Box>
                 <FormLabel>Default Player Volume</FormLabel>
-                <Slider aria-label='slider-ex-1' min={MIN} max={MAX} step={STEP} value={defaultVolume} onChange={(value) => saveDefaultValue(value)}>
+                <Slider aria-label='slider-ex-1' defaultValue={defaultVolume} min={MIN} max={MAX} step={STEP} value={defaultVolume} onChange={(value) => saveDefaultValue(value)}>
                   <SliderTrack>
                     <SliderFilledTrack bg='blue.900' />
                   </SliderTrack>

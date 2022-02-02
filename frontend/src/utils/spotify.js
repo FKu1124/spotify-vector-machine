@@ -50,11 +50,11 @@ export const togglePlayBack = (token, play) => {
     }).catch(e => console.log(e))
 }
 
-export const startPlayback = (token, uris, deviceID) => {
-
+export const startPlayback = (token, uris, deviceID, trackIndex) => {
+    const position = trackIndex ? trackIndex : 0
     let body;
     if (uris[0].includes("spotify:playlist:")) {
-        body = JSON.stringify({ context_uri: uris[0] })
+        body = JSON.stringify({ context_uri: uris[0], offset: { position } })
     } else {
         body = JSON.stringify({ uris })
     }
@@ -108,4 +108,19 @@ export const addItemToQueue = (token, uri) => {
             'Authorization': `Bearer ${token}`
         }
     }).catch(e => console.log(e))
+}
+
+export const getActiveDevice = async (token) => {
+    // Check if there is an active player and save it as activeDevice
+    const { devices } = await getAvailableDevices(token)
+    let activeDevice = devices.find(device => device.is_active === true)
+    // If no player is currently active, select our player as activeDevice
+    if(!activeDevice)
+        activeDevice = devices.find(device => device.name === 'SVM Player')
+    return new Promise((resolve, reject) => {
+        if(activeDevice)
+            resolve(activeDevice)
+        else
+            reject()
+    })
 }
