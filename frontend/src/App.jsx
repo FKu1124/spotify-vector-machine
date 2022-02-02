@@ -4,7 +4,6 @@ import { motion } from "framer-motion"
 import CoordinateSystem from './components/CoordinateSystem/CoordinateSystem'
 import Navbar from './components/Navbar'
 import Player from './components/Player/Player'
-import CoordinateSystemHeader from './components/CoordinateSystem/CoordinateSystemHeader'
 import { useUserStore } from './store/userStore'
 import { useCookies } from 'react-cookie';
 import { URL_ACCOUNTS } from './Config'

@@ -1,7 +1,6 @@
 import { React, useState, useEffect } from 'react'
 import moodMapping from '../../static/mood.json'
 import Coordinate from './Coordinate'
-import Preview from './Preview'
 import { repeat, throttle } from 'lodash'
 import { useCookies } from 'react-cookie';
 import './ccs_header.css'
@@ -77,7 +76,7 @@ export default function CoordinateSystem({ squareWidth }) {
     let scaledEndY = endY / (squareSize + 4)
 
     return JSON.stringify({
-      scaledStartX, scaledStartY, scaledEndX, scaledEndY
+      scaledStartX, scaledStartY, scaledEndX, scaledEndY, length, name
     })
   }
 
