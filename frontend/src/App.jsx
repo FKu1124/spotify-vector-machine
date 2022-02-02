@@ -112,7 +112,6 @@ function App() {
       <div ref={contentRef} className='App h-screen w-full bg-green7' style={{ height: '120vh' }} >
         <div className="content w-3/4 mx-auto p-4">
           <button onClick={() => setIsOpen(!isOpen)}> Toggle Sidebar </button>
-          <CoordinateSystemHeader />
           <CoordinateSystem squareWidth='800' />
         </div>
         {/* <div className="content w-3/4 bg-gray-100 mx-auto flex flex-wrap"> */}
