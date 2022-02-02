@@ -1,4 +1,5 @@
 import math
+import os
 
 from django.contrib.auth.models import User
 from django.db.models import Count
@@ -28,33 +29,39 @@ TYPE_WEIGHTS = {
 def _get_user_profile_tracks(user: User, spotify: Spotify):
     print("Starting to create the user profile.")
     newly_added = []
+
     def _create_user_track_mappings(tracks, type: str):
         for track in tracks['items']:
             track_obj, created = Track.objects.get_or_create(
                 spotify_id=track['id'])
-            if created : newly_added.append(track['id'])
-            try :
+            if created:
+                newly_added.append(track['id'])
+            try:
                 UserTrack.objects.get_or_create(
-                user=user, track=track_obj, type=type)
-            except MultipleObjectsReturned: pass
-    
-    #variation for liked/recent tracks
-    def _create_user_track_mappings_recent(tracks, type: str): 
+                    user=user, track=track_obj, type=type)
+            except MultipleObjectsReturned:
+                pass
+
+    # variation for liked/recent tracks
+    def _create_user_track_mappings_recent(tracks, type: str):
         for elem in tracks['items']:
             track_obj, created = Track.objects.get_or_create(
                 spotify_id=elem['track']['id'])
-            if created : newly_added.append(elem['track']['id'])
-            try: 
+            if created:
+                newly_added.append(elem['track']['id'])
+            try:
                 UserTrack.objects.get_or_create(
-                user=user, track=track_obj, type=type)
-            except MultipleObjectsReturned: pass
-    
-    print("Fetching recent and liked tracks... (previous step's new: {})".format(len(newly_added)))
+                    user=user, track=track_obj, type=type)
+            except MultipleObjectsReturned:
+                pass
+
+    print("Fetching recent and liked tracks... (previous step's new: {})".format(
+        len(newly_added)))
     saved_tracks = spotify.current_user_saved_tracks(limit=50)
     recent_tracks = spotify.current_user_recently_played(limit=50)
     _create_user_track_mappings_recent(saved_tracks, 'saved')
     _create_user_track_mappings_recent(recent_tracks, 'recent')
-    
+
     print("Fetching top tracks... (previous step's new: {})".format(len(newly_added)))
     top_tracks_short = spotify.current_user_top_tracks(
         limit=50, time_range='short_term')
@@ -65,43 +72,49 @@ def _get_user_profile_tracks(user: User, spotify: Spotify):
     _create_user_track_mappings(top_tracks_short, 'top_tracks_short')
     _create_user_track_mappings(top_tracks_medium, 'top_tracks_medium')
     _create_user_track_mappings(top_tracks_long, 'top_tracks_long')
-    
+
     print("Deleting & Re-fetching {} tracks that have missing values...".format(
         Track.objects.filter(spotify_id__isnull=False).filter(energy__isnull=True).count()))
-    
-    Track.objects.filter(spotify_id__isnull=False).filter(energy__isnull=True).delete()
+
+    Track.objects.filter(spotify_id__isnull=False).filter(
+        energy__isnull=True).delete()
     save_tracks_by_id(newly_added)
-    
+
     with connection.cursor() as cursor:
-        cursor.execute("DELETE FROM spotify_track a using spotify_track b WHERE a.id < b.id and a.spotify_id = b.spotify_id;")
-        cursor.execute("DELETE FROM spotify_usertrack a using spotify_usertrack b WHERE a.id < b.id and a.track_id = b.track_id;")
-    
-    print("Added {} new tracks and their features to the data base. New IDs:".format(len(newly_added)))
+        cursor.execute(
+            "DELETE FROM spotify_track a using spotify_track b WHERE a.id < b.id and a.spotify_id = b.spotify_id;")
+        cursor.execute(
+            "DELETE FROM spotify_usertrack a using spotify_usertrack b WHERE a.id < b.id and a.track_id = b.track_id;")
+
+    print("Added {} new tracks and their features to the data base. New IDs:".format(
+        len(newly_added)))
     print(newly_added)
-    
+
 
 def _generate_user_profile(user_id) -> None:
-        
+
     track_feature_matrix = scipy.sparse.load_npz(
         'storage/sparse_track_feature_matrix.npz')
-    
-    #connect to database, get all tracks that could potentially be recommended
+
+    # connect to database, get all tracks that could potentially be recommended
     engine = get_db_connection()
     recommendable_songs = pd.read_sql_query("SELECT id, spotify_id \
                                             FROM spotify_track \
-                                            WHERE energy IS NOT NULL AND valence IS NOT NULL;", 
-                                            con = engine)
-        
-    #filters tracks corresponding to the user's history (recent tracks, ...)
+                                            WHERE energy IS NOT NULL AND valence IS NOT NULL;",
+                                            con=engine)
+
+    # filters tracks corresponding to the user's history (recent tracks, ...)
     tracks = Track.objects.filter(
-        usertrack__user=user_id, energy__isnull=False, valence__isnull=False, name__isnull = False)  
+        usertrack__user=user_id, energy__isnull=False, valence__isnull=False, name__isnull=False)
     spotify_ids = list(tracks.values_list('spotify_id', flat=True))
-    
-    #for debugging purposes: in earlier versions, there have been duplicates in the user profiles 
+
+    # for debugging purposes: in earlier versions, there have been duplicates in the user profiles
     diff = []
-    for elem in spotify_ids :
-        if elem not in recommendable_songs.spotify_id.values : diff.append(elem) 
-    if len(diff) != 0 : print("WARNING, THERE ARE {} POTENTIAL DUPLICATES!".format(len(diff)))
+    for elem in spotify_ids:
+        if elem not in recommendable_songs.spotify_id.values:
+            diff.append(elem)
+    if len(diff) != 0:
+        print("WARNING, THERE ARE {} POTENTIAL DUPLICATES!".format(len(diff)))
 
     spotify_id_vect_id = {}
     tracks_df = read_frame(tracks)
@@ -118,7 +131,7 @@ def _generate_user_profile(user_id) -> None:
             'vect': track_feature_matrix[track.Index],
             'weight': weight
         }
-        
+
     cluster_count = tracks.filter(spotify_id__in=spotify_ids).values_list(
         'cluster').annotate(count=Count('cluster'))
 
@@ -152,8 +165,21 @@ def _generate_user_profile(user_id) -> None:
 
         scipy.sparse.save_npz(
             f'storage/user_profile_{user_id}_{cluster}.npz', user_profile)
-        
+
     print("User profiles have been created.")
+
+
+def get_user_profile_clusters(user: User):
+    # ToDo What profile to chose on default?
+    profiles = []
+    for profile in os.listdir('storage/'):
+        if f"user_profile_{user.id}" in profile:
+            profiles.append(f"storage/{profile}")
+
+    # user_profile = scipy.sparse.load_npz(profiles[0])
+    user_cluster = [cluster.split('_')[-1].replace('.npz', '')
+                    for cluster in profiles]
+    return user_cluster
 
 
 def create_user_profile(user: User, spotify: Spotify):

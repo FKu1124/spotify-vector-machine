@@ -1,8 +1,11 @@
 import os
 import time
+
+from sklearn.cluster import cluster_optics_xi
 from accounts.serializers import MoodVectorSerializer
+from spotify.models import UserTrack
 from spotify.services.recommender import create_playlist_for_vector, get_previews_for_vector
-from spotify.services.user_profiles import create_user_profile
+from spotify.services.user_profiles import create_user_profile, get_user_profile_clusters
 
 
 from django.contrib import auth
@@ -223,3 +226,39 @@ class GetPlaylistDummy(APIView):
         data = spotify.playlist('37i9dQZF1DZ06evO2NufN6')
 
         return Response({ 'status': True, 'data': data }, status=status.HTTP_200_OK)
+
+@method_decorator(csrf_protect, name='dispatch')
+class GetUserProfiles(APIView):
+    def get(self, request, format=None):
+        
+        clusters = get_user_profile_clusters(request.user)
+        user_track_mappings = UserTrack.objects.filter(user = request.user, track__cluster__in = clusters)
+
+        clusters_dict = {}
+
+        for cluster in clusters:
+            clusters_dict[cluster] = {'artists': [], 'genres': []}
+
+        for user_track in user_track_mappings:
+            track = user_track.track
+            artists = [artist for artist in track.artists.split(',')]
+            genres = [genre for genre in track.genres.split(',')]
+            print(clusters_dict)
+            for artist in artists:
+                clusters_dict[track.cluster]['artists'].append(artist)
+
+            for genre in genres:
+                clusters_dict[track.cluster]['genres'].append(genre)
+
+        for cluster in clusters:
+            artists_list = clusters_dict[cluster]['artists']
+            artists_dict = {x: artists_list.count(x) for x in artists_list}
+            genres_list = clusters_dict[cluster]['genres']
+            genres_dict = {x: genres_list.count(x) for x in genres_list}
+            clusters_dict[cluster]['artists'] = dict(
+                sorted(artists_dict.items(), key=lambda item: item[1], reverse=True))
+            clusters_dict[cluster]['genres'] = dict(
+                sorted(genres_dict.items(), key=lambda item: item[1], reverse=True))
+
+
+        return Response({ 'status': True, 'data': clusters_dict }, status=status.HTTP_200_OK)
