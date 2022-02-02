@@ -225,7 +225,7 @@ def _get_user_profile(user: User):
         if f"user_profile_{user.id}" in profile:
             profiles.append(f"storage/{profile}")
 
-    user_profile = scipy.sparse.load_npz(profiles[1])
+    user_profile = scipy.sparse.load_npz(profiles[0])
 
     print(user_profile)
 

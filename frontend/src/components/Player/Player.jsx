@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { usePlayerStore } from '../../store/playerStore'
-import { startPlayback, getAvailableDevices, transferPlayback, togglePlayBack, msToTime } from '../../utils'
+import { startPlayback, getAvailableDevices, transferPlayback, togglePlayBack } from '../../utils'
 import Progress from './Progress'
-import { Icon, Center } from '@chakra-ui/react'
+import { Icon } from '@chakra-ui/react'
 import { FaPlay, FaPause, FaForward, FaBackward } from 'react-icons/fa'
 import { RiThumbDownLine, RiThumbUpLine } from 'react-icons/ri'
 
 export default function PlayerB() {
 
-  const { token, player, setPlayer, paused, position, duration, cover, updatePlayerState, setDeviceID, setDevices, active, setActive, deviceID, devices, setNextTracks, setPrevTracks } = usePlayerStore()
+  const { token, player, setPlayer, paused, cover, updatePlayerState, setDeviceID, setDevices, active, setActive, deviceID, devices, setNextTracks, setPrevTracks, currentPlaylist } = usePlayerStore()
   const [initActive, setInitActive] = useState(false)
 
 
@@ -29,7 +29,7 @@ export default function PlayerB() {
       const player = new window.Spotify.Player({
         name: "SVM Player",
         getOAuthToken: cb => { cb(token); },
-        volume: 0.5
+        volume: localStorage.getItem('svmPlayerDefaultVolume') / 100
       });
 
       setPlayer(player);
@@ -76,6 +76,11 @@ export default function PlayerB() {
     };
   }, []);
 
+  useEffect(() => {
+    // if(player)
+      // player.pause()
+  }, [currentPlaylist])
+
   if (!initActive) {
     return (
       <div>Loading Player..</div>
@@ -100,7 +105,7 @@ export default function PlayerB() {
         {/* Skip */}
         <Icon w={8} h={8} color='tomato' as={FaForward} onClick={() => player.nextTrack()} className='cursor-pointer' />
       </div>
-      <div className='h-16 flex w-1/2 2xl:pt-12 lg:pt-2 mx-auto justify-around'>
+      <div className='h-16 flex w-1/2 2xl:pt-8 lg:pt-2 mx-auto justify-around'>
         <Icon w={10} h={10} as={RiThumbDownLine} color='white' className='cursor-pointer' onClick={() => alert('TODO: Downvote')} />
         <span></span>
         <Icon w={10} h={10} as={RiThumbUpLine} color='white' className='cursor-pointer' onClick={() => alert('TODO: Upvote')} />

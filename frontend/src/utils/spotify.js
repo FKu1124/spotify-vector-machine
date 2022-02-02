@@ -50,8 +50,9 @@ export const togglePlayBack = (token, play) => {
     }).catch(e => console.log(e))
 }
 
-export const startPlayback = (token, uris, deviceID, trackIndex) => {
+export const startPlayback = (token, uris, trackIndex, deviceID) => {
     const position = trackIndex ? trackIndex : 0
+    const device = deviceID === undefined ? '' : `?device_id=${deviceID}`
     let body;
     if (uris[0].includes("spotify:playlist:")) {
         body = JSON.stringify({ context_uri: uris[0], offset: { position } })
@@ -59,7 +60,7 @@ export const startPlayback = (token, uris, deviceID, trackIndex) => {
         body = JSON.stringify({ uris })
     }
 
-    fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceID}`, {
+    fetch(`https://api.spotify.com/v1/me/player/play${device}`, {
         method: 'PUT',
         body,
         headers: {

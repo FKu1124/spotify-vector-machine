@@ -24,6 +24,7 @@ export default function CoordinateSystem({ squareWidth }) {
   const [startMood, setStartMood] = useState('neutral')
   const [endMood, setEndMood] = useState('neutral')
   const [name, setName] = useState('Default Mood Vector')
+  const [length, setLength] = useState(30)
 
   const [startPreviews, setStartPreviews] = useState([])
   const [endPreviews, setEndPreviews] = useState([])
@@ -31,6 +32,8 @@ export default function CoordinateSystem({ squareWidth }) {
   
   const [startProfile, setStartProfile] = useState()
   const [endProfile, setEndProfile] = useState()
+
+  const { setCurrentPlaylist, setCurrentPlaylistData } = usePlayerStore()
   
   // const [remountCount, setRemountCount] = useState(0);
   // const refresh = () => setRemountCount(remountCount + 1);
@@ -44,10 +47,6 @@ export default function CoordinateSystem({ squareWidth }) {
 
   const onLengthChange = e => {
     setLength(e.target.value)
-  }
-
-  const onGenreChange = e => {
-    setGenre(e.target.value)
   }
 
   function resetVector() {
@@ -137,10 +136,17 @@ export default function CoordinateSystem({ squareWidth }) {
       body: vector_json
     }).then(res => res.json())
       .then(data => {
+        setCurrentPlaylist(data.playlist_uri)
+        setCurrentPlaylistData(data.playlist_data.tracks.items)
+        console.log("ONLY TRACKS");
+        console.log(data.playlist_data.tracks.items);
+        console.log(setCurrentPlaylistData)
+        console.log("ALL DATA");
         console.log(data)
       })
     // TODO Handle redirecting of successful response
   }
+
 
   // COORDINATE SYSTEM SECTION 
 
@@ -278,15 +284,6 @@ export default function CoordinateSystem({ squareWidth }) {
             <input type="range" onChange={onLengthChange} min="10" max="120" step="5" className='bg-gray-400' />
             <span className='text-tiny p-1 w-1/4'>{length} min</span>
           </div>
-        </div>
-        {/* Genre Selection */}
-        <div className="genre-selection w-1/4 flex-col text-left">
-          <span className='text-tiny'>Genre:</span>
-          <select name="genre" id="genre" className='w-full bg-gray-400 rounded-md text-white text-sm h-8' onChange={onGenreChange}>
-            <option value="rock">Rock</option>
-            <option value="pop">Pop</option>
-            <option value="jazz">Jazz</option>
-          </select>
         </div>
         {/* Reset Button */}
         {/* Todo Add Reset function */}

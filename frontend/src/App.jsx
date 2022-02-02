@@ -12,7 +12,7 @@ import { usePlayerStore } from './store/playerStore'
 import Presentation from './components/Presentation'
 import SVMAnimation from './components/LandingPage/SVMAnimation'
 import Background from './components/LandingPage/Background'
-import { Center, useDisclosure, ScaleFade } from '@chakra-ui/react'
+import { Center, ScaleFade } from '@chakra-ui/react'
 
 const bg_main = new URL('./static/bg_main.png', import.meta.url).href
 
@@ -33,15 +33,13 @@ const WORDS2 = [
 
 function App() {
   const { username, setUsername } = useUserStore()
-  const [cookies, setCookie, removeCookie] = useCookies(['csrftoken']);
+  const [cookies] = useCookies(['csrftoken']);
   const { token, setToken, setTokenExpiry, currentPlaylist } = usePlayerStore()
   const siteStartRef = useRef(null)
   const contentRef = useRef(null)
   const presentationRef = useRef(null)
   const { showPresentation, setShowPresentation } = useUserStore()
-  const [showPlayer, setShowPlayer] = useState(false)
-  const [showPlaylist, setShowPlaylist] = useState(false)
-  const { isOpen, onToggle } = useDisclosure()
+  const [showPlayerList, setShowPlayerList] = useState(false)
 
 
   const getSpotifyAccess = async () => {
@@ -78,7 +76,8 @@ function App() {
   }, [])
 
   useEffect(() => {
-    onToggle()
+    if(currentPlaylist !== '' && currentPlaylist !== undefined)
+      setShowPlayerList(true)
   }, [currentPlaylist])
 
   const switchToPresentation = () => {
@@ -122,18 +121,16 @@ function App() {
             {token && <Player />}
           </motion.div>
         </div> */}
-        <ScaleFade initialScale={0.8} in={isOpen}>
+        <ScaleFade initialScale={0.8} in={showPlayerList}>
           <Center className='h-screen'>
             {token && <Player />}
           </Center>
         </ScaleFade>
         <div className='content'>
-          {/* <button onClick={() => setShowPlayer(!showPlayer)}>Click Me - Player!</button> */}
-          {/* <button onClick={() => setShowPlaylist(!showPlaylist)}>Click Me - Playlist!</button> */}
-          <button onClick={onToggle}> Toggle </button>
+          <button onClick={() => setShowPlayerList(!showPlayerList)}>Toggle</button>
           <CoordinateSystem squareWidth='600' />
         </div>
-        <ScaleFade initialScale={0.8} in={isOpen}>
+        <ScaleFade initialScale={0.8} in={showPlayerList}>
           <Center className='h-screen'>
             {token && <Playlist />}
           </Center>
