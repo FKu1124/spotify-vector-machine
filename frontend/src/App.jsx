@@ -5,7 +5,6 @@ import CoordinateSystem from './components/CoordinateSystem/CoordinateSystem'
 import Navbar from './components/Navbar'
 import Player from './components/Player/Player'
 import Playlist from './components/Playlist/Playlist'
-import CoordinateSystemHeader from './components/CoordinateSystem/CoordinateSystemHeader'
 import { useUserStore } from './store/userStore'
 import { useCookies } from 'react-cookie';
 import { URL_ACCOUNTS } from './Config'
@@ -112,21 +111,11 @@ function App() {
         <Background />
         <SVMAnimation scrollToContent={switchToContent} />
       </div>
-
-      <div ref={contentRef} className='h-screen w-full bg-green7 grid grid-cols-3 content-center relative'>
-        {/* <div>
-          <motion.div animate={showPlayer ? 'open' : 'closed'} variants={playerStyleStates} style={{ position: 'absolute', height: '100%', paddingTop: '2.5%' }} >
-            {token && <Player />}
-          </motion.div>
-        </div> */}
-        <Center className='h-screen'>
-           {token && <Player />}
-        </Center>
-        <div className='content'>
-          <button onClick={() => setShowPlayer(!showPlayer)}>Click Me - Player!</button>
-          <button onClick={() => setShowPlaylist(!showPlaylist)}>Click Me - Playlist!</button>
-          <CoordinateSystemHeader />
-          <CoordinateSystem />
+ 
+      <div ref={contentRef} className='App h-screen w-full bg-green7' style={{ height: '120vh' }} >
+        <div className="content w-3/4 mx-auto p-4">
+          <button onClick={() => setIsOpen(!isOpen)}> Toggle Sidebar </button>
+          <CoordinateSystem squareWidth='800' />
         </div>
         {/* <div className='h-screen bg-red-500'> */}
         <Center className='h-screen'>
