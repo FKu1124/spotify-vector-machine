@@ -5,7 +5,6 @@ import CoordinateSystem from './components/CoordinateSystem/CoordinateSystem'
 import Navbar from './components/Navbar'
 import Player from './components/Player/Player'
 import Playlist from './components/Playlist/Playlist'
-import CoordinateSystemHeader from './components/CoordinateSystem/CoordinateSystemHeader'
 import { useUserStore } from './store/userStore'
 import { useCookies } from 'react-cookie';
 import { URL_ACCOUNTS } from './Config'
@@ -132,7 +131,6 @@ function App() {
           {/* <button onClick={() => setShowPlayer(!showPlayer)}>Click Me - Player!</button> */}
           {/* <button onClick={() => setShowPlaylist(!showPlaylist)}>Click Me - Playlist!</button> */}
           <button onClick={onToggle}> Toggle </button>
-          <CoordinateSystemHeader />
           <CoordinateSystem squareWidth='600' />
         </div>
         <ScaleFade initialScale={0.8} in={isOpen}>
