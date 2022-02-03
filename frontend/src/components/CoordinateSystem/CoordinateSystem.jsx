@@ -290,7 +290,7 @@ export default function CoordinateSystem({ squareWidth }) {
       {/* CCS HEADER */}
       <div className="header flex flex-row items-center justify-center gap-3">
         <h1 className='text-xl'>
-          Let us take you from <span style={{ 'textShadow': '1px 1px #4895ef' }}>tired</span> to <span style={{ 'textShadow': '1px 1px #B5179E' }}>energized</span>
+          Let us take you from <span style={{ 'textShadow': '1px 1px ' }}>{startMood}</span> to <span style={{ 'textShadow': '1px 1px' }}>{endMood}</span>
         </h1>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 p-2 cursor-pointer bg-green1 text-white rounded-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" onClick={getPreviews}>
           <path strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
@@ -311,17 +311,9 @@ export default function CoordinateSystem({ squareWidth }) {
           </div>
         </div>
         {/* Reset Button */}
-        {/* Todo Add Reset function */}
         <div className="reset w-1/8">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" onClick={resetVector}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </div>
-        {/* Save Button */}
-        {/* TODO add Save function */}
-        <div className="save w-1/8 cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
           </svg>
         </div>
       </div>
