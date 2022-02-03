@@ -42,5 +42,7 @@ export const usePlayerStore = create(set => ({
     currentPlaylist: '',
     setCurrentPlaylist: (val) => set(state => ({ currentPlaylist: val })),
     currentPlaylistData: [],
-    setCurrentPlaylistData: (val) => set(state => ({ currentPlaylistData: val }))
+    setCurrentPlaylistData: (val) => set(state => ({ currentPlaylistData: val })),
+    showPreviewPlayer: false,
+    setShowPreviewPlayer: (val) => set(state => ({ showPreviewPlayer: val }))
 }))

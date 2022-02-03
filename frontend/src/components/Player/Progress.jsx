@@ -46,10 +46,10 @@ export default function Progress() {
 			{/* Progressbar */}
 			<Slider aria-label='slider-ex-4' value={currentPosition} min={MIN} max={MAX} step={STEP} onChange={(value) => seekPlayback(token, value)}>
 				<SliderTrack bg='red.100'>
-					<SliderFilledTrack bg='tomato' />
+					<SliderFilledTrack bg='#d8f3dc' />
 				</SliderTrack>
 				<SliderThumb boxSize={6}>
-					<Box color='tomato' as={MdGraphicEq} />
+					<Box color='#d8f3dc' as={MdGraphicEq} />
 				</SliderThumb>
 			</Slider>
 			

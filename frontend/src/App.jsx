@@ -34,7 +34,7 @@ const WORDS2 = [
 function App() {
   const { username, setUsername } = useUserStore()
   const [cookies] = useCookies(['csrftoken']);
-  const { token, setToken, setTokenExpiry, currentPlaylist } = usePlayerStore()
+  const { token, setToken, setTokenExpiry, currentPlaylist, showPreviewPlayer } = usePlayerStore()
   const siteStartRef = useRef(null)
   const contentRef = useRef(null)
   const presentationRef = useRef(null)
@@ -121,14 +121,13 @@ function App() {
             {token && <Player />}
           </motion.div>
         </div> */}
-        <ScaleFade initialScale={0.8} in={showPlayerList}>
+        <ScaleFade initialScale={0.8} in={showPreviewPlayer || showPlayerList}>
           <Center className='h-screen'>
             {token && <Player />}
           </Center>
         </ScaleFade>
         <div className='content'>
-          <button onClick={() => setShowPlayerList(!showPlayerList)}>Toggle</button>
-          <CoordinateSystem squareWidth='600' />
+          <CoordinateSystem squareWidth='900' />
         </div>
         <ScaleFade initialScale={0.8} in={showPlayerList}>
           <Center className='h-screen'>

@@ -33,7 +33,7 @@ export default function Playlist() {
             <div className='relative'>
               <div className='absolute z-10 left-0 right-0 ml-auto mr-auto w-8'>
                 <div style={{ top: '50%', transform: 'translateY(50%)'}}>
-                  <Icon w={8} h={8} color='tomato' as={FaPlay} className='cursor-pointer' opacity={playOpacity} />
+                  <Icon w={8} h={8} color='#d8f3dc' as={FaPlay} className='cursor-pointer' opacity={playOpacity} />
                 </div>
               </div>
               <div className='absolute'>

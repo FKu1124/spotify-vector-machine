@@ -7,10 +7,11 @@ import './ccs_header.css'
 import { usePlayerStore } from '../../store/playerStore';
 import { URL_ACCOUNTS } from '../../Config';
 import { getTrack } from '../../utils'
-import { Icon } from '@chakra-ui/react'
+import { Icon, Center } from '@chakra-ui/react'
 import { FaPlay } from 'react-icons/fa'
+import { startPlayback } from '../../utils'
 
-const colorsImagePath = new URL('../../static/colors.png', import.meta.url).href
+const colorsImagePath = new URL('../../static/colors3.png', import.meta.url).href
 
 export default function CoordinateSystem({ squareWidth }) {
   const [cnv, setCnv] = useState(null)
@@ -35,7 +36,11 @@ export default function CoordinateSystem({ squareWidth }) {
   const [startProfile, setStartProfile] = useState(null)
   const [endProfile, setEndProfile] = useState(null)
 
-  const { setCurrentPlaylist, setCurrentPlaylistData } = usePlayerStore()
+  const [loadingPreview, setLoadingPreview] = useState(false)
+  const [loadingPlaylist, setLoadingPlaylist] = useState(false)
+
+  const { setCurrentPlaylist, setCurrentPlaylistData, setShowPreviewPlayer, deviceID } = usePlayerStore()
+
 
   // const [remountCount, setRemountCount] = useState(0);
   // const refresh = () => setRemountCount(remountCount + 1);
@@ -56,9 +61,9 @@ export default function CoordinateSystem({ squareWidth }) {
     if (prev_elements.length !== 0) {
       prev_elements[0].classList.remove('selected-start-mood')
     }
-    setStartMood(profile)
+    // setStartMood(profile)
     setStartProfile(profile)
-    e.target.parentNode.parentNode.classList.add('selected-start-mood')
+    e.target.parentNode.parentNode.parentNode.classList.add('selected-start-mood')
   }
 
   const selectEndMood = (e, profile) => {
@@ -66,9 +71,9 @@ export default function CoordinateSystem({ squareWidth }) {
     if (prev_elements.length !== 0) {
       prev_elements[0].classList.remove('selected-end-mood')
     }
-    setEndMood(profile)
+    // setEndMood(profile)
     setEndProfile(profile)
-    e.target.parentNode.parentNode.classList.add('selected-end-mood')
+    e.target.parentNode.parentNode.parentNode.classList.add('selected-end-mood')
   }
 
   function resetVector() {
@@ -103,7 +108,7 @@ export default function CoordinateSystem({ squareWidth }) {
 
   function getPreviews() {
     let vector_json = getStringifiedVector()
-
+    setLoadingPreview(true)
     fetch(`${URL_ACCOUNTS}get_vector_preview`, {
       method: "POST",
       headers: {
@@ -123,6 +128,7 @@ export default function CoordinateSystem({ squareWidth }) {
         getPreviewTrackData(data.data.start, token, 'start')
         getPreviewTrackData(data.data.end, token, 'end')
         setShowPreviews(true)
+        setLoadingPreview(false)
       })
   }
 
@@ -139,7 +145,8 @@ export default function CoordinateSystem({ squareWidth }) {
       let i = 0
       for (let track in res.tracks) {
         let album = res.tracks[track].album.images[1].url
-        previews.push({ "album": album, "uri": uris[track], "profile": profiles[i++]})
+        let uri = res.tracks[track].uri
+        previews.push({ "album": album, "uri": uri, "profile": profiles[i++] })
       }
       console.log(previews);
       pos === 'start' ? setStartPreviews(previews) : setEndPreviews(previews)
@@ -147,9 +154,14 @@ export default function CoordinateSystem({ squareWidth }) {
     return previews
   }
 
+  function startPreviewPlay(uri) {
+    setShowPreviewPlayer(true)
+    startPlayback(token, [uri], 0, deviceID)
+  }
+
   function sendVector() {
     let vector_json = getStringifiedVector()
-
+    setLoadingPlaylist(true)
     fetch(`${URL_ACCOUNTS}save_vector`, {
       method: "POST",
       headers: {
@@ -163,11 +175,7 @@ export default function CoordinateSystem({ squareWidth }) {
       .then(data => {
         setCurrentPlaylist(data.playlist_uri)
         setCurrentPlaylistData(data.playlist_data.tracks.items)
-        console.log("ONLY TRACKS");
-        console.log(data.playlist_data.tracks.items);
-        console.log(setCurrentPlaylistData)
-        console.log("ALL DATA");
-        console.log(data)
+        setLoadingPlaylist(false)
       })
     // TODO Handle redirecting of successful response
   }
@@ -323,33 +331,44 @@ export default function CoordinateSystem({ squareWidth }) {
         {/* Color Palette for vector colors */}
         <img id="colors" src={colorsImagePath} width={squareSize} height={squareSize} className='object-cover hidden' />
 
+        {(loadingPreview || loadingPlaylist) &&
+          <div className='absolute bg-deepBlue rounded-lg opacity-50 w-full h-full z-40'>
+            <div className='flex h-full w-full items-center justify-center'>
+              {loadingPlaylist && <span className='text-4xl text-green1'>Loading your playlist</span>}
+              {loadingPreview && <span className='text-4xl text-green1'>Loading your Preview</span>}
+            </div>
+          </div>
+        }
+
         {/* Canvas layer we draw on */}
         <canvas id="cnv" width={squareSize} height={squareSize} className='absolute rounded-lg bg-green3 border border-black'></canvas>
-
         <div
           className='absolute flex flex-wrap items-center justify-evenly z-10'
           style={{ top: squareSize - startY - 84, left: startX - 84, width: 168, height: 168, display: startPreviews.length !== 0 ? 'flex' : 'none' }}
         >
           {startPreviews.map((entry, i) => (
-            <div 
-              className='md:flex-1/2 opacity-70 transition hover:opacity-100 bg-white z-30' 
-              style={{width: '64px', height: '64px'}}
+            <div
+              className='md:flex-1/2 opacity-70 transition hover:opacity-100 bg-white z-30'
+              style={{ width: '64px', height: '64px' }}
             >
-              <div 
+              <div
                 className={`h-full w-full z-40 transition transform hover:scale-150`}
-                style={{ background: `center / contain no-repeat url('${entry.album}')`}}
+                style={{ background: `center / cover no-repeat url('${entry.album}')` }}
               >
-                <div className='flex-row h-full w-full opacity-0 hover:opacity-100'>
-                  <div>
-                    <Icon w={8} h={8} color='white' as={FaPlay} className='cursor-pointer' />
+                <Center className="h-full w-full">
+                  <div className='flex-row z-40 opacity-0 hover:opacity-100'>
+                    <div className=''>
+                      <Icon w={8} h={8} color='white' as={FaPlay} className='cursor-pointer' onClick={() => startPreviewPlay(entry.uri)} />
+                    </div>
+                    <span
+                      className='flex-1 text-white text-tiny select-non cursor-pointer'
+                      style={{ 'textShadow': '1px 1px black' }}
+                      onClick={e => selectStartMood(e, entry.profile)}
+                    >
+                      SELECT
+                    </span>
                   </div>
-                  <span 
-                    className='text-white text-tiny select-non cursor-pointer'
-                    onClick={e => selectStartMood(e, entry.profile)}
-                  >
-                    SELECT
-                  </span>
-                </div>
+                </Center>
               </div>
             </div>
           ))}
@@ -366,19 +385,22 @@ export default function CoordinateSystem({ squareWidth }) {
             >
               <div
                 className={`h-full w-full z-40 transition transform hover:scale-150`}
-                style={{ background: `center / contain no-repeat url('${entry.album}')` }}
+                style={{ background: `center / cover no-repeat url('${entry.album}')` }}
               >
-                <div className='flex-row h-full w-full opacity-0 hover:opacity-100'>
-                  <div>
-                    <Icon w={8} h={8} color='white' as={FaPlay} className='cursor-pointer' />
+                <Center className="h-full w-full">
+                  <div className='flex-row z-40 opacity-0 hover:opacity-100'>
+                    <div className=''>
+                      <Icon w={8} h={8} color='white' as={FaPlay} className='cursor-pointer' onClick={() => startPreviewPlay(entry.uri)} />
+                    </div>
+                    <span
+                      className='flex-1 text-white text-tiny select-non cursor-pointer'
+                      style={{ 'textShadow': '1px 1px black' }}
+                      onClick={e => selectEndMood(e, entry.profile)}
+                    >
+                      SELECT
+                    </span>
                   </div>
-                  <span
-                    className='text-white text-tiny select-non cursor-pointer'
-                    onClick={e => selectEndMood(e, entry.profile)}
-                  >
-                    SELECT
-                  </span>
-                </div>
+                </Center>
               </div>
             </div>
           ))}

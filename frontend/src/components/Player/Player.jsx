@@ -97,13 +97,13 @@ export default function PlayerB() {
         <Progress />
       </div>
       <div className="player flex w-1/2 pt-3 mx-auto justify-around">
-        <Icon w={8} h={8} color='tomato' as={FaBackward} onClick={() => player.previousTrack()} className='cursor-pointer' />
+        <Icon w={8} h={8} color='#d8f3dc' as={FaBackward} onClick={() => player.previousTrack()} className='cursor-pointer' />
 
-        <Icon w={8} h={8} color='tomato' as={paused ? FaPlay : FaPause} onClick={() => player.togglePlay()} className='cursor-pointer' />
-        {/* <Icon w={8} h={8} color='tomato' as={paused ? FaPlay : FaPause} onClick={() => togglePlayBack(token, paused)} className='cursor-pointer' /> */}
+        <Icon w={8} h={8} color='#d8f3dc' as={paused ? FaPlay : FaPause} onClick={() => player.togglePlay()} className='cursor-pointer' />
+        {/* <Icon w={8} h={8} color='#d8f3dc' as={paused ? FaPlay : FaPause} onClick={() => togglePlayBack(token, paused)} className='cursor-pointer' /> */}
 
         {/* Skip */}
-        <Icon w={8} h={8} color='tomato' as={FaForward} onClick={() => player.nextTrack()} className='cursor-pointer' />
+        <Icon w={8} h={8} color='#d8f3dc' as={FaForward} onClick={() => player.nextTrack()} className='cursor-pointer' />
       </div>
       <div className='h-16 flex w-1/2 2xl:pt-8 lg:pt-2 mx-auto justify-around'>
         <Icon w={10} h={10} as={RiThumbDownLine} color='white' className='cursor-pointer' onClick={() => alert('TODO: Downvote')} />

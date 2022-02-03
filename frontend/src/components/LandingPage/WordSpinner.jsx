@@ -44,7 +44,7 @@ export default function WordSpinner({ scrollToContent }) {
 			<div className='h-10' />
 			<Flex direction='column' align='center'>
 				<Center className='animate-pulse cursor-pointer'>
-					<Icon w={20} h={20} color='tomato' as={FaPlay} onClick={() => scrollToContent()} />
+					<Icon w={20} h={20} color='#d8f3dc' as={FaPlay} onClick={() => scrollToContent()} />
 				</Center>
 			</Flex>
 		</>
