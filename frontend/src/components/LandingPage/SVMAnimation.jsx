@@ -87,19 +87,19 @@ export default function SVMAnimation({ scrollToContent }) {
 			'#mainVec1',
 			{ path: '#mainVec1' },
 			{ path: '#mainVec2' },
-			{ morphPrecision: 1 }
+			{ morphPrecision: 10 }
 		)
 		const tween2 = KUTE.fromTo(
 			'#dotted11',
 			{ path: '#dotted11' },
 			{ path: '#dotted12' },
-			{ morphPrecision: 1 }
+			{ morphPrecision: 10 }
 		)
 		const tween3 = KUTE.fromTo(
 			'#dotted21',
 			{ path: '#dotted21' },
 			{ path: '#dotted22' },
-			{ morphPrecision: 1 }
+			{ morphPrecision: 10 }
 		)
 
 		function startAnimation() {
@@ -137,7 +137,7 @@ export default function SVMAnimation({ scrollToContent }) {
 
 			setAnimationState('finish')
 		}
-		setTimeout(() => { startAnimation() }, 2000)
+		setTimeout(() => { startAnimation() }, 1200)
 	}, []
 	)
 
@@ -158,9 +158,9 @@ export default function SVMAnimation({ scrollToContent }) {
 
 				<svg id="vector" className='w-full h-full invisible' viewBox={`0 0 1440 1024`} fill="none" preserveAspectRatio="none">
 					<g>
-						<path data-start="0" id="mainVec1" d="M1 634L326 381.5C655.2 132.3 619.167 379.333 560 534C485.6 726.4 529 839.833 560 872.5C591.2 941.7 835.333 727 953.5 611C1095.1 447.4 1323.17 595.833 1419.5 690.5L1439.5 715.5" stroke="#D8F3DC" strokeWidth="5" />
-						<path data-start="20" id="dotted11" d="M0.5 445L310 211.5C477.6 80.7 592.833 107.667 629.5 137.5C755.1 245.9 717.833 435.333 683.5 516.5C623.5 627.7 629.167 664.5 639.5 669C687.1 723 860 555.5 940.5 465C1043.7 364.6 1219.5 409.833 1294.5 445L1443 548.5" stroke="#D8F3DC" />
-						<path data-start="20" id="dotted21" d="M1.5 799.5L288 587.5C436.4 485.9 432.833 545.167 412.5 587.5C338.1 888.7 450.167 987 515.5 998.5C755.1 983.7 825.667 932.333 831 908.5L976.5 776C1106.1 697.6 1329.17 789.333 1424.5 845" stroke="#D8F3DC" />
+						<path data-start="0" id="mainVec1" d="M-1 549.5L260.5 376C590.9 170.8 535.833 314.167 467.5 437.5C186.3 949.5 552.333 790.5 704 651C1212.5 157.5 1248.5 309 970.5 712.5C748.1 1035.3 1199.5 822.167 1444.5 680" stroke="#D8F3DC" strokeWidth="5" />
+						<path data-start="20" id="dotted11" d="M-4.5 419.5L267.5 241C663.5 14.6001 662.167 214.5 610.5 359.5C299 932.5 580.015 639.525 690.5 549.5C1095.5 219.5 1143.5 259.5 1190.5 286C1237.5 312.5 1199 480.5 1119 587.5C790.458 1026.93 1300 671 1447 578" stroke="#D8F3DC" />
+						<path data-start="20" id="dotted21" d="M-6.5 686.5L254 509.5C427.5 369.5 418.215 395.264 372.5 484.5C122.5 972.5 480.127 936.808 617.5 812.5C1159 322.5 1010.96 527.5 909 679.5C610.5 1124.5 1086 943 1445.5 807" stroke="#D8F3DC" />
 						<path id="arrowHead" d="M1441.17 716.76L1399.9 708.651L1431.89 675.735L1441.17 716.76Z" fill="none" />
 					</g>
 					<g className='hidden'>
@@ -168,6 +168,12 @@ export default function SVMAnimation({ scrollToContent }) {
 						<path id="dotted12" d="M0 742H1439.5" stroke="#D8F3DC" strokeDasharray={"10,10"} />
 						<path id="dotted22" d="M0 920H1439.5" stroke="#D8F3DC" />
 					</g>
+
+					{/* <g className='hidden'>
+						<path id="mainVec2" d="M-1009 789.019L-426.436 690.6C309.622 574.199 81.7315 620.639 -70.5 690.6C-696.951 981.035 -583.5 1103 561.583 846.596C1374.5 664.569 1452 681.5 1452 681.5C1452 681.5 1653.19 945.393 2199 864.748" stroke="#D8F3DC" strokeWidth="5" />
+						<path id="dotted12" d="M-1016.54 714.644L-410.56 613.116C471.681 484.342 90.1073 661.526 -25 744C-718.986 1069.91 285.688 839.791 531.834 788.586C841.5 724.168 1347.5 628 1442.5 628C1537.5 628 1664.71 749.34 1486.48 810.2C754.529 1060.14 1883.05 858.452 2204.97 799.109" stroke="#D8F3DC" strokeDasharray={"10,10"} />
+						<path id="dotted22" d="M-1021 866.51L-440.637 765.835C-54.0988 686.205 -74.7841 700.859 -176.632 751.615C-733.603 1029.18 -339.5 1101.9 369.199 938.177C1327.5 716.788 2207.87 631.972 1615 807.5C932.713 1009.5 1401.82 1014.3 2215 938.177" stroke="#D8F3DC" />
+					</g> */}
 				</svg>
 			</div>
 		</>
