@@ -136,7 +136,7 @@ class LogOutView(APIView):
 class DeleteAccountView(APIView):
     def delete(self, request, format=None):
         try:
-            user = User.objects.filter(username=self.request.user)
+            user = User.objects.filter(username=self.request.user).first()
 
             unexpired_sessions = Session.objects.filter(
                 expire_date__gte=timezone.now())
