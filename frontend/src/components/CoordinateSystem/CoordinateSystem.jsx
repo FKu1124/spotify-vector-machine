@@ -32,8 +32,8 @@ export default function CoordinateSystem({ squareWidth }) {
   const [endPreviews, setEndPreviews] = useState([])
   const [showPreviews, setShowPreviews] = useState(false)
 
-  const [startProfile, setStartProfile] = useState()
-  const [endProfile, setEndProfile] = useState()
+  const [startProfile, setStartProfile] = useState(null)
+  const [endProfile, setEndProfile] = useState(null)
 
   const { setCurrentPlaylist, setCurrentPlaylistData } = usePlayerStore()
 
@@ -57,6 +57,7 @@ export default function CoordinateSystem({ squareWidth }) {
       prev_elements[0].classList.remove('selected-start-mood')
     }
     setStartMood(profile)
+    setStartProfile(profile)
     e.target.parentNode.parentNode.classList.add('selected-start-mood')
   }
 
@@ -66,6 +67,7 @@ export default function CoordinateSystem({ squareWidth }) {
       prev_elements[0].classList.remove('selected-end-mood')
     }
     setEndMood(profile)
+    setEndProfile(profile)
     e.target.parentNode.parentNode.classList.add('selected-end-mood')
   }
 
@@ -95,7 +97,7 @@ export default function CoordinateSystem({ squareWidth }) {
     let scaledEndY = endY / (squareSize + 4)
 
     return JSON.stringify({
-      scaledStartX, scaledStartY, scaledEndX, scaledEndY, length, name, startMood, endMood
+      scaledStartX, scaledStartY, scaledEndX, scaledEndY, length, name, startProfile, endProfile
     })
   }
 
