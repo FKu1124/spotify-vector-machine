@@ -318,9 +318,10 @@ def _create_playlist_for_multiple_profiles(start_profile, end_profile, vector):
     y_dif = vector.y_start - vector.y_end
 
 
-    # n = int(vector.length * 1000 * 60 /
-    #     recommended_songs.duration.quantile(q=0.3)) 
-    n = 15
+    n = int(vector.length * 1000 * 60 /
+        3.5 * 1000 * 60)
+        # recommended_songs.duration.quantile(q=0.3)) 
+    # n = 15
     print(f"RECOMMEND {n} TRACK")
     for i in range(1, n + 1):
         temp_profile = (1 - (i / n)) * start_profile + (i / n) * end_profile

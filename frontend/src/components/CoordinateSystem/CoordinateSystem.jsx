@@ -7,9 +7,21 @@ import './ccs_header.css'
 import { usePlayerStore } from '../../store/playerStore';
 import { URL_ACCOUNTS } from '../../Config';
 import { getTrack } from '../../utils'
-import { Icon, Center } from '@chakra-ui/react'
+import {
+  Icon,
+  Center,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderMark
+} from '@chakra-ui/react'
 import { FaPlay } from 'react-icons/fa'
+import { IoColorFilterSharp } from 'react-icons/io5'
+import { HiOutlineTrash } from 'react-icons/hi'
 import { startPlayback } from '../../utils'
+
+
 
 const colorsImagePath = new URL('../../static/colors3.png', import.meta.url).href
 
@@ -297,32 +309,39 @@ export default function CoordinateSystem({ squareWidth }) {
     <>
       {/* CCS HEADER */}
       <div className="header flex flex-row items-center justify-center gap-3">
-        <h1 className='text-xl'>
-          Let us take you from <span style={{ 'textShadow': '1px 1px ' }}>{startMood}</span> to <span style={{ 'textShadow': '1px 1px' }}>{endMood}</span>
+        <h1 className='text-4xl text-white text-bold'>
+          Let us take you from {startMood} to {endMood}
         </h1>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 p-2 cursor-pointer bg-green1 text-white rounded-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" onClick={getPreviews}>
-          <path strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 p-2 cursor-pointer bg-gray-400 text-white rounded-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" onClick={sendVector}>
-          <path strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-        </svg>
+        <div>
+          <Icon as={IoColorFilterSharp} w={6} h={6} color='tomato' onClick={getPreviews} className='mr-3 cursor-pointer animate-pulse' />
+          {/* <Icon as={IoColorFilterSharp} w={6} h={6} color='pink.400' onClick={getPreviews} className='mr-3 cursor-pointer animate-pulse' /> */}
+          <Icon as={FaPlay} w={6} h={6} color='tomato' onClick={sendVector} className='cursor-pointer animate-pulse' />
+        </div>
       </div>
 
       {/* Filter options & Action button */}
       <div className="filter flex items-end justify-center gap-3">
         {/* Playlist Length Slider */}
-        <div className="length-slider w-1/3 flex-col text-left">
-          <span className='text-tiny'>Playlist length:</span>
-          <div className="slider flex w-full text-white h-8 bg-gray-400 rounded-md items-center px-3">
-            <input type="range" onChange={onLengthChange} min="10" max="120" step="5" className='bg-gray-400' />
-            <span className='text-tiny p-1 w-1/4'>{length} min</span>
+        <div className='h-20' />
+        <div className="length-slider w-full flex-row text-left">
+          <div className="slider flex w-full text-white h-8 rounded-md items-center px-10">
+            <span className='text-small w-1/2'>Playlist length:</span>
+            <Slider aria-label='slider-ex-1' min={10} max={300} step={5} defaultValue={30} onChange={setLength}>
+              <SliderTrack>
+                <SliderFilledTrack bg='blue.800' />
+              </SliderTrack>
+              <SliderThumb />
+            </Slider>
+            {/* <input type="range" onChange={onLengthChange} min="10" max="120" step="5" className='bg-gray-400' /> */}
+            <span className='text-sm pl-4 p-1 w-1/4'>{length} min</span>
           </div>
         </div>
         {/* Reset Button */}
-        <div className="reset w-1/8">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" onClick={resetVector}>
+        <div className="reset w-1/8 px-10">
+          <Icon as={HiOutlineTrash} color='white' w={6} h={6} className='mb-2 cursor-pointer' onClick={resetVector} />
+          {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" onClick={resetVector}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
+          </svg> */}
         </div>
       </div>
 
@@ -334,8 +353,8 @@ export default function CoordinateSystem({ squareWidth }) {
         {(loadingPreview || loadingPlaylist) &&
           <div className='absolute bg-deepBlue rounded-lg opacity-50 w-full h-full z-40'>
             <div className='flex h-full w-full items-center justify-center'>
-              {loadingPlaylist && <span className='text-4xl text-green1'>Loading your playlist</span>}
-              {loadingPreview && <span className='text-4xl text-green1'>Loading your Preview</span>}
+              {loadingPlaylist && <span className='text-4xl text-green1'>Loading Your playlist</span>}
+              {loadingPreview && <span className='text-4xl text-green1'>Loading Your Preview</span>}
             </div>
           </div>
         }

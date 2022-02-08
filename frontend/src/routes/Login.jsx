@@ -8,8 +8,6 @@ import { useSearchParams } from 'react-router-dom';
 import { Icon } from '@chakra-ui/react'
 import { FaSpotify } from 'react-icons/fa'
 
-const bg_main = new URL('../static/bg_main.png', import.meta.url).href
-
 export default function Login() {
 
   const { isAuthenticated, setIsAuthenticated } = useUserStore()
@@ -68,7 +66,7 @@ export default function Login() {
 
   if (isAuthenticated === undefined) {
     return (
-      <div className='h-screen w-screen' style={{ backgroundImage: `url(${bg_main})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <div className='h-screen w-screen'>
         {/* LOADING SCREEN */}
       </div>
     )
