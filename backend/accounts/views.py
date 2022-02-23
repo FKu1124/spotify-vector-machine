@@ -1,5 +1,6 @@
 import os
 import time
+from urllib.request import HTTPRedirectHandler
 
 from sklearn.cluster import cluster_optics_xi
 from accounts.serializers import MoodVectorSerializer
@@ -13,6 +14,7 @@ from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
@@ -65,7 +67,8 @@ class LoginWithSpotify(APIView):
                 user = auth.authenticate(username=username, password=password)
                 auth.login(request, user)
                 
-                return redirect("/")
+                # return redirect("/")
+                return HttpResponseRedirect(redirect_to="http://localhost:3000")
             # Case 1: User initiates authentication and retrieves auth_url
             try:
                 if not auth_manager.validate_token(cache_handler.get_cached_token()):

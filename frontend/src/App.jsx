@@ -14,7 +14,6 @@ import SVMAnimation from './components/LandingPage/SVMAnimation'
 import Background from './components/LandingPage/Background'
 import { Center, ScaleFade } from '@chakra-ui/react'
 
-const bg_main = new URL('./static/bg_main.png', import.meta.url).href
 
 const WORDS1 = [
   "Tired",
@@ -115,7 +114,7 @@ function App() {
         <SVMAnimation scrollToContent={switchToContent} />
       </div>
 
-      <div ref={contentRef} className='h-screen w-full bg-green7 grid grid-cols-3 content-center relative'>
+      <div ref={contentRef} className='h-140 w-full bg-green7 grid grid-cols-3 content-center relative'>
         {/* <div>
           <motion.div animate={showPlayer ? 'open' : 'closed'} variants={playerStyleStates} style={{ position: 'absolute', height: '100%', paddingTop: '2.5%' }} >
             {token && <Player />}
@@ -127,7 +126,7 @@ function App() {
           </Center>
         </ScaleFade>
         <div className='content'>
-          <CoordinateSystem squareWidth='900' />
+          <CoordinateSystem squareWidth='800' />
         </div>
         <ScaleFade initialScale={0.8} in={showPlayerList}>
           <Center className='h-screen'>
