@@ -24,13 +24,14 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import DjangoSessionCacheHandler
 
-# Create your views here.
-
+# Scope = Access rights to user data (playlists, favourites, ...) & functions (playlist creation, playback control, ...)
 scope = "streaming user-read-email user-read-private user-top-read user-read-recently-played user-read-playback-state user-read-playback-position user-library-read user-library-modify playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public"
 
+# Get params needed for API requests from env
 client_id = os.environ.get('SPOTIFY_CLIENT_ID')
 client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
 redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
+
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class GetCSRFToken(APIView):
@@ -39,6 +40,7 @@ class GetCSRFToken(APIView):
     def get(self, request, format=None):
         return Response({ 'success': 'CSRF cookie set' })
 
+# Login and Signup 
 @method_decorator(csrf_protect, name='dispatch')
 class LoginWithSpotify(APIView):
     permission_classes = (permissions.AllowAny, )
@@ -82,6 +84,7 @@ class LoginWithSpotify(APIView):
         # Case 3: User is already authenticated with Spotify 
         # return Response({ 'status': 'Success' })
 
+# Check if user is logged in / there is a currently active session
 @method_decorator(csrf_protect, name='dispatch')
 class CheckAuthentication(APIView):
     permission_classes = (permissions.AllowAny, )
@@ -105,7 +108,7 @@ class GetUserProfile(APIView):
         except:
             return Response({ 'status': False, 'msg': 'Error while loading user data' }, status=status.HTTP_403_FORBIDDEN)
 
-
+# Used to fetch access_token from frontend; access_token required in frontend for playback control
 @method_decorator(csrf_protect, name='dispatch')
 class GetSpotifyAccess(APIView):
 
@@ -119,7 +122,6 @@ class GetSpotifyAccess(APIView):
             return Response({ 'status': True, 'data': { 'token': token['access_token'], 'expires_in': (token['expires_at'] - int(time.time())) * 1000 } }, status=status.HTTP_200_OK)
         except:
             return Response({ 'status': False, 'msg': 'Error fetching the Spotify access token' }, status=status.HTTP_403_FORBIDDEN)
-
 
 
 
