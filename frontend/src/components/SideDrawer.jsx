@@ -19,26 +19,44 @@ import {
   DrawerCloseButton
 } from '@chakra-ui/react'
 import { HiExternalLink } from 'react-icons/hi'
-
 import { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
+import { URL_ACCOUNTS } from './../Config'
+ 
 
 const frostedStyle = {
   backgroundColor: 'rgba(255, 255, 255, .15)',
   backdropFilter: 'blur(5px)'
 }
 
-const MIN = 1
+const MIN = 10
 const MAX = 100
 const STEP = 1
 
 export default function SideDrawer() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [defaultVolume, setDefaultVolume] = useState(localStorage.getItem('svmPlayerDefaultVolume' || 30))
+	const navigate = useNavigate()
+  const [cookies, setCookies, removeCookie] = useCookies(['csrftoken','sessionid']);
   const btnRef = useRef()
 
   const deleteAccount = () => {
     // TODO
     alert('TODO: Delete Account')
+  }
+
+  const logout = async() => {
+    await fetch(`${URL_ACCOUNTS}logout`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRFToken': cookies['csrftoken']
+      },
+      credentials: 'include'
+    })
+    navigate('/login')
   }
 
   const saveDefaultValue = (vol) => {
@@ -84,7 +102,8 @@ export default function SideDrawer() {
             </Link>
           </DrawerBody>
           <DrawerFooter style={frostedStyle}>
-            <Button variant='outline' mr={3} onClick={onClose}>Cancel</Button>
+            {/* <Button variant='outline' mr={3} onClick={onClose}>Cancel</Button> */}
+            <Button variant='outline' mr={3} onClick={() => logout()}>Log Out</Button>
             <Button colorScheme='red' onClick={() => deleteAccount()} >Delete Account</Button>
           </DrawerFooter>
         </DrawerContent>

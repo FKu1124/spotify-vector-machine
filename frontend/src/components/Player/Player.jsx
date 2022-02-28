@@ -29,7 +29,7 @@ export default function PlayerB() {
       const player = new window.Spotify.Player({
         name: "SVM Player",
         getOAuthToken: cb => { cb(token); },
-        volume: localStorage.getItem('svmPlayerDefaultVolume') / 100
+        volume: 0.1//localStorage.getItem('svmPlayerDefaultVolume') / 100
       });
 
       setPlayer(player);
