@@ -19,9 +19,8 @@ W_GENRE = 1
 W_SOUND = 1
 W_TAGS = 1
 
+
 # DB Connection to directly load in dataframe
-
-
 def get_db_connection():
     db_name = os.environ.get('POSTGRES_NAME')
     db_user = os.environ.get('POSTGRES_USER')
@@ -225,11 +224,9 @@ def _get_user_profile(user: User, profile_name: str = None):
     # Try loading user profile saved with vector
     try:
         user_profile = scipy.sparse.load_npz(f"storage/{profile_name}")
-        print("#### CORRECT PROFILE LOADED #####")
         return user_profile
     # Load first profile available for user on error
     except IOError:
-        print("#### DEFAULT PROFILE LOADED #####")
         profiles = []
         for profile in os.listdir('storage/'):
             if f"user_profile_{user.id}" in profile:
@@ -256,7 +253,7 @@ def _create_playlist_for_single_profile(profile, vector: MoodVector):
     tracks_df = pd.read_sql_query(
         "SELECT spotify_id, name, artists, energy, valence, duration FROM spotify_track", con=engine)
 
-    # drop duplicates (~7.2k) => Nothing changes cause still in recommended song df
+    # Dropping duplicates
     tracks_df.drop_duplicates(
         subset=['name', 'artists'], keep='first', inplace=True)
     tracks_df.drop(columns=['name', 'artists'], inplace=True)
@@ -308,7 +305,7 @@ def _create_playlist_for_multiple_profiles(start_profile, end_profile, vector):
     tracks_df = pd.read_sql_query(
         "SELECT spotify_id, name, artists, energy, valence, duration FROM spotify_track", con=engine)
 
-    # drop duplicates (~7.2k) => Nothing changes cause still in recommended song df
+    # drop duplicates (~7.2k)
     tracks_df.drop_duplicates(
         subset=['name', 'artists'], keep='first', inplace=True)
     tracks_df.drop(columns=['name', 'artists'], inplace=True)
@@ -320,8 +317,7 @@ def _create_playlist_for_multiple_profiles(start_profile, end_profile, vector):
 
     n = int(vector.length * 1000 * 60 /
         3.5 * 1000 * 60)
-        # recommended_songs.duration.quantile(q=0.3)) 
-    # n = 15
+
     print(f"RECOMMEND {n} TRACK")
     for i in range(1, n + 1):
         temp_profile = (1 - (i / n)) * start_profile + (i / n) * end_profile
@@ -351,6 +347,10 @@ def _create_playlist_for_multiple_profiles(start_profile, end_profile, vector):
     return song_ids
 
 def get_previews_for_vector(vec_data: dict, user: User) -> str:
+    """ Returns the highest recommended track for each user profile for start and end point of drawn vector.
+
+    The tracks serve as previews to assist the user choosing the right user profile.
+    """
     user_profiles = _get_all_user_profiles(user)
 
     engine = get_db_connection()
@@ -372,7 +372,6 @@ def get_previews_for_vector(vec_data: dict, user: User) -> str:
     }
 
     for name, profile in user_profiles.items():
-        print(f"User Profile {name}")
         recommended_songs = recommend_songs_for_profile(profile)
 
         recommended_songs = recommended_songs.merge(
@@ -394,6 +393,14 @@ def get_previews_for_vector(vec_data: dict, user: User) -> str:
 
 
 def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify) -> str:
+    """Generates and saves playlist for vector input by the user.
+    
+    Three different cases must be handled based on the users input. In case no
+    or identical user profiles were chosen for the start and end point of the vector,
+    the playlist songs are recommended are recommended based on this single profile.
+    In case two different profiles were choosen, both profiles are used to additionally
+    recommend based on the transition from one to the other.
+    """
 
     # Case: No or just one profile was selected by the user
     if vector.start_profile is None or vector.end_profile is None:
@@ -411,7 +418,6 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
 
     spotify_user_id = spotify.me()['id']
 
-    # ToDo: calculate the closest emotion to the start- and endpoint respectively
     playlist = spotify.user_playlist_create(
         spotify_user_id, vector.name, public=False, description='Created with Spotify Vector Machine.')
     spotify.playlist_add_items(playlist['id'], song_ids)

@@ -8,13 +8,13 @@ import scipy.sparse
 import pandas as pd
 from sqlalchemy import null
 from django.db import connection
-from django_pandas.io import read_frame
 
 from .recommender import create_song_vector_matrix, get_db_connection
 from spotify.models import UserTrack, Track
 from spotipy import Spotify
 from .spotify_scraping import save_tracks_by_id
 
+# Weights applied to different types of implicit and explicit user feedback.
 TYPE_WEIGHTS = {
     'top_tracks_short': 1,
     'top_tracks_medium': 1,
@@ -27,6 +27,7 @@ TYPE_WEIGHTS = {
 
 
 def _get_user_profile_tracks(user: User, spotify: Spotify):
+
     print("Starting to create the user profile.")
     newly_added = []
 
@@ -92,7 +93,6 @@ def _get_user_profile_tracks(user: User, spotify: Spotify):
 
 
 def _generate_user_profile(user_id) -> None:
-
     track_feature_matrix = scipy.sparse.load_npz(
         'storage/sparse_track_feature_matrix.npz')
 
@@ -107,14 +107,6 @@ def _generate_user_profile(user_id) -> None:
     tracks = Track.objects.filter(
         usertrack__user=user_id, energy__isnull=False, valence__isnull=False, name__isnull=False)
     spotify_ids = list(tracks.values_list('spotify_id', flat=True))
-
-    # for debugging purposes: in earlier versions, there have been duplicates in the user profiles
-    diff = []
-    for elem in spotify_ids:
-        if elem not in recommendable_songs.spotify_id.values:
-            diff.append(elem)
-    if len(diff) != 0:
-        print("WARNING, THERE ARE {} POTENTIAL DUPLICATES!".format(len(diff)))
 
     spotify_id_vect_id = {}
     tracks_df = read_frame(tracks)
@@ -170,18 +162,23 @@ def _generate_user_profile(user_id) -> None:
 
 
 def get_user_profile_clusters(user: User):
-    # ToDo What profile to chose on default?
     profiles = []
     for profile in os.listdir('storage/'):
         if f"user_profile_{user.id}" in profile:
             profiles.append(f"storage/{profile}")
 
-    # user_profile = scipy.sparse.load_npz(profiles[0])
     user_cluster = [cluster.split('_')[-1].replace('.npz', '')
                     for cluster in profiles]
     return user_cluster
 
 
 def create_user_profile(user: User, spotify: Spotify):
+    """ Generates and saves user profiles for logged in user.
+
+    This is done by first fetching all available user listening data from the
+    Spotify API. Afterwards, the most relevant genre-clusters are extracted
+    and for each a user-profile calculted based on the tracks present in each
+    cluster.
+    """
     _get_user_profile_tracks(user, spotify)
     _generate_user_profile(user.id)

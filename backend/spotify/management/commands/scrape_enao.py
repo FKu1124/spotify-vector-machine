@@ -36,5 +36,3 @@ class Command(BaseCommand):
                     if key == 'left':
                         x = int(value[:-2])
                 writer.writerow([genre_slug, x, y])
-
-        print(len(genres))
