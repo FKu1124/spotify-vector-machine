@@ -1,4 +1,5 @@
 import os
+import profile
 
 from django.contrib.auth.models import User
 import numpy as np
@@ -17,6 +18,7 @@ W_TITLE = 1
 W_GENRE = 1
 W_SOUND = 1
 W_TAGS = 1
+
 
 # DB Connection to directly load in dataframe
 def get_db_connection():
@@ -218,18 +220,20 @@ def recommend_songs_for_profile(profile: scipy.sparse.csr.csr_matrix):
     return recommendations
 
 
-def _get_user_profile(user: User):
-    # ToDo What profile to chose on default?
-    profiles = []
-    for profile in os.listdir('storage/'):
-        if f"user_profile_{user.id}" in profile:
-            profiles.append(f"storage/{profile}")
+def _get_user_profile(user: User, profile_name: str = None):
+    # Try loading user profile saved with vector
+    try:
+        user_profile = scipy.sparse.load_npz(f"storage/{profile_name}")
+        return user_profile
+    # Load first profile available for user on error
+    except IOError:
+        profiles = []
+        for profile in os.listdir('storage/'):
+            if f"user_profile_{user.id}" in profile:
+                profiles.append(f"storage/{profile}")
+        user_profile = scipy.sparse.load_npz(profiles[0])
 
-    user_profile = scipy.sparse.load_npz(profiles[1])
-
-    print(user_profile)
-
-    return user_profile
+        return user_profile
 
 
 def _get_all_user_profiles(user: User):
@@ -241,64 +245,15 @@ def _get_all_user_profiles(user: User):
     return profiles
 
 
-def get_previews_for_vector(vec_data: dict, user: User) -> str:
-    user_profiles = _get_all_user_profiles(user)
-
-    engine = get_db_connection()
-    tracks_df = pd.read_sql_query(
-        "SELECT spotify_id, name, artists, energy, valence, duration FROM spotify_track", con=engine)
-
-    tracks_df.drop_duplicates(
-        subset=['name', 'artists'], keep='first', inplace=True)
-    tracks_df.drop(columns=['name', 'artists'], inplace=True)
-
-    vec_coordinates = {
-        'start': (vec_data['x_start'], vec_data['y_start']),
-        'end': (vec_data['x_end'], vec_data['y_end'])
-    }
-
-    previews = {
-        'start': {},
-        'end': {}
-    }
-
-    for name, profile in user_profiles.items():
-        print(f"User Profile {name}")
-        recommended_songs = recommend_songs_for_profile(profile)
-
-        recommended_songs = recommended_songs.merge(
-            tracks_df, how="left", left_on="spotify_id", right_on="spotify_id")
-
-        dynamic_filter_size = 0.05
-
-
-        for pos, coordinates in vec_coordinates.items():
-            (valence, energy) = coordinates
-            print(valence, energy)
-            filter = (recommended_songs['energy'] > energy - dynamic_filter_size) & (recommended_songs['energy'] < energy + dynamic_filter_size) & (recommended_songs['valence'] > valence - dynamic_filter_size) & (recommended_songs['valence'] < valence + dynamic_filter_size)
-
-            filtered_track = recommended_songs[filter]
-            track = filtered_track['spotify_id'].iloc[0]
-            previews[pos][name] = track
-
-
-    return previews
-            
-
-
-
-def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify) -> str:
-    # Get the previously created user profile
-    user_profile = _get_user_profile(user)
-
+def _create_playlist_for_single_profile(profile, vector: MoodVector):
     # Get recommendations
-    recommended_songs = recommend_songs_for_profile(user_profile)
+    recommended_songs = recommend_songs_for_profile(profile)
 
     engine = get_db_connection()
     tracks_df = pd.read_sql_query(
         "SELECT spotify_id, name, artists, energy, valence, duration FROM spotify_track", con=engine)
 
-    # drop duplicates (~7.2k)
+    # Dropping duplicates
     tracks_df.drop_duplicates(
         subset=['name', 'artists'], keep='first', inplace=True)
     tracks_df.drop(columns=['name', 'artists'], inplace=True)
@@ -342,12 +297,132 @@ def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify)
                 break
             track_postion += 1
 
+    return song_ids
+
+
+def _create_playlist_for_multiple_profiles(start_profile, end_profile, vector):
+    engine = get_db_connection()
+    tracks_df = pd.read_sql_query(
+        "SELECT spotify_id, name, artists, energy, valence, duration FROM spotify_track", con=engine)
+
+    # drop duplicates (~7.2k)
+    tracks_df.drop_duplicates(
+        subset=['name', 'artists'], keep='first', inplace=True)
+    tracks_df.drop(columns=['name', 'artists'], inplace=True)
+
+    song_ids = []
+    x_dif = vector.x_start - vector.x_end
+    y_dif = vector.y_start - vector.y_end
+
+
+    n = int(vector.length * 1000 * 60 /
+        3.5 * 1000 * 60)
+
+    print(f"RECOMMEND {n} TRACK")
+    for i in range(1, n + 1):
+        temp_profile = (1 - (i / n)) * start_profile + (i / n) * end_profile
+        energy = vector.y_start - y_dif / n * i
+        valence = vector.x_start - x_dif / n * i
+
+        recommended_songs = recommend_songs_for_profile(temp_profile)
+
+        recommended_songs = recommended_songs.merge(
+            tracks_df, how="left", left_on="spotify_id", right_on="spotify_id")
+
+        dynamic_filter_size = 0.05
+
+        filter = (recommended_songs['energy'] > energy - dynamic_filter_size) & (recommended_songs['energy'] < energy + dynamic_filter_size) & (
+            recommended_songs['valence'] > valence - dynamic_filter_size) & (recommended_songs['valence'] < valence + dynamic_filter_size)
+        filtered_track = recommended_songs[filter]
+
+        # Pick the first track not already present in recommended song
+        track_postion = 0
+        while True:
+            if filtered_track['spotify_id'].iloc[track_postion] not in song_ids:
+                song_ids.append(
+                    filtered_track['spotify_id'].iloc[track_postion])
+                break
+            track_postion += 1
+
+    return song_ids
+
+def get_previews_for_vector(vec_data: dict, user: User) -> str:
+    """ Returns the highest recommended track for each user profile for start and end point of drawn vector.
+
+    The tracks serve as previews to assist the user choosing the right user profile.
+    """
+    user_profiles = _get_all_user_profiles(user)
+
+    engine = get_db_connection()
+    tracks_df = pd.read_sql_query(
+        "SELECT spotify_id, name, artists, energy, valence, duration FROM spotify_track", con=engine)
+
+    tracks_df.drop_duplicates(
+        subset=['name', 'artists'], keep='first', inplace=True)
+    tracks_df.drop(columns=['name', 'artists'], inplace=True)
+
+    vec_coordinates = {
+        'start': (vec_data['x_start'], vec_data['y_start']),
+        'end': (vec_data['x_end'], vec_data['y_end'])
+    }
+
+    previews = {
+        'start': {},
+        'end': {}
+    }
+
+    for name, profile in user_profiles.items():
+        recommended_songs = recommend_songs_for_profile(profile)
+
+        recommended_songs = recommended_songs.merge(
+            tracks_df, how="left", left_on="spotify_id", right_on="spotify_id")
+
+        dynamic_filter_size = 0.05
+
+        for pos, coordinates in vec_coordinates.items():
+            (valence, energy) = coordinates
+            print(valence, energy)
+            filter = (recommended_songs['energy'] > energy - dynamic_filter_size) & (recommended_songs['energy'] < energy + dynamic_filter_size) & (
+                recommended_songs['valence'] > valence - dynamic_filter_size) & (recommended_songs['valence'] < valence + dynamic_filter_size)
+
+            filtered_track = recommended_songs[filter]
+            track = filtered_track['spotify_id'].iloc[0]
+            previews[pos][name] = track
+
+    return previews
+
+
+def create_playlist_for_vector(vector: MoodVector, user: User, spotify: Spotify) -> str:
+    """Generates and saves playlist for vector input by the user.
+    
+    Three different cases must be handled based on the users input. In case no
+    or identical user profiles were chosen for the start and end point of the vector,
+    the playlist songs are recommended are recommended based on this single profile.
+    In case two different profiles were choosen, both profiles are used to additionally
+    recommend based on the transition from one to the other.
+    """
+
+    # Case: No or just one profile was selected by the user
+    if vector.start_profile is None or vector.end_profile is None:
+        profile = _get_user_profile(user)
+        song_ids = _create_playlist_for_single_profile(profile, vector)
+    # Case: Identical profiles were selected by the user
+    elif vector.start_profile == vector.end_profile:
+        profile = _get_user_profile(user, vector.start_profile)
+        song_ids = _create_playlist_for_single_profile(profile, vector)
+    # Case: Two different profiles were selected by the user
+    else:
+        start_profile = _get_user_profile(user, vector.start_profile)
+        end_profile = _get_user_profile(user, vector.end_profile)
+        song_ids = _create_playlist_for_multiple_profiles(start_profile, end_profile, vector)
+
     spotify_user_id = spotify.me()['id']
 
-    # ToDo: calculate the closest emotion to the start- and endpoint respectively
     playlist = spotify.user_playlist_create(
-        spotify_user_id, vector.name, public=False, description='Created with Spotify Vector Machine. We will be taking you from {} to {} my friend.'.format(
-            "emotion1", "emotion2"))
+        spotify_user_id, vector.name, public=False, description='Created with Spotify Vector Machine.')
     spotify.playlist_add_items(playlist['id'], song_ids)
 
     return playlist['uri']
+
+
+

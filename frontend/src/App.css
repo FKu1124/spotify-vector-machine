@@ -247,3 +247,20 @@ button {
 .svm-animation {
   transition: opacity 1s;
 }
+
+/* CCS Preview */
+
+.selected-start-mood {
+  border: 2px solid black;
+  transform: scale(1.50);
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+.selected-end-mood {
+  border: 2px solid black;
+  transform: scale(1.50);
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}

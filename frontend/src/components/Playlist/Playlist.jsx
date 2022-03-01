@@ -1,62 +1,76 @@
-import React from 'react'
-import Track from './Track'
-import { startPlayback } from '../../utils'
+import React, { useEffect, useState } from 'react'
+import { startPlayback, msToTime, getActiveDevice, getAvailableDevices } from '../../utils'
 import { usePlayerStore } from '../../store/playerStore'
-import { Image, List, ListItem } from '@chakra-ui/react'
+import { Image, List, ListItem, Icon } from '@chakra-ui/react'
+import { FaPlay } from 'react-icons/fa'
+
 
 const roy = new URL('../../static/roy.jpeg', import.meta.url).href
 
-let exampleTrack = { "title": "Cococabana", "artist": "Roy Bianco & die Abrunzanti Boys", "img": roy }
 export default function Playlist() {
 
-  const { player, deviceID, token, nextTracks, prevTracks } = usePlayerStore()
-  console.log("nextTracks")
-  console.log(nextTracks)
-  console.log("prevTracks")
-  console.log(prevTracks)
+  const { deviceID, token, currentPlaylist, currentPlaylistData } = usePlayerStore()
+  const [loading, setLoading] = useState(true)
 
+  useEffect(() => {
+    if(currentPlaylist !== '' && currentPlaylist !== undefined) {
+      setLoading(false)
+      console.log("deviceID")
+      console.log(deviceID)
+      startPlayback(token, [currentPlaylist], 0, deviceID)
+    }
+  }, [currentPlaylist])
 
-  const PlaylistItem = ({ cover, title, authors, duration, uri }) => {
+  const PlaylistItem = ({ index, cover, title, artists, duration, playlistURI }) => {
+    const [playOpacity, setPlayOpacity] = useState(0)
     return (
-      <ListItem>
-
-        <div className='w-full h-16 grid grid-cols-10 text-white cursor-pointer'>
+      <ListItem onMouseEnter={() => setPlayOpacity(1)} onMouseLeave={() => setPlayOpacity(0)}>
+        <div className='w-full h-16 grid grid-cols-10 text-white cursor-pointer' onClick={() => startPlayback(token, [playlistURI], index, undefined)}>
           <div className='my-auto mx-auto'>
-            <p>1.</p>
+            <p>{index + 1}</p>
           </div>
-          <div className='col-span-2'>
-            <Image borderRadius='lg' className='max-h-16' src={exampleTrack.img} />
-          </div>
-          <div className='col-span-6 my-auto'>
-            <p className='text-xl text-bold'>{title}</p>
-            <div className='text-sm ml-4'>
-              <p>{authors}</p>
+          <div className='col-span-1'>
+            <div className='relative'>
+              <div className='absolute z-10 left-0 right-0 ml-auto mr-auto w-8'>
+                <div style={{ top: '50%', transform: 'translateY(50%)'}}>
+                  <Icon w={8} h={8} color='tomato' as={FaPlay} className='cursor-pointer' opacity={playOpacity} />
+                  {/* <Icon w={8} h={8} color='#d8f3dc' as={FaPlay} className='cursor-pointer' opacity={playOpacity} /> */}
+                </div>
+              </div>
+              <div className='absolute'>
+                <Image borderRadius='lg' className='max-h-16' src={cover} />
+              </div>
             </div>
           </div>
-          <div className='my-auto'>
-            <p>{duration}</p>
+          <div className='col-span-6 ml-2 my-auto'>
+            <p className='text-xl text-bold truncate'>{title}</p>
+            <div className='text-sm ml-4'>
+              <p>{artists[0].name}{artists.length > 1 && `, ${artists[1].name}`}{artists.length > 2 && `, ${artists[2].name}`}</p>
+            </div>
+          </div>
+          <div className='2xl:ml-2 my-auto'>
+            <p>{msToTime(duration)}</p>
           </div>
         </div>
       </ListItem>
-
     )
   }
 
   return (
     <div className='bg-deepBlue rounded-lg lg:h-2/3 lg:w-11/12 2xl:h-5/6 2xl:w-3/4 grid grid-cols-1'>
-      {/* <div className='h-5' /> */}
-      <List spacing='14px' overflow='scroll'>
-        <PlaylistItem cover={exampleTrack.img} title={'Sick Sample Track'} authors={'Drake'} duration={'2:55'} />
-        <PlaylistItem cover={exampleTrack.img} title={'Sick Sample Track'} authors={'Drake'} duration={'2:55'} />
-        <PlaylistItem cover={exampleTrack.img} title={'Sick Sample Track'} authors={'Drake'} duration={'2:55'} />
-        <PlaylistItem cover={exampleTrack.img} title={'Sick Sample Track'} authors={'Drake'} duration={'2:55'} />
-        <PlaylistItem cover={exampleTrack.img} title={'Sick Sample Track'} authors={'Drake'} duration={'2:55'} />
-        <PlaylistItem cover={exampleTrack.img} title={'Sick Sample Track'} authors={'Drake'} duration={'2:55'} />
-        <PlaylistItem cover={exampleTrack.img} title={'Sick Sample Track'} authors={'Drake'} duration={'2:55'} />
-        <PlaylistItem cover={exampleTrack.img} title={'Sick Sample Track'} authors={'Drake'} duration={'2:55'} />
-        <PlaylistItem cover={exampleTrack.img} title={'Sick Sample Track'} authors={'Drake'} duration={'2:55'} />
-      </List>
-      {/* <div className='h-5'></div> */}
+      <div className='h-5' />
+      {loading ? (
+        <div>
+          Loading
+        </div>
+      ) : (
+        <List spacing='14px' overflow='scroll'>
+          {currentPlaylistData.map(({ track }, i) => (
+            <PlaylistItem key={track.uri} index={i} cover={track.album.images[0].url} title={track.name} artists={track.artists} duration={track.duration_ms} uri={track.uri} playlistURI={currentPlaylist} />
+          ))}
+        </List>
+      )}
+      <div className='h-5' />
     </div>
   )
 }

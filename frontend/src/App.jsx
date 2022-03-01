@@ -12,9 +12,8 @@ import { usePlayerStore } from './store/playerStore'
 import Presentation from './components/Presentation'
 import SVMAnimation from './components/LandingPage/SVMAnimation'
 import Background from './components/LandingPage/Background'
-import { Center } from '@chakra-ui/react'
+import { Center, ScaleFade } from '@chakra-ui/react'
 
-const bg_main = new URL('./static/bg_main.png', import.meta.url).href
 
 const WORDS1 = [
   "Tired",
@@ -33,15 +32,13 @@ const WORDS2 = [
 
 function App() {
   const { username, setUsername } = useUserStore()
-  const [cookies, setCookie, removeCookie] = useCookies(['csrftoken']);
-  const { active, paused, deviceID, token, setToken, setTokenExpiry } = usePlayerStore()
+  const [cookies] = useCookies(['csrftoken']);
+  const { token, setToken, setTokenExpiry, currentPlaylist, showPreviewPlayer } = usePlayerStore()
   const siteStartRef = useRef(null)
   const contentRef = useRef(null)
   const presentationRef = useRef(null)
   const { showPresentation, setShowPresentation } = useUserStore()
-  const [showPlayer, setShowPlayer] = useState(false)
-  const [showPlaylist, setShowPlaylist] = useState(false)
-
+  const [showPlayerList, setShowPlayerList] = useState(false)
 
 
   const getSpotifyAccess = async () => {
@@ -77,6 +74,11 @@ function App() {
     getSpotifyAccess()
   }, [])
 
+  useEffect(() => {
+    if(currentPlaylist !== '' && currentPlaylist !== undefined)
+      setShowPlayerList(true)
+  }, [currentPlaylist])
+
   const switchToPresentation = () => {
     setShowPresentation(true)
     presentationRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -111,25 +113,26 @@ function App() {
         <Background />
         <SVMAnimation scrollToContent={switchToContent} />
       </div>
- 
-      <div ref={contentRef} className='App h-screen w-full bg-green7' style={{ height: '120vh' }} >
-        <div className="content w-3/4 mx-auto p-4">
-          <button onClick={() => setIsOpen(!isOpen)}> Toggle Sidebar </button>
+
+      <div ref={contentRef} className='h-140 w-full bg-green7 grid grid-cols-3 content-center relative'>
+        {/* <div>
+          <motion.div animate={showPlayer ? 'open' : 'closed'} variants={playerStyleStates} style={{ position: 'absolute', height: '100%', paddingTop: '2.5%' }} >
+            {token && <Player />}
+          </motion.div>
+        </div> */}
+        <ScaleFade initialScale={0.8} in={showPreviewPlayer || showPlayerList}>
+          <Center className='h-screen'>
+            {token && <Player />}
+          </Center>
+        </ScaleFade>
+        <div className='content'>
           <CoordinateSystem squareWidth='800' />
         </div>
-        {/* <div className='h-screen bg-red-500'> */}
-        <Center className='h-screen'>
-          <Playlist />
-        </Center>
-        {/* Playlist goes here */}
-        {/* </div> */}
-        {/* <div className="content w-3/4 bg-gray-100 mx-auto flex flex-wrap"> */}
-        {/* <div className="w-full flex-none"> */}
-        {/* <PlaylistVector /> */}
-        {/* </div> */}
-        {/* <div className="flex-auto w-full md:w-1/2 border-l-2">
-        </div> */}
-        {/* </div> */}
+        <ScaleFade initialScale={0.8} in={showPlayerList}>
+          <Center className='h-screen'>
+            {token && <Playlist />}
+          </Center>
+        </ScaleFade>
       </div>
     </>
   )
